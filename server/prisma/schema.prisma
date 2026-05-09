@@ -33,6 +33,7 @@ model Workspace {
   updatedAt DateTime          @updatedAt
   members   WorkspaceMember[]
   boards    Board[]
+  posts     Post[]
 }
 
 model WorkspaceMember {
