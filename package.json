@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm --prefix server run test",
+    "test:coverage": "npm --prefix server run test:coverage",
     "dev:server": "npm --prefix server run dev",
     "build:server": "npm --prefix server run build",
     "start:server": "npm --prefix server run start",
@@ -14,5 +15,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "zod": "^3.25.76"
+  }
 }
