@@ -1,9 +1,9 @@
 import express from 'express';
-import { authRouter } from './modules/auth/auth.router.js';
-import { boardRouter } from './modules/boards/boards.router.js';
-import { postRouter } from './modules/posts/posts.router.js';
-import { voteRouter } from './modules/votes/votes.router.js';
-import { workspaceRouter } from './modules/workspaces/workspaces.router.js';
+import { authRouter } from '../auth/auth.router.js';
+import { boardRouter } from '../boards/boards.router.js';
+import { postRouter } from '../posts/posts.router.js';
+import { voteRouter } from '../votes/votes.router.js';
+import { workspaceRouter } from '../workspaces/workspaces.router.js';
 
 export const createApp = () => {
   const app = express();

@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { createBoardSchema } from '../../../../shared/contracts/index.js';
+import { createBoardSchema } from '../../../shared/contracts/index.js';
 import { boardsService } from './boards.service.js';
 
 export const listBoards = (req: Request, res: Response) => {

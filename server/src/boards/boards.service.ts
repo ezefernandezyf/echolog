@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { HttpError } from '../../lib/http.js';
-import type { BoardDTO, CreateBoardDTO } from '../../../../shared/contracts/index.js';
+import { HttpError } from '../infra/http.js';
+import type { BoardDTO, CreateBoardDTO } from '../../../shared/contracts/index.js';
 
 const boards: BoardDTO[] = [
   { id: 'board-1', workspaceId: 'workspace-1', name: 'Feedback', slug: 'feedback', description: 'Feature requests' },

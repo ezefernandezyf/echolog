@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { createPostSchema } from '../../../../shared/contracts/index.js';
+import { createPostSchema } from '../../../shared/contracts/index.js';
 import { postsService } from './posts.service.js';
 
 export const listPosts = (req: Request, res: Response) => {

@@ -7,8 +7,11 @@
     "test": "npm --prefix server run test",
     "test:coverage": "npm --prefix server run test:coverage",
     "dev:server": "npm --prefix server run dev",
+    "dev:web": "npm --prefix web run dev",
     "build:server": "npm --prefix server run build",
+    "build:web": "npm --prefix web run build",
     "start:server": "npm --prefix server run start",
+    "start:web": "npm --prefix web run dev",
     "prisma:generate": "npm --prefix server run prisma:generate",
     "prisma:migrate": "npm --prefix server run prisma:migrate"
   },

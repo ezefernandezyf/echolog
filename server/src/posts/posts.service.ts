@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { HttpError } from '../../lib/http.js';
-import type { CreatePostDTO, PostDTO } from '../../../../shared/contracts/index.js';
+import { HttpError } from '../infra/http.js';
+import type { CreatePostDTO, PostDTO } from '../../../shared/contracts/index.js';
 
 const posts: PostDTO[] = [
   { id: 'post-1', workspaceId: 'workspace-1', boardId: 'board-1', authorId: 'user-1', title: 'Add dark mode', body: 'Please add dark mode', voteCount: 0 },

@@ -1,4 +1,4 @@
-import { HttpError } from '../../lib/http.js';
+import { HttpError } from '../infra/http.js';
 
 const votes = new Set<string>(['post-1:user-1']);
 

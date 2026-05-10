@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { HttpError } from '../../lib/http.js';
-import type { CreateWorkspaceDTO, WorkspaceDTO } from '../../../../shared/contracts/index.js';
+import { HttpError } from '../infra/http.js';
+import type { CreateWorkspaceDTO, WorkspaceDTO } from '../../../shared/contracts/index.js';
 
 const workspaces: WorkspaceDTO[] = [
   { id: 'workspace-1', name: 'Default Workspace', slug: 'default', role: 'OWNER' },
