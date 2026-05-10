@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Badge } from '../../shared/components/ui/badge';
 import { cn } from '../../shared/lib/cn';
-import { voteApi } from '../../core/api-client';
+import { postApi, voteApi } from '../../core/api-client';
 
 export interface PostRowData {
   id: string;
@@ -22,11 +22,18 @@ interface PostRowProps {
   boardId: string;
 }
 
+const POST_STATUSES = ['OPEN', 'PLANNED', 'IN_PROGRESS', 'DONE'] as const;
+
+function nextStatus(current: string): string {
+  const idx = POST_STATUSES.indexOf(current as (typeof POST_STATUSES)[number]);
+  return POST_STATUSES[(idx + 1) % POST_STATUSES.length];
+}
+
 const statusStyles: Record<string, string> = {
-  OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500',
-  PLANNED: 'border-zinc-200 bg-zinc-100 text-zinc-600',
-  IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700',
-  DONE: 'border-zinc-200 bg-zinc-900 text-white',
+  OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 cursor-pointer hover:bg-zinc-100',
+  PLANNED: 'border-zinc-200 bg-zinc-100 text-zinc-600 cursor-pointer hover:bg-zinc-200',
+  IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700 cursor-pointer hover:bg-zinc-100',
+  DONE: 'border-zinc-200 bg-zinc-900 text-white cursor-pointer hover:bg-zinc-800',
 };
 
 export function PostRow({ post, boardId }: PostRowProps) {
@@ -64,6 +71,29 @@ export function PostRow({ post, boardId }: PostRowProps) {
     },
   });
 
+  const statusMutation = useMutation({
+    mutationFn: (newStatus: string) => postApi.updateStatus(boardId, post.id, newStatus),
+    onMutate: async (newStatus) => {
+      await queryClient.cancelQueries({ queryKey: ['posts', boardId] });
+      const previousPosts = queryClient.getQueryData<PostRowData[]>(['posts', boardId]);
+
+      queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
+        old?.map((p) => (p.id === post.id ? { ...p, status: newStatus } : p)),
+      );
+
+      return { previousPosts };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['posts', boardId], context.previousPosts);
+      }
+      toast.error('Failed to update status.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
+    },
+  });
+
   const initials = (post.author ?? post.title)
     .split(' ')
     .filter(Boolean)
@@ -95,9 +125,19 @@ export function PostRow({ post, boardId }: PostRowProps) {
           <h3 className="truncate text-base font-semibold tracking-[-0.02em] text-zinc-950 group-hover:text-zinc-900">
             {post.title}
           </h3>
-          <Badge variant="outline" className={cn('border px-2.5 py-1', statusStyles[post.status])}>
-            {post.status}
-          </Badge>
+          <button
+            type="button"
+            disabled={statusMutation.isPending}
+            onClick={() => statusMutation.mutate(nextStatus(post.status))}
+            title="Click to change status"
+          >
+            <Badge
+              variant="outline"
+              className={cn('border px-2.5 py-1 transition-colors', statusStyles[post.status])}
+            >
+              {statusMutation.isPending ? '...' : post.status.replace('_', ' ')}
+            </Badge>
+          </button>
         </div>
         <p className="max-w-3xl text-sm leading-6 text-zinc-500">{post.description}</p>
       </div>

@@ -49,6 +49,25 @@ export class PostsService {
       voteCount: 0,
     };
   }
+
+  async updateStatus(postId: string, status: string): Promise<PostDTO> {
+    const post = await prisma.post.update({
+      where: { id: postId },
+      data: { status: status as 'OPEN' | 'PLANNED' | 'IN_PROGRESS' | 'DONE' },
+      include: { _count: { select: { votes: true } } },
+    });
+
+    return {
+      id: post.id,
+      workspaceId: post.workspaceId,
+      boardId: post.boardId,
+      authorId: post.authorId,
+      title: post.title,
+      body: post.body,
+      status: post.status,
+      voteCount: post._count.votes,
+    };
+  }
 }
 
 export const postsService = new PostsService();
