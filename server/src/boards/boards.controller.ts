@@ -4,7 +4,7 @@ import { boardsService } from './boards.service.js';
 
 export const listBoards = async (req: Request, res: Response) => {
   try {
-    const data = await boardsService.list(req.params.workspaceId);
+    const data = await boardsService.list(req.params.workspaceId as string);
     res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : 'Internal Server Error' });
@@ -14,7 +14,7 @@ export const listBoards = async (req: Request, res: Response) => {
 export const createBoard = async (req: Request, res: Response) => {
   try {
     const body = createBoardSchema.parse(req.body);
-    const data = await boardsService.create(req.params.workspaceId, body);
+    const data = await boardsService.create(req.params.workspaceId as string, body);
     res.status(201).json(data);
   } catch (err) {
     if (err instanceof Error) {

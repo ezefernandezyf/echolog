@@ -3,7 +3,7 @@ import { votesService } from './votes.service.js';
 
 export const addVote = async (req: Request, res: Response) => {
   try {
-    const data = await votesService.add(req.params.postId, req.userId!);
+    const data = await votesService.add(req.params.postId as string, req.userId!);
     res.status(201).json(data);
   } catch (err) {
     if (err instanceof Error) {
@@ -16,7 +16,7 @@ export const addVote = async (req: Request, res: Response) => {
 
 export const removeVote = async (req: Request, res: Response) => {
   try {
-    const data = await votesService.remove(req.params.postId, req.userId!);
+    const data = await votesService.remove(req.params.postId as string, req.userId!);
     res.status(200).json(data);
   } catch (err) {
     if (err instanceof Error) {
