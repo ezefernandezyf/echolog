@@ -1,15 +1,41 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { Modal } from '../../shared/components/ui/modal';
+import { workspaceApi } from '../../core/api-client';
+
+function errorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === 'object' && 'message' in err) return String(err.message);
+  return 'Failed to create workspace';
+}
+
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
 
 export function CreateWorkspaceModal() {
+  const queryClient = useQueryClient();
   const open = useUiStore((state) => state.activeModal === 'create-workspace');
   const closeModal = useUiStore((state) => state.closeModal);
   const [workspaceName, setWorkspaceName] = useState('');
+
+  const mutation = useMutation({
+    mutationFn: (name: string) =>
+      workspaceApi.create({ name, slug: slugify(name) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      setWorkspaceName('');
+      closeModal();
+    },
+  });
 
   return (
     <Modal open={open} onClose={closeModal}>
@@ -17,7 +43,9 @@ export function CreateWorkspaceModal() {
         className="space-y-6"
         onSubmit={(event) => {
           event.preventDefault();
-          closeModal();
+          if (workspaceName.trim()) {
+            mutation.mutate(workspaceName.trim());
+          }
         }}
       >
         <div className="space-y-2">
@@ -33,14 +61,30 @@ export function CreateWorkspaceModal() {
             placeholder="Northstar Labs"
             autoComplete="off"
           />
+          {workspaceName.trim() ? (
+            <p className="text-xs text-zinc-400">Slug: {slugify(workspaceName)}</p>
+          ) : null}
         </label>
 
+        {mutation.error ? (
+          <p className="text-sm text-red-600">{errorMessage(mutation.error)}</p>
+        ) : null}
+
         <div className="flex items-center justify-end gap-3 pt-2">
-          <Button type="button" variant="ghost" onClick={closeModal}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={closeModal}
+            disabled={mutation.isPending}
+          >
             Cancel
           </Button>
-          <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900">
-            Create
+          <Button
+            type="submit"
+            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900"
+            disabled={mutation.isPending || !workspaceName.trim()}
+          >
+            {mutation.isPending ? 'Creating...' : 'Create'}
           </Button>
         </div>
       </form>
