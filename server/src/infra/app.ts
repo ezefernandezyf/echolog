@@ -1,4 +1,6 @@
+import cors from 'cors';
 import express from 'express';
+import helmet from 'helmet';
 import { authRouter } from '../auth/auth.router.js';
 import { boardRouter } from '../boards/boards.router.js';
 import { postRouter } from '../posts/posts.router.js';
@@ -9,6 +11,13 @@ import { errorHandler } from './error-handler.js';
 export const createApp = () => {
   const app = express();
 
+  app.use(helmet());
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+      credentials: true,
+    }),
+  );
   app.use(express.json());
 
   app.get('/health', (_req, res) => {
