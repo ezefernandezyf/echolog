@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Button } from '../../shared/components/ui/button';
 import { cn } from '../../shared/lib/cn';
 import { PostRow, type PostRowData } from './post-row';
@@ -29,8 +30,32 @@ function sortPosts(posts: PostRowData[], sort: PostSort) {
   return sorted.sort((left, right) => right.trendScore - left.trendScore);
 }
 
-export function PostList({ title, posts, activeSort, onSortChange, onCreatePost, boardId }: PostListProps) {
+function filterPosts(posts: PostRowData[], query: string): PostRowData[] {
+  if (!query.trim()) return posts;
+  const q = query.toLowerCase();
+  return posts.filter(
+    (p) => p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q),
+  );
+}
+
+export function PostList({
+  title,
+  posts,
+  activeSort,
+  onSortChange,
+  onCreatePost,
+  boardId,
+}: PostListProps) {
+  const [search, setSearch] = useState('');
+  const [debounced, setDebounced] = useState('');
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(search), 300);
+    return () => clearTimeout(id);
+  }, [search]);
+
   const sortedPosts = sortPosts(posts, activeSort);
+  const filtered = filterPosts(sortedPosts, debounced);
 
   return (
     <section className="flex min-h-screen flex-1 flex-col bg-white">
@@ -73,14 +98,30 @@ export function PostList({ title, posts, activeSort, onSortChange, onCreatePost,
             </Button>
           </div>
         </div>
+
+        <div className="mt-4">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search posts..."
+            className="w-full max-w-md rounded-xl border border-zinc-200 px-4 py-2 text-sm outline-none transition-colors focus:border-zinc-400"
+          />
+        </div>
       </header>
 
       <div className="flex-1 bg-zinc-50/40">
         <div className="mx-auto w-full max-w-6xl px-0 py-0">
           <div className="overflow-hidden border-x border-b border-zinc-200 bg-white shadow-sm shadow-zinc-900/[0.02]">
-            {sortedPosts.map((post) => (
-              <PostRow key={post.id} post={post} boardId={boardId} />
-            ))}
+            {filtered.length === 0 ? (
+              <div className="flex items-center justify-center py-20">
+                <p className="text-sm text-zinc-400">
+                  {debounced ? 'No posts match your search.' : 'No posts yet.'}
+                </p>
+              </div>
+            ) : (
+              filtered.map((post) => <PostRow key={post.id} post={post} boardId={boardId} />)
+            )}
           </div>
         </div>
       </div>
