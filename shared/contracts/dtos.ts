@@ -68,3 +68,15 @@ export interface VoteDTO {
   userId: string;
   voteCount: number;
 }
+
+export interface CommentDTO {
+  id: string;
+  postId: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface CreateCommentDTO {
+  body: string;
+}
