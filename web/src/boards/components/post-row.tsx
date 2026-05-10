@@ -1,11 +1,14 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Badge } from '../../shared/components/ui/badge';
 import { cn } from '../../shared/lib/cn';
+import { voteApi } from '../../core/api-client';
 
 export interface PostRowData {
   id: string;
   title: string;
   description: string;
-  status: 'Planned' | 'In Review' | 'Live' | 'Needs Triage';
+  status: string;
   upvotes: number;
   comments: number;
   isUpvoted?: boolean;
@@ -16,16 +19,51 @@ export interface PostRowData {
 
 interface PostRowProps {
   post: PostRowData;
+  boardId: string;
 }
 
-const statusStyles: Record<PostRowData['status'], string> = {
+const statusStyles: Record<string, string> = {
   Planned: 'border-zinc-200 bg-zinc-100 text-zinc-600',
   'In Review': 'border-zinc-200 bg-white text-zinc-700',
   Live: 'border-zinc-200 bg-zinc-900 text-white',
   'Needs Triage': 'border-zinc-200 bg-zinc-50 text-zinc-500',
 };
 
-export function PostRow({ post }: PostRowProps) {
+export function PostRow({ post, boardId }: PostRowProps) {
+  const queryClient = useQueryClient();
+
+  const voteMutation = useMutation({
+    mutationFn: () => voteApi.toggle(post.id),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['posts', boardId] });
+
+      const previousPosts = queryClient.getQueryData<PostRowData[]>(['posts', boardId]);
+
+      queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
+        old?.map((p) =>
+          p.id === post.id
+            ? {
+                ...p,
+                upvotes: p.isUpvoted ? p.upvotes - 1 : p.upvotes + 1,
+                isUpvoted: !p.isUpvoted,
+              }
+            : p,
+        ),
+      );
+
+      return { previousPosts };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['posts', boardId], context.previousPosts);
+      }
+      toast.error('Failed to vote. Please try again.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
+    },
+  });
+
   const initials = (post.author ?? post.title)
     .split(' ')
     .filter(Boolean)
@@ -37,15 +75,18 @@ export function PostRow({ post }: PostRowProps) {
     <article className="group grid grid-cols-[auto_1fr_auto] gap-4 border-b border-zinc-200 bg-white px-5 py-5 transition-colors hover:bg-zinc-50/80 sm:px-6">
       <button
         type="button"
-        aria-label={`Upvote ${post.title}`}
+        disabled={voteMutation.isPending}
+        onClick={() => voteMutation.mutate()}
+        aria-label={`${post.isUpvoted ? 'Remove vote from' : 'Upvote'} ${post.title}`}
         className={cn(
-          'flex h-14 w-12 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-colors duration-150',
+          'flex h-14 w-12 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-all duration-150',
+          voteMutation.isPending && 'animate-pulse',
           post.isUpvoted
-            ? 'border-zinc-900 text-zinc-900'
+            ? 'border-zinc-900 bg-zinc-900 text-white'
             : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900',
         )}
       >
-        <span className="text-sm leading-none">▲</span>
+        <span className="text-sm leading-none">{post.isUpvoted ? '▲' : '▲'}</span>
         <span>{post.upvotes}</span>
       </button>
 

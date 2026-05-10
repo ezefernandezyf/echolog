@@ -107,6 +107,7 @@ export function BoardLayout() {
             activeSort={activeSort}
             onSortChange={setActiveSort}
             onCreatePost={() => openModal('create-post')}
+            boardId={selectedBoardId}
           />
         )}
         <CreatePostModal boardId={selectedBoardId ?? undefined} />

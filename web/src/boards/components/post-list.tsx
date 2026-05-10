@@ -10,6 +10,7 @@ interface PostListProps {
   activeSort: PostSort;
   onSortChange: (sort: PostSort) => void;
   onCreatePost?: () => void;
+  boardId: string;
 }
 
 const sortTabs: PostSort[] = ['Trending', 'Top', 'New'];
@@ -28,7 +29,7 @@ function sortPosts(posts: PostRowData[], sort: PostSort) {
   return sorted.sort((left, right) => right.trendScore - left.trendScore);
 }
 
-export function PostList({ title, posts, activeSort, onSortChange, onCreatePost }: PostListProps) {
+export function PostList({ title, posts, activeSort, onSortChange, onCreatePost, boardId }: PostListProps) {
   const sortedPosts = sortPosts(posts, activeSort);
 
   return (
@@ -78,7 +79,7 @@ export function PostList({ title, posts, activeSort, onSortChange, onCreatePost 
         <div className="mx-auto w-full max-w-6xl px-0 py-0">
           <div className="overflow-hidden border-x border-b border-zinc-200 bg-white shadow-sm shadow-zinc-900/[0.02]">
             {sortedPosts.map((post) => (
-              <PostRow key={post.id} post={post} />
+              <PostRow key={post.id} post={post} boardId={boardId} />
             ))}
           </div>
         </div>
