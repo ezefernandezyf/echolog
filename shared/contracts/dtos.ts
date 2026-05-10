@@ -56,6 +56,7 @@ export interface PostDTO {
   body: string;
   status: string;
   voteCount: number;
+  commentCount: number;
 }
 
 export interface CreatePostDTO {

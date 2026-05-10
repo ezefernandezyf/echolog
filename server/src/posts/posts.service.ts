@@ -6,7 +6,9 @@ export class PostsService {
   async list(boardId: string): Promise<PostDTO[]> {
     const posts = await prisma.post.findMany({
       where: { boardId },
-      include: { _count: { select: { votes: true } } },
+      include: {
+        _count: { select: { votes: true, comments: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -19,6 +21,7 @@ export class PostsService {
       body: p.body,
       status: p.status,
       voteCount: p._count.votes,
+      commentCount: p._count.comments,
     }));
   }
 
@@ -47,6 +50,7 @@ export class PostsService {
       body: post.body,
       status: post.status,
       voteCount: 0,
+      commentCount: 0,
     };
   }
 
@@ -54,7 +58,7 @@ export class PostsService {
     const post = await prisma.post.update({
       where: { id: postId },
       data: { status: status as 'OPEN' | 'PLANNED' | 'IN_PROGRESS' | 'DONE' },
-      include: { _count: { select: { votes: true } } },
+      include: { _count: { select: { votes: true, comments: true } } },
     });
 
     return {
@@ -66,6 +70,7 @@ export class PostsService {
       body: post.body,
       status: post.status,
       voteCount: post._count.votes,
+      commentCount: post._count.comments,
     };
   }
 }
