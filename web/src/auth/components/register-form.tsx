@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import type { AuthSessionDTO, AuthRegisterDTO } from '../../../../shared/contracts/index.js';
-import { authApi, type ApiError } from '../../core/api-client';
+import { authRegisterSchema } from '../../../../shared/contracts/index.js';
+import { authApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { useAuthStore } from '../auth-store';
@@ -12,44 +14,29 @@ interface RegisterFormProps {
   onSuccess?: (session: AuthSessionDTO) => void;
 }
 
-interface RegisterFormState {
-  email: string;
-  password: string;
-  name: string;
-}
-
-const INITIAL_REGISTER_FORM_STATE: RegisterFormState = {
-  email: '',
-  password: '',
-  name: '',
-};
-
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const queryClient = useQueryClient();
   const setSession = useAuthStore((state) => state.setSession);
-  const [formState, setFormState] = useState<RegisterFormState>(INITIAL_REGISTER_FORM_STATE);
 
-  const registerMutation = useMutation<AuthSessionDTO, ApiError, AuthRegisterDTO>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AuthRegisterDTO>({
+    resolver: zodResolver(authRegisterSchema),
+  });
+
+  const registerMutation = useMutation({
     mutationFn: authApi.register,
     onSuccess: (session) => {
       setSession(session);
       queryClient.setQueryData(AUTH_QUERY_KEYS.session, session);
       onSuccess?.(session);
-      setFormState(INITIAL_REGISTER_FORM_STATE);
     },
   });
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await registerMutation.mutateAsync({
-      email: formState.email,
-      password: formState.password,
-      name: formState.name || undefined,
-    });
-  };
-
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={handleSubmit((data) => registerMutation.mutate(data))}>
       <div className="space-y-2 text-center sm:text-left">
         <h2 className="text-3xl font-semibold tracking-tight text-zinc-900">Create account</h2>
         <p className="text-sm leading-6 text-zinc-500">
@@ -66,11 +53,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           type="text"
           autoComplete="name"
           placeholder="Your name"
-          value={formState.name}
-          onChange={(event) =>
-            setFormState((current) => ({ ...current, name: event.target.value }))
-          }
+          {...register('name')}
         />
+        {errors.name ? <p className="text-sm text-red-600">{errors.name.message}</p> : null}
       </div>
 
       <div className="space-y-2">
@@ -82,11 +67,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           type="email"
           autoComplete="email"
           placeholder="you@company.com"
-          value={formState.email}
-          onChange={(event) =>
-            setFormState((current) => ({ ...current, email: event.target.value }))
-          }
+          {...register('email')}
         />
+        {errors.email ? <p className="text-sm text-red-600">{errors.email.message}</p> : null}
       </div>
 
       <div className="space-y-2">
@@ -98,15 +81,19 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           type="password"
           autoComplete="new-password"
           placeholder="At least 8 characters"
-          value={formState.password}
-          onChange={(event) =>
-            setFormState((current) => ({ ...current, password: event.target.value }))
-          }
+          {...register('password')}
         />
+        {errors.password ? (
+          <p className="text-sm text-red-600">{errors.password.message}</p>
+        ) : null}
       </div>
 
       {registerMutation.error ? (
-        <p className="text-sm text-red-600">{registerMutation.error.message}</p>
+        <p className="text-sm text-red-600">
+          {registerMutation.error instanceof Error
+            ? registerMutation.error.message
+            : 'Registration failed'}
+        </p>
       ) : null}
 
       <Button className="w-full" type="submit" disabled={registerMutation.isPending}>

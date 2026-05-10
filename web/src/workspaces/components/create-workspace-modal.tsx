@@ -1,18 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { Modal } from '../../shared/components/ui/modal';
 import { workspaceApi } from '../../core/api-client';
-
-function errorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (err && typeof err === 'object' && 'message' in err) return String(err.message);
-  return 'Failed to create workspace';
-}
+import type { CreateWorkspaceDTO } from '../../../../shared/contracts/index.js';
+import { createWorkspaceSchema } from '../../../../shared/contracts/index.js';
 
 function slugify(name: string): string {
   return name
@@ -25,29 +22,32 @@ export function CreateWorkspaceModal() {
   const queryClient = useQueryClient();
   const open = useUiStore((state) => state.activeModal === 'create-workspace');
   const closeModal = useUiStore((state) => state.closeModal);
-  const [workspaceName, setWorkspaceName] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<CreateWorkspaceDTO & { slug?: string }>({
+    resolver: zodResolver(createWorkspaceSchema),
+  });
+
+  const name = watch('name', '');
 
   const mutation = useMutation({
-    mutationFn: (name: string) =>
-      workspaceApi.create({ name, slug: slugify(name) }),
+    mutationFn: (data: CreateWorkspaceDTO) =>
+      workspaceApi.create({ name: data.name, slug: slugify(data.name) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      setWorkspaceName('');
+      reset();
       closeModal();
     },
   });
 
   return (
     <Modal open={open} onClose={closeModal}>
-      <form
-        className="space-y-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (workspaceName.trim()) {
-            mutation.mutate(workspaceName.trim());
-          }
-        }}
-      >
+      <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">EchoLog</p>
           <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">Create Workspace</h2>
@@ -56,33 +56,32 @@ export function CreateWorkspaceModal() {
         <label className="block space-y-2">
           <span className="text-sm font-medium text-zinc-700">Workspace Name</span>
           <Input
-            value={workspaceName}
-            onChange={(event) => setWorkspaceName(event.target.value)}
             placeholder="Northstar Labs"
             autoComplete="off"
+            {...register('name')}
           />
-          {workspaceName.trim() ? (
-            <p className="text-xs text-zinc-400">Slug: {slugify(workspaceName)}</p>
+          {name.trim() ? (
+            <p className="text-xs text-zinc-400">Slug: {slugify(name)}</p>
+          ) : null}
+          {errors.name ? (
+            <p className="text-sm text-red-600">{errors.name.message}</p>
           ) : null}
         </label>
 
         {mutation.error ? (
-          <p className="text-sm text-red-600">{errorMessage(mutation.error)}</p>
+          <p className="text-sm text-red-600">
+            {mutation.error instanceof Error ? mutation.error.message : 'Failed to create workspace'}
+          </p>
         ) : null}
 
         <div className="flex items-center justify-end gap-3 pt-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={closeModal}
-            disabled={mutation.isPending}
-          >
+          <Button type="button" variant="ghost" onClick={closeModal} disabled={mutation.isPending}>
             Cancel
           </Button>
           <Button
             type="submit"
             className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900"
-            disabled={mutation.isPending || !workspaceName.trim()}
+            disabled={mutation.isPending || !name.trim()}
           >
             {mutation.isPending ? 'Creating...' : 'Create'}
           </Button>
