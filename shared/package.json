@@ -1,0 +1,13 @@
+{
+  "name": "@echolog/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "contracts/index.ts",
+  "exports": {
+    ".": "./contracts/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

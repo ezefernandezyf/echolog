@@ -29,6 +29,18 @@ export function AuthFallback({ children }: { children: ReactNode }) {
 
 export function ProtectedRoute() {
   const session = useAuthStore((state) => state.session);
+  const status = useAuthStore((state) => state.status);
+
+  // Don't render protected content until we've confirmed the session state
+  if (status === 'unknown') {
+    return (
+      <main className="min-h-screen bg-zinc-50 text-zinc-900">
+        <section className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 py-16">
+          <p className="text-sm text-zinc-500">Loading...</p>
+        </section>
+      </main>
+    );
+  }
 
   if (!session) {
     return <Navigate to="/login" replace />;

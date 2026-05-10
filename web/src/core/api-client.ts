@@ -1,5 +1,16 @@
 import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
-import type { AuthLoginDTO, AuthRegisterDTO, AuthSessionDTO } from '../../../shared/contracts/index.js';
+import type {
+  AuthLoginDTO,
+  AuthRegisterDTO,
+  AuthSessionDTO,
+  BoardDTO,
+  CreateBoardDTO,
+  CreatePostDTO,
+  CreateWorkspaceDTO,
+  PostDTO,
+  VoteDTO,
+  WorkspaceDTO,
+} from '../../../shared/contracts/index.js';
 
 const DEFAULT_API_BASE_URL = '/api';
 
@@ -42,8 +53,10 @@ interface ApiErrorBody {
   details?: unknown;
 }
 
-export interface ApiRequestConfig<TBody = unknown>
-  extends Omit<AxiosRequestConfig<TBody>, 'baseURL' | 'data' | 'method' | 'withCredentials'> {
+export interface ApiRequestConfig<TBody = unknown> extends Omit<
+  AxiosRequestConfig<TBody>,
+  'baseURL' | 'data' | 'method' | 'withCredentials'
+> {
   url: string;
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   data?: TBody;
@@ -68,10 +81,12 @@ export async function fetchJson<TResponse, TBody = unknown>(
   return response.data;
 }
 
-export function createFetcher<TResponse, TBody>(method: ApiRequestConfig<TBody>['method'], url: string) {
-  return (data: TBody, config?: Omit<ApiRequestConfig<TBody>, 'data' | 'method' | 'url'>) => {
+export function createFetcher<TResponse, TBody>(
+  method: ApiRequestConfig<TBody>['method'],
+  url: string,
+) {
+  return (data: TBody) => {
     return fetchJson<TResponse, TBody>({
-      ...config,
       url,
       method,
       data,
@@ -80,9 +95,8 @@ export function createFetcher<TResponse, TBody>(method: ApiRequestConfig<TBody>[
 }
 
 export function createVoidFetcher<TResponse>(method: ApiRequestConfig['method'], url: string) {
-  return (config?: Omit<ApiRequestConfig<void>, 'method' | 'url'>) => {
+  return () => {
     return fetchJson<TResponse, void>({
-      ...config,
       url,
       method,
     });
@@ -94,6 +108,34 @@ export const authApi = {
   login: createFetcher<AuthSessionDTO, AuthLoginDTO>('POST', '/auth/login'),
   register: createFetcher<AuthSessionDTO, AuthRegisterDTO>('POST', '/auth/register'),
   logout: createVoidFetcher<void>('POST', '/auth/logout'),
+};
+
+export const workspaceApi = {
+  list: createVoidFetcher<WorkspaceDTO[]>('GET', '/workspaces'),
+  create: createFetcher<WorkspaceDTO, CreateWorkspaceDTO>('POST', '/workspaces'),
+};
+
+export const boardApi = {
+  list: (workspaceId: string) =>
+    fetchJson<BoardDTO[]>({ url: `/workspaces/${workspaceId}/boards` }),
+  create: (workspaceId: string, data: CreateBoardDTO) =>
+    fetchJson<BoardDTO, CreateBoardDTO>({
+      url: `/workspaces/${workspaceId}/boards`,
+      method: 'POST',
+      data,
+    }),
+};
+
+export const postApi = {
+  list: (boardId: string) => fetchJson<PostDTO[]>({ url: `/boards/${boardId}/posts` }),
+  create: (boardId: string, data: CreatePostDTO) =>
+    fetchJson<PostDTO, CreatePostDTO>({ url: `/boards/${boardId}/posts`, method: 'POST', data }),
+};
+
+export const voteApi = {
+  add: (postId: string) => fetchJson<VoteDTO>({ url: `/posts/${postId}/vote`, method: 'POST' }),
+  remove: (postId: string) =>
+    fetchJson<VoteDTO>({ url: `/posts/${postId}/vote`, method: 'DELETE' }),
 };
 
 export { apiClient };

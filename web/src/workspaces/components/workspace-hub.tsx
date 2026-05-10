@@ -1,32 +1,11 @@
-"use client";
+'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../shared/components/ui/button';
-import { fetchJson } from '../../core/api-client';
+import { workspaceApi } from '../../core/api-client';
 import { WorkspaceCard, type WorkspaceCardData } from './workspace-card';
 import { useUiStore } from '../../core/store/ui-store';
 import { CreateWorkspaceModal } from './create-workspace-modal';
-
-const MOCK_WORKSPACES: WorkspaceCardData[] = [
-  {
-    id: 'workspace-1',
-    name: 'Northstar Labs',
-    slug: 'northstar-labs',
-    activeBoardsCount: 8,
-  },
-  {
-    id: 'workspace-2',
-    name: 'Mono Studio',
-    slug: 'mono-studio',
-    activeBoardsCount: 3,
-  },
-  {
-    id: 'workspace-3',
-    name: 'Apex Systems',
-    slug: 'apex-systems',
-    activeBoardsCount: 12,
-  },
-];
 
 interface WorkspaceHubProps {
   onCreateWorkspace?: () => void;
@@ -35,19 +14,11 @@ interface WorkspaceHubProps {
 
 export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: WorkspaceHubProps) {
   const openModal = useUiStore((state) => state.openModal);
-  const workspaceQuery = useQuery<WorkspaceCardData[]>({
+  const workspaceQuery = useQuery({
     queryKey: ['workspaces'],
-    queryFn: async () => {
-      try {
-        return await fetchJson<WorkspaceCardData[]>({ url: '/workspaces' });
-      } catch {
-        return MOCK_WORKSPACES;
-      }
-    },
+    queryFn: workspaceApi.list,
     staleTime: 60_000,
   });
-
-  const workspaces = workspaceQuery.data ?? MOCK_WORKSPACES;
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-10 sm:px-8 lg:px-10">
@@ -69,7 +40,20 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
           </Button>
         </header>
 
-        {workspaces.length === 0 ? (
+        {workspaceQuery.isPending ? (
+          <div className="flex min-h-[340px] items-center justify-center">
+            <p className="text-sm text-zinc-400">Loading workspaces...</p>
+          </div>
+        ) : workspaceQuery.isError ? (
+          <div className="flex min-h-[340px] flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-red-200 bg-red-50/30 px-6 py-16 text-center">
+            <p className="text-sm text-red-600">
+              {workspaceQuery.error?.message ?? 'Failed to load workspaces'}
+            </p>
+            <Button type="button" variant="outline" onClick={() => workspaceQuery.refetch()}>
+              Retry
+            </Button>
+          </div>
+        ) : !Array.isArray(workspaceQuery.data) || workspaceQuery.data.length === 0 ? (
           <div className="flex min-h-[340px] items-center justify-center rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-16 text-center shadow-sm shadow-zinc-900/[0.02]">
             <div className="mx-auto max-w-sm space-y-6">
               <div className="mx-auto flex size-16 items-center justify-center rounded-3xl bg-zinc-100 ring-1 ring-inset ring-zinc-200">
@@ -82,9 +66,12 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">No workspaces yet</h2>
+                <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">
+                  No workspaces yet
+                </h2>
                 <p className="text-sm leading-6 text-zinc-500">
-                  Create your first workspace to start organizing boards, posts, and feedback in one clean place.
+                  Create your first workspace to start organizing boards, posts, and feedback in one
+                  clean place.
                 </p>
               </div>
 
@@ -101,8 +88,12 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {workspaces.map((workspace) => (
-              <WorkspaceCard key={workspace.id} workspace={workspace} onSelect={onSelectWorkspace} />
+            {workspaceQuery.data.map((workspace) => (
+              <WorkspaceCard
+                key={workspace.id}
+                workspace={workspace}
+                onSelect={onSelectWorkspace}
+              />
             ))}
           </div>
         )}

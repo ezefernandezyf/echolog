@@ -14,7 +14,5 @@ export function App() {
     );
   }
 
-  return (
-    <AppRouter />
-  );
+  return <AppRouter />;
 }

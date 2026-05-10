@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import type { AuthSessionDTO, AuthLoginDTO } from '../../../../shared/contracts/index.js';
@@ -46,7 +46,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-2 text-center sm:text-left">
         <h2 className="text-3xl font-semibold tracking-tight text-zinc-900">Welcome back</h2>
-        <p className="text-sm leading-6 text-zinc-500">Sign in to keep collecting feedback in one place.</p>
+        <p className="text-sm leading-6 text-zinc-500">
+          Sign in to keep collecting feedback in one place.
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -59,7 +61,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           autoComplete="email"
           placeholder="you@company.com"
           value={formState.email}
-          onChange={(event) => setFormState((current) => ({ ...current, email: event.target.value }))}
+          onChange={(event) =>
+            setFormState((current) => ({ ...current, email: event.target.value }))
+          }
         />
       </div>
 
@@ -73,11 +77,15 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           autoComplete="current-password"
           placeholder="Enter your password"
           value={formState.password}
-          onChange={(event) => setFormState((current) => ({ ...current, password: event.target.value }))}
+          onChange={(event) =>
+            setFormState((current) => ({ ...current, password: event.target.value }))
+          }
         />
       </div>
 
-      {loginMutation.error ? <p className="text-sm text-red-600">{loginMutation.error.message}</p> : null}
+      {loginMutation.error ? (
+        <p className="text-sm text-red-600">{loginMutation.error.message}</p>
+      ) : null}
 
       <Button className="w-full" type="submit" disabled={loginMutation.isPending}>
         {loginMutation.isPending ? 'Signing in...' : 'Sign in'}

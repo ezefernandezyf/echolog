@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import type { AuthSessionDTO, AuthRegisterDTO } from '../../../../shared/contracts/index.js';
@@ -52,7 +52,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-2 text-center sm:text-left">
         <h2 className="text-3xl font-semibold tracking-tight text-zinc-900">Create account</h2>
-        <p className="text-sm leading-6 text-zinc-500">Start a clean feedback workflow for your team.</p>
+        <p className="text-sm leading-6 text-zinc-500">
+          Start a clean feedback workflow for your team.
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -65,7 +67,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           autoComplete="name"
           placeholder="Your name"
           value={formState.name}
-          onChange={(event) => setFormState((current) => ({ ...current, name: event.target.value }))}
+          onChange={(event) =>
+            setFormState((current) => ({ ...current, name: event.target.value }))
+          }
         />
       </div>
 
@@ -79,7 +83,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           autoComplete="email"
           placeholder="you@company.com"
           value={formState.email}
-          onChange={(event) => setFormState((current) => ({ ...current, email: event.target.value }))}
+          onChange={(event) =>
+            setFormState((current) => ({ ...current, email: event.target.value }))
+          }
         />
       </div>
 
@@ -93,11 +99,15 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           autoComplete="new-password"
           placeholder="At least 8 characters"
           value={formState.password}
-          onChange={(event) => setFormState((current) => ({ ...current, password: event.target.value }))}
+          onChange={(event) =>
+            setFormState((current) => ({ ...current, password: event.target.value }))
+          }
         />
       </div>
 
-      {registerMutation.error ? <p className="text-sm text-red-600">{registerMutation.error.message}</p> : null}
+      {registerMutation.error ? (
+        <p className="text-sm text-red-600">{registerMutation.error.message}</p>
+      ) : null}
 
       <Button className="w-full" type="submit" disabled={registerMutation.isPending}>
         {registerMutation.isPending ? 'Creating account...' : 'Create account'}
