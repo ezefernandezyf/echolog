@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
-import { authLoginSchema, authRegisterSchema } from '../../../../shared/contracts/index.js';
-import { createToken, verifyToken } from '../../lib/http.js';
-import { parseCookies } from '../../lib/request.js';
+import { authLoginSchema, authRegisterSchema } from '../../../shared/contracts/index.js';
+import { createToken, verifyToken } from '../infra/http.js';
+import { parseCookies } from '../infra/request.js';
 import { authService } from './auth.service.js';
 
 const cookieOptions = 'HttpOnly; Path=/; SameSite=Lax';

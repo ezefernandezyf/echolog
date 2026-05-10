@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { HttpError } from '../../lib/http.js';
-import type { AuthLoginDTO, AuthRegisterDTO, AuthSessionDTO, AuthUserDTO } from '../../../../shared/contracts/index.js';
+import { HttpError } from '../infra/http.js';
+import type { AuthLoginDTO, AuthRegisterDTO, AuthSessionDTO, AuthUserDTO } from '../../../shared/contracts/index.js';
 
 type AuthRecord = AuthUserDTO & { password: string };
 

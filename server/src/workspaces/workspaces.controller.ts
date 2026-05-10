@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { createWorkspaceSchema } from '../../../../shared/contracts/index.js';
+import { createWorkspaceSchema } from '../../../shared/contracts/index.js';
 import { workspacesService } from './workspaces.service.js';
 
 export const listWorkspaces = (_req: Request, res: Response) => {
