@@ -54,6 +54,7 @@ export interface PostDTO {
   authorId: string;
   title: string;
   body: string;
+  status: string;
   voteCount: number;
 }
 

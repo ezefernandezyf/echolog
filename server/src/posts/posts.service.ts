@@ -17,6 +17,7 @@ export class PostsService {
       authorId: p.authorId,
       title: p.title,
       body: p.body,
+      status: p.status,
       voteCount: p._count.votes,
     }));
   }
@@ -44,6 +45,7 @@ export class PostsService {
       authorId: post.authorId,
       title: post.title,
       body: post.body,
+      status: post.status,
       voteCount: 0,
     };
   }
