@@ -4,6 +4,7 @@ import { boardRouter } from '../boards/boards.router.js';
 import { postRouter } from '../posts/posts.router.js';
 import { voteRouter } from '../votes/votes.router.js';
 import { workspaceRouter } from '../workspaces/workspaces.router.js';
+import { errorHandler } from './error-handler.js';
 
 export const createApp = () => {
   const app = express();
@@ -20,16 +21,7 @@ export const createApp = () => {
   app.use('/api/boards/:boardId/posts', postRouter);
   app.use('/api/posts/:postId/vote', voteRouter);
 
-  app.use(
-    (err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-      if (err instanceof Error) {
-        res.status(400).json({ error: err.message });
-        return;
-      }
-
-      res.status(500).json({ error: 'Internal Server Error' });
-    },
-  );
+  app.use(errorHandler);
 
   return app;
 };
