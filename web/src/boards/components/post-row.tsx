@@ -164,7 +164,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
             className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-600 shadow-sm shadow-zinc-900/[0.02] hover:bg-zinc-50"
           >
             <span className="text-zinc-400">◎</span>
-            {commentsQuery.data?.length ?? post.comments} comments
+            {post.comments} comment{post.comments !== 1 ? 's' : ''}
           </button>
 
           <div className="flex items-center gap-2 text-xs text-zinc-400">
