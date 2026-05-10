@@ -6,9 +6,10 @@ import type {
   BoardDTO,
   CreateBoardDTO,
   CreatePostDTO,
-  CreateWorkspaceDTO,
   PostDTO,
   WorkspaceDTO,
+  type CommentDTO,
+  type CreateCommentDTO,
 } from '../../../shared/contracts/index.js';
 
 const DEFAULT_API_BASE_URL = '/api';
@@ -142,6 +143,16 @@ export const voteApi = {
     fetchJson<{ postId: string; userId: string; voteCount: number; voted: boolean }>({
       url: `/posts/${postId}/vote`,
       method: 'POST',
+    }),
+};
+
+export const commentApi = {
+  list: (postId: string) => fetchJson<CommentDTO[]>({ url: `/posts/${postId}/comments` }),
+  create: (postId: string, data: CreateCommentDTO) =>
+    fetchJson<CommentDTO, CreateCommentDTO>({
+      url: `/posts/${postId}/comments`,
+      method: 'POST',
+      data,
     }),
 };
 

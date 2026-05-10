@@ -36,3 +36,7 @@ export const createPostSchema = z.object({
 export const updatePostStatusSchema = z.object({
   status: z.enum(['OPEN', 'PLANNED', 'IN_PROGRESS', 'DONE']),
 });
+
+export const createCommentSchema = z.object({
+  body: z.string().min(1),
+});
