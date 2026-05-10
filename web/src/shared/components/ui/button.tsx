@@ -11,12 +11,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
     'bg-primary text-primary-foreground shadow-sm shadow-black/5 hover:bg-zinc-800 active:bg-zinc-900',
-  outline:
-    'border border-border bg-card text-foreground hover:bg-zinc-50 active:bg-zinc-100',
+  outline: 'border border-border bg-card text-foreground hover:bg-zinc-50 active:bg-zinc-100',
   ghost: 'bg-transparent text-foreground hover:bg-zinc-100 active:bg-zinc-200',
 };
 
-export function Button({ ref, className, variant = 'primary', type = 'button', ...props }: ButtonProps) {
+export function Button({
+  ref,
+  className,
+  variant = 'primary',
+  type = 'button',
+  ...props
+}: ButtonProps) {
   return (
     <button
       ref={ref}

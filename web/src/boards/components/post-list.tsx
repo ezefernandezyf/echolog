@@ -36,7 +36,9 @@ export function PostList({ title, posts, activeSort, onSortChange, onCreatePost 
       <header className="border-b border-zinc-200 px-6 py-6 sm:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">EchoLog Board</p>
+            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">
+              EchoLog Board
+            </p>
             <h1 className="text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{title}</h1>
           </div>
 
@@ -61,7 +63,11 @@ export function PostList({ title, posts, activeSort, onSortChange, onCreatePost 
               })}
             </div>
 
-            <Button type="button" className="bg-zinc-950 px-5 hover:bg-zinc-800 active:bg-zinc-900" onClick={onCreatePost}>
+            <Button
+              type="button"
+              className="bg-zinc-950 px-5 hover:bg-zinc-800 active:bg-zinc-900"
+              onClick={onCreatePost}
+            >
               + Submit new feedback
             </Button>
           </div>

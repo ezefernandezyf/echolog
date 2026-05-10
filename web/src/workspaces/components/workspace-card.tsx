@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../../shared/components/ui/card';
 import { cn } from '../../shared/lib/cn';
+import type { WorkspaceRole } from '../../../../shared/contracts/index.js';
 
 export interface WorkspaceCardData {
   id: string;
   name: string;
   slug: string;
-  activeBoardsCount: number;
+  role: WorkspaceRole;
+  activeBoardsCount?: number;
 }
 
 interface WorkspaceCardProps {
@@ -14,8 +16,15 @@ interface WorkspaceCardProps {
   onSelect?: (workspace: WorkspaceCardData) => void;
 }
 
-function formatBoardsCount(count: number) {
-  return `${count} active board${count === 1 ? '' : 's'}`;
+function roleLabel(role: WorkspaceRole): string {
+  return role.charAt(0) + role.slice(1).toLowerCase();
+}
+
+function captionText(workspace: WorkspaceCardData): string {
+  if (workspace.activeBoardsCount !== undefined) {
+    return `${workspace.activeBoardsCount} active board${workspace.activeBoardsCount === 1 ? '' : 's'}`;
+  }
+  return roleLabel(workspace.role);
 }
 
 export function WorkspaceCard({ workspace, onSelect }: WorkspaceCardProps) {
@@ -45,7 +54,7 @@ export function WorkspaceCard({ workspace, onSelect }: WorkspaceCardProps) {
           navigate(`/w/${workspace.id}`);
         }
       }}
-      aria-label={`${workspace.name}, ${formatBoardsCount(workspace.activeBoardsCount)}`}
+      aria-label={`${workspace.name}, ${captionText(workspace)}`}
     >
       <div className="flex items-start gap-4">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-100 text-sm font-semibold tracking-tight text-zinc-400 ring-1 ring-inset ring-zinc-200">
@@ -53,8 +62,10 @@ export function WorkspaceCard({ workspace, onSelect }: WorkspaceCardProps) {
         </div>
 
         <div className="min-w-0 space-y-1">
-          <h3 className="truncate text-base font-semibold tracking-tight text-zinc-900">{workspace.name}</h3>
-          <p className="text-sm text-zinc-500">{formatBoardsCount(workspace.activeBoardsCount)}</p>
+          <h3 className="truncate text-base font-semibold tracking-tight text-zinc-900">
+            {workspace.name}
+          </h3>
+          <p className="text-sm text-zinc-500">{captionText(workspace)}</p>
         </div>
       </div>
 

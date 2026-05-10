@@ -20,14 +20,16 @@ export const createApp = () => {
   app.use('/api/boards/:boardId/posts', postRouter);
   app.use('/api/posts/:postId/vote', voteRouter);
 
-  app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    if (err instanceof Error) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
+  app.use(
+    (err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+      if (err instanceof Error) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
 
-    res.status(500).json({ error: 'Internal Server Error' });
-  });
+      res.status(500).json({ error: 'Internal Server Error' });
+    },
+  );
 
   return app;
 };

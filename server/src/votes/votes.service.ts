@@ -1,18 +1,27 @@
 import { HttpError } from '../infra/http.js';
-
-const votes = new Set<string>(['post-1:user-1']);
+import { prisma } from '../infra/prisma.js';
+import type { VoteDTO } from '../../../shared/contracts/index.js';
 
 export class VotesService {
-  add(postId: string, userId: string) {
-    const key = `${postId}:${userId}`;
-    if (votes.has(key)) throw new HttpError('Already voted', 409);
-    votes.add(key);
-    return { postId, userId, voteCount: 1 };
+  async add(postId: string, userId: string): Promise<VoteDTO> {
+    const existing = await prisma.vote.findUnique({
+      where: { postId_userId: { postId, userId } },
+    });
+    if (existing) {
+      throw new HttpError('Already voted', 409);
+    }
+
+    await prisma.vote.create({ data: { postId, userId } });
+
+    const count = await prisma.vote.count({ where: { postId } });
+    return { postId, userId, voteCount: count };
   }
 
-  remove(postId: string, userId: string) {
-    votes.delete(`${postId}:${userId}`);
-    return { postId, userId, voteCount: 0 };
+  async remove(postId: string, userId: string): Promise<VoteDTO> {
+    await prisma.vote.deleteMany({ where: { postId, userId } });
+
+    const count = await prisma.vote.count({ where: { postId } });
+    return { postId, userId, voteCount: count };
   }
 }
 

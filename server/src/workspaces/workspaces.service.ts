@@ -1,24 +1,46 @@
-import { randomUUID } from 'node:crypto';
 import { HttpError } from '../infra/http.js';
+import { prisma } from '../infra/prisma.js';
 import type { CreateWorkspaceDTO, WorkspaceDTO } from '../../../shared/contracts/index.js';
 
-const workspaces: WorkspaceDTO[] = [
-  { id: 'workspace-1', name: 'Default Workspace', slug: 'default', role: 'OWNER' },
-];
-
 export class WorkspacesService {
-  list() {
-    return workspaces;
+  async list(): Promise<WorkspaceDTO[]> {
+    const workspaces = await prisma.workspace.findMany({
+      include: { members: true },
+    });
+
+    return workspaces.map((ws) => ({
+      id: ws.id,
+      name: ws.name,
+      slug: ws.slug,
+      role: 'OWNER', // TODO: derive from membership when filtering by user
+    }));
   }
 
-  create(input: CreateWorkspaceDTO) {
-    if (workspaces.some((workspace) => workspace.slug === input.slug)) {
+  async create(input: CreateWorkspaceDTO, userId: string): Promise<WorkspaceDTO> {
+    const existing = await prisma.workspace.findUnique({ where: { slug: input.slug } });
+    if (existing) {
       throw new HttpError('Workspace slug already exists', 409);
     }
 
-    const workspace = { id: randomUUID(), name: input.name, slug: input.slug, role: 'OWNER' as const };
-    workspaces.push(workspace);
-    return workspace;
+    const workspace = await prisma.workspace.create({
+      data: {
+        name: input.name,
+        slug: input.slug,
+        members: {
+          create: {
+            userId,
+            role: 'OWNER',
+          },
+        },
+      },
+    });
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      role: 'OWNER',
+    };
   }
 }
 

@@ -20,8 +20,12 @@ export function Sidebar({ workspaceName, items, activeItemId }: SidebarProps) {
           className="flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-left transition-colors hover:border-zinc-300 hover:bg-zinc-50"
         >
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-zinc-400">Workspace</p>
-            <p className="truncate text-sm font-semibold tracking-[-0.01em] text-zinc-950">{workspaceName}</p>
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-zinc-400">
+              Workspace
+            </p>
+            <p className="truncate text-sm font-semibold tracking-[-0.01em] text-zinc-950">
+              {workspaceName}
+            </p>
           </div>
           <span className="text-xs text-zinc-400">⌄</span>
         </button>
@@ -58,7 +62,9 @@ export function Sidebar({ workspaceName, items, activeItemId }: SidebarProps) {
             EL
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold tracking-[-0.01em] text-zinc-950">Elena Lawson</p>
+            <p className="truncate text-sm font-semibold tracking-[-0.01em] text-zinc-950">
+              Elena Lawson
+            </p>
             <p className="truncate text-xs text-zinc-500">Product Designer · elena@echolog.app</p>
           </div>
         </div>

@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "Geist", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Geist', ui-monospace, SFMono-Regular, monospace;
 
   --color-background: #fafafa;
   --color-foreground: #09090b;

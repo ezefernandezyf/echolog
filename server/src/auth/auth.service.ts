@@ -1,44 +1,59 @@
-import { randomUUID } from 'node:crypto';
+import bcrypt from 'bcryptjs';
 import { HttpError } from '../infra/http.js';
-import type { AuthLoginDTO, AuthRegisterDTO, AuthSessionDTO, AuthUserDTO } from '../../../shared/contracts/index.js';
+import { prisma } from '../infra/prisma.js';
+import type {
+  AuthLoginDTO,
+  AuthRegisterDTO,
+  AuthSessionDTO,
+} from '../../../shared/contracts/index.js';
 
-type AuthRecord = AuthUserDTO & { password: string };
-
-const users = new Map<string, AuthRecord>();
+const SALT_ROUNDS = 10;
 
 export class AuthService {
-  private toUser(user: AuthRecord): AuthUserDTO {
-    return { id: user.id, email: user.email, name: user.name };
-  }
-
-  register(input: AuthRegisterDTO): AuthSessionDTO {
-    if ([...users.values()].some((user) => user.email === input.email)) {
+  async register(input: AuthRegisterDTO): Promise<AuthSessionDTO> {
+    const existing = await prisma.user.findUnique({ where: { email: input.email } });
+    if (existing) {
       throw new HttpError('Email already registered', 409);
     }
 
-    const user = {
-      id: randomUUID(),
-      email: input.email,
-      name: input.name ?? null,
-      password: input.password,
-    };
+    const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
 
-    users.set(user.id, user);
-    return { user: this.toUser(user) };
+    const user = await prisma.user.create({
+      data: {
+        email: input.email,
+        name: input.name ?? null,
+        passwordHash,
+      },
+    });
+
+    return {
+      user: { id: user.id, email: user.email, name: user.name },
+    };
   }
 
-  login(input: AuthLoginDTO): AuthSessionDTO {
-    const user = [...users.values()].find((candidate) => candidate.email === input.email);
-    if (!user || user.password !== input.password) {
+  async login(input: AuthLoginDTO): Promise<AuthSessionDTO> {
+    const user = await prisma.user.findUnique({ where: { email: input.email } });
+    if (!user) {
       throw new HttpError('Invalid credentials', 401);
     }
 
-    return { user: this.toUser(user) };
+    const valid = await bcrypt.compare(input.password, user.passwordHash);
+    if (!valid) {
+      throw new HttpError('Invalid credentials', 401);
+    }
+
+    return {
+      user: { id: user.id, email: user.email, name: user.name },
+    };
   }
 
-  me(userId: string): AuthSessionDTO | null {
-    const user = users.get(userId);
-    return user ? { user: this.toUser(user) } : null;
+  async me(userId: string): Promise<AuthSessionDTO | null> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return null;
+
+    return {
+      user: { id: user.id, email: user.email, name: user.name },
+    };
   }
 }
 
