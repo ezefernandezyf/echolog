@@ -23,10 +23,10 @@ interface PostRowProps {
 }
 
 const statusStyles: Record<string, string> = {
-  Planned: 'border-zinc-200 bg-zinc-100 text-zinc-600',
-  'In Review': 'border-zinc-200 bg-white text-zinc-700',
-  Live: 'border-zinc-200 bg-zinc-900 text-white',
-  'Needs Triage': 'border-zinc-200 bg-zinc-50 text-zinc-500',
+  OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500',
+  PLANNED: 'border-zinc-200 bg-zinc-100 text-zinc-600',
+  IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700',
+  DONE: 'border-zinc-200 bg-zinc-900 text-white',
 };
 
 export function PostRow({ post, boardId }: PostRowProps) {

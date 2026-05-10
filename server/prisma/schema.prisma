@@ -13,6 +13,13 @@ enum WorkspaceRole {
   MEMBER
 }
 
+enum PostStatus {
+  OPEN
+  PLANNED
+  IN_PROGRESS
+  DONE
+}
+
 model User {
   id           String            @id @default(cuid())
   email        String            @unique
@@ -68,14 +75,15 @@ model Board {
 }
 
 model Post {
-  id          String    @id @default(cuid())
+  id          String     @id @default(cuid())
   workspaceId String
   boardId     String
   authorId    String
   title       String
   body        String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  status      PostStatus @default(OPEN)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   board       Board     @relation(fields: [boardId, workspaceId], references: [id, workspaceId], onDelete: Cascade)

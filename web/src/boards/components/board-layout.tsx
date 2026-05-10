@@ -15,6 +15,7 @@ function mapPostToRow(post: {
   id: string;
   title: string;
   body: string;
+  status: string;
   voteCount: number;
   authorId: string;
 }): PostRowData {
@@ -22,7 +23,7 @@ function mapPostToRow(post: {
     id: post.id,
     title: post.title,
     description: post.body,
-    status: 'Needs Triage' as PostRowData['status'],
+    status: post.status,
     upvotes: post.voteCount,
     comments: 0,
     author: post.authorId,
