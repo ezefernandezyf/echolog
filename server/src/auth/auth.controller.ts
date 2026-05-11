@@ -3,7 +3,8 @@ import { createToken, verifyToken } from '../infra/http.js';
 import { parseCookies } from '../infra/request.js';
 import { authService } from './auth.service.js';
 
-const cookieOptions = 'HttpOnly; Secure; Path=/; SameSite=Lax';
+const secure = process.env.NODE_ENV === 'production' ? 'Secure; ' : '';
+const cookieOptions = `HttpOnly; ${secure}Path=/; SameSite=Lax`;
 
 export const register = async (req: Request, res: Response) => {
   const session = await authService.register(req.body);
@@ -22,7 +23,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const logout = (_req: Request, res: Response) => {
-  res.setHeader('Set-Cookie', 'echolog_token=; HttpOnly; Secure; Path=/; SameSite=Lax; Max-Age=0');
+  res.setHeader('Set-Cookie', `echolog_token=; HttpOnly; ${secure}Path=/; SameSite=Lax; Max-Age=0`);
   res.status(204).send();
 };
 
