@@ -66,6 +66,42 @@ export class PostsService {
     };
   }
 
+  async getById(postId: string, userId?: string): Promise<PostDTO> {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        author: { select: { name: true } },
+        _count: { select: { votes: true, comments: true } },
+      },
+    });
+
+    if (!post) {
+      throw new HttpError('Post not found', 404);
+    }
+
+    let isUpvoted = false;
+    if (userId) {
+      const vote = await prisma.vote.findUnique({
+        where: { postId_userId: { postId, userId } },
+      });
+      isUpvoted = vote !== null;
+    }
+
+    return {
+      id: post.id,
+      workspaceId: post.workspaceId,
+      boardId: post.boardId,
+      authorId: post.authorId,
+      title: post.title,
+      body: post.body,
+      status: post.status,
+      voteCount: post._count.votes,
+      commentCount: post._count.comments,
+      authorName: post.author.name,
+      isUpvoted,
+    };
+  }
+
   async updateStatus(postId: string, status: string): Promise<PostDTO> {
     const post = await prisma.post.update({
       where: { id: postId },

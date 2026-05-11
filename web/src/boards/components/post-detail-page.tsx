@@ -1,0 +1,230 @@
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { Badge } from '../../shared/components/ui/badge';
+import { Button } from '../../shared/components/ui/button';
+import { cn } from '../../shared/lib/cn';
+import { postApi, voteApi, commentApi } from '../../core/api-client';
+import type { ApiError } from '../../core/api-client';
+import type { PostDTO } from '../../../../shared/contracts/index.js';
+import { CommentSection } from './comment-section';
+import { PostSkeleton } from '../../shared/components/domain-skeletons';
+
+const statusStyles: Record<string, string> = {
+  OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400',
+  PLANNED: 'border-zinc-200 bg-zinc-100 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
+  IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700 dark:border-zinc-700 dark:bg-card dark:text-zinc-300',
+  DONE: 'border-zinc-200 bg-zinc-900 text-white dark:border-zinc-600 dark:bg-zinc-300 dark:text-zinc-900',
+};
+
+export function PostDetailPage() {
+  const navigate = useNavigate();
+  const { workspaceId, postId } = useParams<{ workspaceId: string; postId: string }>();
+  const queryClient = useQueryClient();
+
+  const {
+    data: post,
+    isPending,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['post', postId],
+    queryFn: () => postApi.getById(postId!),
+    enabled: !!postId,
+  });
+
+  const commentsQuery = useQuery({
+    queryKey: ['comments', postId],
+    queryFn: () => commentApi.list(postId!),
+    enabled: !!postId,
+  });
+
+  const addVoteMutation = useMutation({
+    mutationFn: () => voteApi.addVote(postId!),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['post', postId] });
+      const previousPost = queryClient.getQueryData<PostDTO>(['post', postId]);
+
+      queryClient.setQueryData<PostDTO>(['post', postId], (old) =>
+        old
+          ? { ...old, voteCount: old.voteCount + 1, isUpvoted: true }
+          : old,
+      );
+
+      return { previousPost };
+    },
+    onSuccess: (data) => {
+      toast.success('Vote added');
+      queryClient.setQueryData<PostDTO>(['post', postId], (old) =>
+        old ? { ...old, voteCount: data.voteCount, isUpvoted: data.voted } : old,
+      );
+    },
+    onError: (err: unknown, _vars, context) => {
+      if (context?.previousPost) {
+        queryClient.setQueryData(['post', postId], context.previousPost);
+      }
+      const apiErr = err as Partial<ApiError>;
+      const msg =
+        apiErr?.status === 409
+          ? 'Vote state out of sync. Refreshing…'
+          : `Failed to vote${apiErr?.message ? `: ${apiErr.message}` : '.'}`;
+      toast.error(msg);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+    },
+  });
+
+  const removeVoteMutation = useMutation({
+    mutationFn: () => voteApi.removeVote(postId!),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['post', postId] });
+      const previousPost = queryClient.getQueryData<PostDTO>(['post', postId]);
+
+      queryClient.setQueryData<PostDTO>(['post', postId], (old) =>
+        old
+          ? { ...old, voteCount: Math.max(0, old.voteCount - 1), isUpvoted: false }
+          : old,
+      );
+
+      return { previousPost };
+    },
+    onSuccess: (data) => {
+      toast.success('Vote removed');
+      queryClient.setQueryData<PostDTO>(['post', postId], (old) =>
+        old ? { ...old, voteCount: data.voteCount, isUpvoted: data.voted } : old,
+      );
+    },
+    onError: (err: unknown, _vars, context) => {
+      if (context?.previousPost) {
+        queryClient.setQueryData(['post', postId], context.previousPost);
+      }
+      const apiErr = err as Partial<ApiError>;
+      const msg =
+        apiErr?.status === 409
+          ? 'Vote state out of sync. Refreshing…'
+          : `Failed to vote${apiErr?.message ? `: ${apiErr.message}` : '.'}`;
+      toast.error(msg);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+    },
+  });
+
+  const voteIsPending = addVoteMutation.isPending || removeVoteMutation.isPending;
+
+  if (isPending) {
+    return (
+      <main className="min-h-screen bg-background text-foreground">
+        <PostSkeleton />
+      </main>
+    );
+  }
+
+  if (isError || !post) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-foreground">
+        <p className="text-lg font-medium text-muted-foreground">
+          {isError
+            ? (error as Partial<ApiError>)?.message ?? 'Failed to load post'
+            : 'Post not found'}
+        </p>
+        <Button variant="outline" onClick={() => navigate(`/w/${workspaceId}`)}>
+          Back to board
+        </Button>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
+        {/* Back button */}
+        <button
+          type="button"
+          onClick={() => navigate(`/w/${workspaceId}`)}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <span aria-hidden="true">←</span>
+          Back to board
+        </button>
+
+        {/* Post header */}
+        <article className="rounded-2xl border border-border bg-card p-5 sm:p-8">
+          <div className="flex flex-wrap items-start gap-4">
+            {/* Vote button */}
+            <button
+              type="button"
+              disabled={voteIsPending}
+              onClick={() =>
+                post.isUpvoted ? removeVoteMutation.mutate() : addVoteMutation.mutate()
+              }
+              aria-label={`${post.isUpvoted ? 'Remove vote from' : 'Upvote'} ${post.title}`}
+              className={cn(
+                'flex h-14 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-all duration-150 active:scale-95 min-w-[44px] min-h-[44px]',
+                voteIsPending && 'animate-pulse',
+                post.isUpvoted
+                  ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+                  : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-200',
+              )}
+            >
+              <span className="text-sm leading-none">▲</span>
+              <span>{post.voteCount}</span>
+            </button>
+
+            {/* Title + meta */}
+            <div className="min-w-0 flex-1 space-y-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-xl font-bold tracking-[-0.03em] text-foreground sm:text-2xl">
+                  {post.title}
+                </h1>
+                <Badge
+                  variant="outline"
+                  className={cn('border px-2.5 py-1 text-xs', statusStyles[post.status])}
+                >
+                  {post.status.replace('_', ' ')}
+                </Badge>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                {post.authorName && (
+                  <span className="flex items-center gap-1.5">
+                    <span className="flex size-5 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-medium">
+                      {post.authorName.slice(0, 2).toUpperCase()}
+                    </span>
+                    {post.authorName}
+                  </span>
+                )}
+                <span className="text-zinc-300 dark:text-zinc-700">·</span>
+                <span>{post.commentCount} comment{post.commentCount !== 1 ? 's' : ''}</span>
+              </div>
+
+              {/* Post body */}
+              {post.body && (
+                <div className="pt-4">
+                  <p className="whitespace-pre-wrap text-sm leading-7 text-foreground/85">
+                    {post.body}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </article>
+
+        {/* Comments section */}
+        <section className="mt-6 rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="px-5 py-4 sm:px-8 sm:py-5">
+            <h2 className="text-sm font-semibold tracking-[-0.01em] text-foreground">
+              Comments
+            </h2>
+          </div>
+          <CommentSection
+            postId={post.id}
+            comments={commentsQuery.data ?? []}
+            isLoading={commentsQuery.isPending}
+          />
+        </section>
+      </div>
+    </main>
+  );
+}

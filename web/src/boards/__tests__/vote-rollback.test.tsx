@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // ---------------------------------------------------------------------------
@@ -74,7 +75,9 @@ function renderPostRow(
 
   const renderResult = render(
     <QueryClientProvider client={queryClient}>
-      <PostRow post={post} boardId={boardId} />
+      <MemoryRouter initialEntries={['/w/ws-test']}>
+        <PostRow post={post} boardId={boardId} />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 

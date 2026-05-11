@@ -31,6 +31,7 @@ export const createApp = () => {
   app.use('/api/boards/:boardId/posts', postRouter);
   app.use('/api/posts/:postId/vote', voteRouter);
   app.use('/api/posts/:postId/comments', commentRouter);
+  app.use('/api/posts', postRouter);
 
   app.use(errorHandler);
 

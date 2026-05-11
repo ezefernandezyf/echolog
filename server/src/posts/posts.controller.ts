@@ -11,6 +11,11 @@ export const createPost = async (req: Request, res: Response) => {
   res.status(201).json(data);
 };
 
+export const getPostById = async (req: Request, res: Response) => {
+  const data = await postsService.getById(req.params.postId, req.userId);
+  res.status(200).json(data);
+};
+
 export const updatePostStatus = async (req: Request, res: Response) => {
   const data = await postsService.updateStatus(req.params.postId as string, req.body.status);
   res.status(200).json(data);

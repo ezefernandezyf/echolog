@@ -57,6 +57,8 @@ export interface PostDTO {
   status: string;
   voteCount: number;
   commentCount: number;
+  authorName?: string | null;
+  isUpvoted?: boolean;
 }
 
 export interface CreatePostDTO {
@@ -76,6 +78,7 @@ export interface CommentDTO {
   authorId: string;
   body: string;
   createdAt: string;
+  authorName?: string | null;
 }
 
 export interface CreateCommentDTO {

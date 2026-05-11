@@ -131,6 +131,7 @@ export const postApi = {
   list: (boardId: string) => fetchJson<PostDTO[]>({ url: `/boards/${boardId}/posts` }),
   create: (boardId: string, data: CreatePostDTO) =>
     fetchJson<PostDTO, CreatePostDTO>({ url: `/boards/${boardId}/posts`, method: 'POST', data }),
+  getById: (postId: string) => fetchJson<PostDTO>({ url: `/posts/${postId}` }),
   updateStatus: (boardId: string, postId: string, status: string) =>
     fetchJson<PostDTO>({
       url: `/boards/${boardId}/posts/${postId}/status`,

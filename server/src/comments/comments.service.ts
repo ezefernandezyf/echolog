@@ -6,12 +6,8 @@ export class CommentsService {
     const comments = await prisma.comment.findMany({
       where: { postId },
       orderBy: { createdAt: 'asc' },
-      select: {
-        id: true,
-        postId: true,
-        authorId: true,
-        body: true,
-        createdAt: true,
+      include: {
+        author: { select: { name: true } },
       },
     });
 
@@ -21,6 +17,7 @@ export class CommentsService {
       authorId: c.authorId,
       body: c.body,
       createdAt: c.createdAt.toISOString(),
+      authorName: c.author.name,
     }));
   }
 
@@ -31,6 +28,9 @@ export class CommentsService {
         authorId: userId,
         body: input.body,
       },
+      include: {
+        author: { select: { name: true } },
+      },
     });
 
     return {
@@ -39,6 +39,7 @@ export class CommentsService {
       authorId: comment.authorId,
       body: comment.body,
       createdAt: comment.createdAt.toISOString(),
+      authorName: comment.author.name,
     };
   }
 }
