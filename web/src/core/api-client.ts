@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import type {
   AuthLoginDTO,
   AuthRegisterDTO,
@@ -6,10 +6,11 @@ import type {
   BoardDTO,
   CreateBoardDTO,
   CreatePostDTO,
+  CreateWorkspaceDTO,
   PostDTO,
   WorkspaceDTO,
-  type CommentDTO,
-  type CreateCommentDTO,
+  CommentDTO,
+  CreateCommentDTO,
 } from '../../../shared/contracts/index.js';
 
 const DEFAULT_API_BASE_URL = '/api';
@@ -73,7 +74,7 @@ function normalizeApiError(error: AxiosError<ApiErrorBody>): ApiError {
 export async function fetchJson<TResponse, TBody = unknown>(
   config: ApiRequestConfig<TBody>,
 ): Promise<TResponse> {
-  const response = await apiClient.request<TResponse, unknown, TBody>({
+  const response = await apiClient.request<TResponse, AxiosResponse<TResponse>, TBody>({
     ...config,
     method: config.method ?? 'GET',
   });
@@ -143,6 +144,16 @@ export const voteApi = {
     fetchJson<{ postId: string; userId: string; voteCount: number; voted: boolean }>({
       url: `/posts/${postId}/vote`,
       method: 'POST',
+    }),
+  addVote: (postId: string) =>
+    fetchJson<{ postId: string; userId: string; voteCount: number; voted: boolean }>({
+      url: `/posts/${postId}/vote`,
+      method: 'POST',
+    }),
+  removeVote: (postId: string) =>
+    fetchJson<{ postId: string; userId: string; voteCount: number; voted: boolean }>({
+      url: `/posts/${postId}/vote`,
+      method: 'DELETE',
     }),
 };
 

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Badge } from '../../shared/components/ui/badge';
 import { cn } from '../../shared/lib/cn';
 import { commentApi, postApi, voteApi } from '../../core/api-client';
+import type { ApiError } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 
 export interface PostRowData {
@@ -43,32 +44,81 @@ export function PostRow({ post, boardId }: PostRowProps) {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
 
-  const voteMutation = useMutation({
-    mutationFn: () => voteApi.toggle(post.id),
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['posts', boardId] });
-      const previousPosts = queryClient.getQueryData<PostRowData[]>(['posts', boardId]);
+  // Prevents mutations from overlapping past onSettled (race condition guard)
+  const voteLockRef = useRef(false);
 
-      queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
-        old?.map((p) =>
-          p.id === post.id
-            ? { ...p, upvotes: p.isUpvoted ? p.upvotes - 1 : p.upvotes + 1, isUpvoted: !p.isUpvoted }
-            : p,
-        ),
-      );
+  // Reusable callbacks shared by both addVote and removeVote mutations
+  const createVoteHandlers = (direction: 'add' | 'remove') => {
+    const isAdd = direction === 'add';
 
-      return { previousPosts };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previousPosts) {
-        queryClient.setQueryData(['posts', boardId], context.previousPosts);
-      }
-      toast.error('Failed to vote. Please try again.');
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
-    },
+    return {
+      onMutate: async (): Promise<{ previousPosts: PostRowData[] | undefined }> => {
+        if (voteLockRef.current) return { previousPosts: undefined };
+
+        await queryClient.cancelQueries({ queryKey: ['posts', boardId] });
+
+        const previousPosts = queryClient.getQueryData<PostRowData[]>(['posts', boardId]) ?? [];
+
+        queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
+          old?.map((p) =>
+            p.id === post.id
+              ? {
+                  ...p,
+                  upvotes: isAdd ? p.upvotes + 1 : p.upvotes - 1,
+                  isUpvoted: isAdd,
+                }
+              : p,
+          ),
+        );
+
+        return { previousPosts };
+      },
+
+      onSuccess: (data: { voteCount: number; voted: boolean }) => {
+        queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
+          old?.map((p) =>
+            p.id === post.id
+              ? { ...p, upvotes: data.voteCount, isUpvoted: data.voted }
+              : p,
+          ),
+        );
+      },
+
+      onError: (error: unknown, _vars: void, context: { previousPosts: PostRowData[] | undefined } | undefined) => {
+        if (context?.previousPosts) {
+          queryClient.setQueryData(['posts', boardId], context.previousPosts);
+        } else {
+          queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
+        }
+
+        const apiErr = error as Partial<ApiError>;
+        const msg =
+          apiErr.status === 409
+            ? 'Vote state out of sync. Refreshing…'
+            : !apiErr.status || apiErr.status === 0
+              ? 'Network error. Check your connection.'
+              : `Failed to vote${apiErr.message ? `: ${apiErr.message}` : '.'}`;
+        toast.error(msg);
+      },
+
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
+        voteLockRef.current = false;
+      },
+    };
+  };
+
+  const addVoteMutation = useMutation({
+    mutationFn: () => voteApi.addVote(post.id),
+    ...createVoteHandlers('add'),
   });
+
+  const removeVoteMutation = useMutation({
+    mutationFn: () => voteApi.removeVote(post.id),
+    ...createVoteHandlers('remove'),
+  });
+
+  const voteIsPending = addVoteMutation.isPending || removeVoteMutation.isPending;
 
   const statusMutation = useMutation({
     mutationFn: (newStatus: string) => postApi.updateStatus(boardId, post.id, newStatus),
@@ -120,12 +170,14 @@ export function PostRow({ post, boardId }: PostRowProps) {
       <div className="group grid grid-cols-[auto_1fr_auto] gap-4 px-5 py-5 sm:px-6">
         <button
           type="button"
-          disabled={voteMutation.isPending}
-          onClick={() => voteMutation.mutate()}
+          disabled={voteIsPending || voteLockRef.current}
+          onClick={() =>
+            post.isUpvoted ? removeVoteMutation.mutate() : addVoteMutation.mutate()
+          }
           aria-label={`${post.isUpvoted ? 'Remove vote from' : 'Upvote'} ${post.title}`}
           className={cn(
             'flex h-14 w-12 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-all duration-150',
-            voteMutation.isPending && 'animate-pulse',
+            voteIsPending && 'animate-pulse',
             post.isUpvoted
               ? 'border-zinc-900 bg-zinc-900 text-white'
               : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900',
