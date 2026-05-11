@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type UiModal = 'create-workspace' | 'create-post' | null;
+export type UiModal = 'create-workspace' | 'create-post' | 'create-board' | null;
 
 interface UiStore {
   sidebarOpen: boolean;

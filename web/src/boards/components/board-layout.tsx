@@ -9,6 +9,7 @@ import type { PostRowData } from './post-row';
 import { useUiStore } from '../../core/store/ui-store';
 import { boardApi, postApi } from '../../core/api-client';
 import { CreatePostModal } from './create-post-modal';
+import { CreateBoardModal } from './create-board-modal';
 import { Button } from '../../shared/components/ui/button';
 
 function mapPostToRow(post: {
@@ -79,6 +80,7 @@ export function BoardLayout() {
           workspaceName={workspaceId ?? ''}
           items={sidebarItems}
           activeItemId={selectedBoardId ?? ''}
+          onCreateBoard={() => openModal('create-board')}
         />
       )}
 
@@ -113,6 +115,7 @@ export function BoardLayout() {
           />
         )}
         <CreatePostModal boardId={selectedBoardId ?? undefined} />
+        <CreateBoardModal workspaceId={workspaceId!} />
       </div>
     </main>
   );

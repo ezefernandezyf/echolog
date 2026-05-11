@@ -21,9 +21,10 @@ interface SidebarProps {
   workspaceName: string;
   items: SidebarItem[];
   activeItemId: string;
+  onCreateBoard?: () => void;
 }
 
-export function Sidebar({ workspaceName, items, activeItemId }: SidebarProps) {
+export function Sidebar({ workspaceName, items, activeItemId, onCreateBoard }: SidebarProps) {
   const user = useAuthStore((state) => state.session?.user);
   const userName = user?.name ?? 'Unknown User';
   const userEmail = user?.email ?? '';
@@ -70,6 +71,16 @@ export function Sidebar({ workspaceName, items, activeItemId }: SidebarProps) {
               </a>
             );
           })}
+          {onCreateBoard ? (
+            <button
+              type="button"
+              onClick={onCreateBoard}
+              className="flex w-full items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium tracking-[-0.01em] text-zinc-500 transition-colors hover:bg-zinc-200/70 hover:text-zinc-900"
+            >
+              <span className="text-base leading-none">+</span>
+              Create Board
+            </button>
+          ) : null}
         </div>
       </nav>
 
