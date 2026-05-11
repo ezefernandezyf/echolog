@@ -31,6 +31,18 @@ export class PostsService {
       throw new HttpError('Board not found', 404);
     }
 
+    const membership = await prisma.workspaceMember.findUnique({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId: board.workspaceId,
+        },
+      },
+    });
+    if (!membership) {
+      throw new HttpError('Forbidden', 403);
+    }
+
     const post = await prisma.post.create({
       data: {
         workspaceId: board.workspaceId,
