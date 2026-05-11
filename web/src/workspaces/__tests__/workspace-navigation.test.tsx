@@ -109,8 +109,8 @@ describe('WorkspaceHub', () => {
 
     render(<WorkspaceHub />, { wrapper: TestWrapper });
 
-    // Loading state appears first
-    expect(screen.getByText('Loading workspaces...')).toBeInTheDocument();
+    // Loading state appears first — skeletons shown, no workspace names yet
+    expect(screen.queryByText('Northstar Labs')).not.toBeInTheDocument();
 
     // After data loads, workspace cards appear
     await waitFor(() => {

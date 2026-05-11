@@ -1,5 +1,6 @@
 import { useSession } from './auth/use-session';
 import { AppRouter } from './core/router';
+import { SessionSkeleton } from './shared/components/domain-skeletons';
 
 export function App() {
   const sessionQuery = useSession();
@@ -7,9 +8,7 @@ export function App() {
   if (sessionQuery.isPending) {
     return (
       <main className="min-h-screen bg-zinc-50 text-zinc-900">
-        <section className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 py-16">
-          <p className="text-sm text-zinc-500">Bootstrapping session...</p>
-        </section>
+        <SessionSkeleton />
       </main>
     );
   }

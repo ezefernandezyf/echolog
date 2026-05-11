@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from './auth-store';
+import { SessionSkeleton } from '../shared/components/domain-skeletons';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -35,9 +36,7 @@ export function ProtectedRoute() {
   if (status === 'unknown') {
     return (
       <main className="min-h-screen bg-zinc-50 text-zinc-900">
-        <section className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 py-16">
-          <p className="text-sm text-zinc-500">Loading...</p>
-        </section>
+        <SessionSkeleton />
       </main>
     );
   }

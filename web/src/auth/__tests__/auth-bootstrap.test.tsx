@@ -142,7 +142,6 @@ describe('ProtectedRoute', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
     expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
   });
 

@@ -235,7 +235,17 @@ export function PostRow({ post, boardId }: PostRowProps) {
       {showComments ? (
         <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6">
           {commentsQuery.isPending ? (
-            <p className="py-2 text-sm text-zinc-400">Loading comments...</p>
+            <div className="space-y-3 py-2" aria-hidden="true">
+              {Array.from({ length: 2 }, (_, i) => (
+                <div key={i} className="flex gap-3">
+                  <div className="mt-0.5 size-6 shrink-0 animate-pulse rounded-full bg-zinc-200" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-3.5 w-full animate-pulse rounded-md bg-zinc-200" />
+                    <div className="h-3 w-16 animate-pulse rounded-md bg-zinc-100" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="space-y-3">
               {commentsQuery.data?.map((c) => (

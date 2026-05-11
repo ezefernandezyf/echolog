@@ -6,6 +6,7 @@ import { workspaceApi } from '../../core/api-client';
 import { WorkspaceCard, type WorkspaceCardData } from './workspace-card';
 import { useUiStore } from '../../core/store/ui-store';
 import { CreateWorkspaceModal } from './create-workspace-modal';
+import { WorkspaceSkeletonGrid } from '../../shared/components/domain-skeletons';
 
 interface WorkspaceHubProps {
   onCreateWorkspace?: () => void;
@@ -41,9 +42,7 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
         </header>
 
         {workspaceQuery.isPending ? (
-          <div className="flex min-h-[340px] items-center justify-center">
-            <p className="text-sm text-zinc-400">Loading workspaces...</p>
-          </div>
+          <WorkspaceSkeletonGrid />
         ) : workspaceQuery.isError ? (
           <div className="flex min-h-[340px] flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-red-200 bg-red-50/30 px-6 py-16 text-center">
             <p className="text-sm text-red-600">
