@@ -6,5 +6,5 @@ import { createWorkspaceSchema } from '../../../shared/contracts/index.js';
 
 export const workspaceRouter = Router();
 
-workspaceRouter.get('/', listWorkspaces);
+workspaceRouter.get('/', requireAuth, listWorkspaces);
 workspaceRouter.post('/', requireAuth, validate(createWorkspaceSchema), createWorkspace);

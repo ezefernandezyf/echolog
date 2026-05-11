@@ -3,16 +3,17 @@ import { prisma } from '../infra/prisma.js';
 import type { CreateWorkspaceDTO, WorkspaceDTO } from '../../../shared/contracts/index.js';
 
 export class WorkspacesService {
-  async list(): Promise<WorkspaceDTO[]> {
-    const workspaces = await prisma.workspace.findMany({
-      include: { members: true },
+  async list(userId: string): Promise<WorkspaceDTO[]> {
+    const memberships = await prisma.workspaceMember.findMany({
+      where: { userId },
+      include: { workspace: true },
     });
 
-    return workspaces.map((ws) => ({
-      id: ws.id,
-      name: ws.name,
-      slug: ws.slug,
-      role: 'OWNER', // TODO: derive from membership when filtering by user
+    return memberships.map((m) => ({
+      id: m.workspace.id,
+      name: m.workspace.name,
+      slug: m.workspace.slug,
+      role: m.role,
     }));
   }
 
