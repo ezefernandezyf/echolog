@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
@@ -39,6 +40,7 @@ export function CreateWorkspaceModal() {
     mutationFn: (data: CreateWorkspaceDTO) =>
       workspaceApi.create({ name: data.name, slug: slugify(data.name) }),
     onSuccess: () => {
+      toast.success('Workspace created');
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       reset();
       closeModal();

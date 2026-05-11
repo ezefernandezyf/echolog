@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import type { AuthSessionDTO, AuthRegisterDTO } from '../../../../shared/contracts/index.js';
 import { authRegisterSchema } from '../../../../shared/contracts/index.js';
 import { authApi } from '../../core/api-client';
@@ -29,6 +30,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const registerMutation = useMutation({
     mutationFn: authApi.register,
     onSuccess: (session) => {
+      toast.success('Account created');
       setSession(session);
       queryClient.setQueryData(AUTH_QUERY_KEYS.session, session);
       onSuccess?.(session);

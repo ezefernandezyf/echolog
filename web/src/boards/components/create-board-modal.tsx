@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
@@ -47,6 +48,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
         description: data.description,
       }),
     onSuccess: () => {
+      toast.success('Board created');
       queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
       reset();
       closeModal();

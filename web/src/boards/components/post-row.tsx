@@ -75,6 +75,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
       },
 
       onSuccess: (data: { voteCount: number; voted: boolean }) => {
+        toast.success(data.voted ? 'Vote added' : 'Vote removed');
         queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
           old?.map((p) =>
             p.id === post.id
@@ -132,6 +133,9 @@ export function PostRow({ post, boardId }: PostRowProps) {
 
       return { previousPosts };
     },
+    onSuccess: (_data, newStatus) => {
+      toast.success(`Post status changed to ${newStatus.replace('_', ' ')}`);
+    },
     onError: (_err, _vars, context) => {
       if (context?.previousPosts) {
         queryClient.setQueryData(['posts', boardId], context.previousPosts);
@@ -152,8 +156,8 @@ export function PostRow({ post, boardId }: PostRowProps) {
   const commentMutation = useMutation({
     mutationFn: (body: string) => commentApi.create(post.id, { body }),
     onSuccess: () => {
+      toast.success('Comment added');
       queryClient.invalidateQueries({ queryKey: ['comments', post.id] });
-      queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
       setCommentText('');
     },
     onError: () => toast.error('Failed to add comment.'),

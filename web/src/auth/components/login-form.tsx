@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import type { AuthSessionDTO, AuthLoginDTO } from '../../../../shared/contracts/index.js';
 import { authLoginSchema } from '../../../../shared/contracts/index.js';
 import { authApi } from '../../core/api-client';
@@ -29,6 +30,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (session) => {
+      toast.success('Welcome back');
       setSession(session);
       queryClient.setQueryData(AUTH_QUERY_KEYS.session, session);
       onSuccess?.(session);
