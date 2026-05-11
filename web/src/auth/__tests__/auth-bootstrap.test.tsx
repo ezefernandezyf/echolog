@@ -184,13 +184,13 @@ describe('ProtectedRoute', () => {
 });
 
 describe('PublicRoute', () => {
-  it('redirects to / when authenticated', () => {
+  it('redirects to /w when authenticated', () => {
     useAuthStore.setState({ session: sampleSession, status: 'authenticated' });
 
     render(
       <MemoryRouter initialEntries={['/login']}>
         <Routes>
-          <Route path="/" element={<p>Home</p>} />
+          <Route path="/w" element={<p>Home</p>} />
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<p>Login Page</p>} />
           </Route>

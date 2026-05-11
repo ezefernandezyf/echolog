@@ -35,7 +35,7 @@ export function ProtectedRoute() {
   // Don't render protected content until we've confirmed the session state
   if (status === 'unknown') {
     return (
-      <main className="min-h-screen bg-zinc-50 text-zinc-900">
+      <main className="min-h-screen bg-background text-foreground">
         <SessionSkeleton />
       </main>
     );
@@ -52,7 +52,7 @@ export function PublicRoute() {
   const session = useAuthStore((state) => state.session);
 
   if (session) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/w" replace />;
   }
 
   return <Outlet />;
