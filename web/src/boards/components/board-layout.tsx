@@ -7,7 +7,7 @@ import { Sidebar, type SidebarItem } from './sidebar';
 import { PostList, type PostSort } from './post-list';
 import type { PostRowData } from './post-row';
 import { useUiStore } from '../../core/store/ui-store';
-import { boardApi, postApi } from '../../core/api-client';
+import { boardApi, postApi, workspaceApi } from '../../core/api-client';
 import { CreatePostModal } from './create-post-modal';
 import { CreateBoardModal } from './create-board-modal';
 import { Button } from '../../shared/components/ui/button';
@@ -38,6 +38,16 @@ export function BoardLayout() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const openModal = useUiStore((state) => state.openModal);
   const [activeSort, setActiveSort] = useState<PostSort>('Trending');
+
+  const workspaceQuery = useQuery({
+    queryKey: ['workspaces'],
+    queryFn: workspaceApi.list,
+    staleTime: 60_000,
+    enabled: !!workspaceId,
+  });
+
+  const workspaceName =
+    workspaceQuery.data?.find((w) => w.id === workspaceId)?.name ?? workspaceId ?? '';
 
   const boardsQuery = useQuery({
     queryKey: ['boards', workspaceId],
@@ -77,7 +87,7 @@ export function BoardLayout() {
         </aside>
       ) : (
         <Sidebar
-          workspaceName={workspaceId ?? ''}
+          workspaceName={workspaceName}
           items={sidebarItems}
           activeItemId={selectedBoardId ?? ''}
           onCreateBoard={() => openModal('create-board')}
