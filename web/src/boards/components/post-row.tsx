@@ -153,6 +153,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
     mutationFn: (body: string) => commentApi.create(post.id, { body }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', post.id] });
+      queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
       setCommentText('');
     },
     onError: () => toast.error('Failed to add comment.'),
