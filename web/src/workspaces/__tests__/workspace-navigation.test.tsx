@@ -15,7 +15,7 @@ vi.mock('../../core/api-client', () => ({
   },
   boardApi: { list: vi.fn(), create: vi.fn() },
   postApi: { list: vi.fn(), create: vi.fn(), updateStatus: vi.fn() },
-  voteApi: { toggle: vi.fn() },
+  voteApi: { addVote: vi.fn(), removeVote: vi.fn() },
   commentApi: { list: vi.fn(), create: vi.fn() },
   apiClient: {},
   fetchJson: vi.fn(),

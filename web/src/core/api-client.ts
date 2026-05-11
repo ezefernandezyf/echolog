@@ -140,11 +140,6 @@ export const postApi = {
 };
 
 export const voteApi = {
-  toggle: (postId: string) =>
-    fetchJson<{ postId: string; userId: string; voteCount: number; voted: boolean }>({
-      url: `/posts/${postId}/vote`,
-      method: 'POST',
-    }),
   addVote: (postId: string) =>
     fetchJson<{ postId: string; userId: string; voteCount: number; voted: boolean }>({
       url: `/posts/${postId}/vote`,
