@@ -34,7 +34,7 @@ export function Modal({ open, onClose, children, className, ...props }: ModalPro
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 animate-fade-in"
       onMouseDown={onClose}
       role="presentation"
     >
@@ -44,7 +44,7 @@ export function Modal({ open, onClose, children, className, ...props }: ModalPro
         aria-modal="true"
         onMouseDown={(event) => event.stopPropagation()}
         className={cn(
-          'relative w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 text-zinc-950 shadow-2xl shadow-black/20',
+          'relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-2xl shadow-black/20 transition-colors animate-scale-in',
           className,
         )}
       >
@@ -53,7 +53,7 @@ export function Modal({ open, onClose, children, className, ...props }: ModalPro
           variant="ghost"
           aria-label="Close modal"
           onClick={onClose}
-          className="absolute right-3 top-3 size-9 rounded-full p-0 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950"
+          className="absolute right-3 top-3 size-9 rounded-full p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           ×
         </Button>

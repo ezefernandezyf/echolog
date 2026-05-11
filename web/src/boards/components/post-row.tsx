@@ -33,10 +33,10 @@ function nextStatus(current: string): string {
 }
 
 const statusStyles: Record<string, string> = {
-  OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 cursor-pointer hover:bg-zinc-100',
-  PLANNED: 'border-zinc-200 bg-zinc-100 text-zinc-600 cursor-pointer hover:bg-zinc-200',
-  IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700 cursor-pointer hover:bg-zinc-100',
-  DONE: 'border-zinc-200 bg-zinc-900 text-white cursor-pointer hover:bg-zinc-800',
+  OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 cursor-pointer hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700',
+  PLANNED: 'border-zinc-200 bg-zinc-100 text-zinc-600 cursor-pointer hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
+  IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700 cursor-pointer hover:bg-zinc-100 dark:border-zinc-700 dark:bg-card dark:text-zinc-300 dark:hover:bg-zinc-800',
+  DONE: 'border-zinc-200 bg-zinc-900 text-white cursor-pointer hover:bg-zinc-800 dark:border-zinc-600 dark:bg-zinc-300 dark:text-zinc-900 dark:hover:bg-zinc-400',
 };
 
 export function PostRow({ post, boardId }: PostRowProps) {
@@ -171,8 +171,8 @@ export function PostRow({ post, boardId }: PostRowProps) {
     .join('');
 
   return (
-    <article className="border-b border-zinc-200 bg-white transition-colors hover:bg-zinc-50/80">
-      <div className="group grid grid-cols-[auto_1fr_auto] gap-4 px-5 py-5 sm:px-6">
+    <article className="border-b border-zinc-200 bg-white transition-colors hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-card dark:hover:bg-zinc-800/50">
+      <div className="group grid grid-cols-[auto_1fr_auto] gap-4 px-3 py-3 sm:px-4 sm:py-4">
         <button
           type="button"
           disabled={voteIsPending || voteLockRef.current}
@@ -181,11 +181,11 @@ export function PostRow({ post, boardId }: PostRowProps) {
           }
           aria-label={`${post.isUpvoted ? 'Remove vote from' : 'Upvote'} ${post.title}`}
           className={cn(
-            'flex h-14 w-12 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-all duration-150',
+            'flex h-14 w-12 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-all duration-150 active:scale-95 min-w-[44px] min-h-[44px]',
             voteIsPending && 'animate-pulse',
             post.isUpvoted
-              ? 'border-zinc-900 bg-zinc-900 text-white'
-              : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900',
+              ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+              : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-200',
           )}
         >
           <span className="text-sm leading-none">▲</span>
@@ -194,7 +194,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
 
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate text-base font-semibold tracking-[-0.02em] text-zinc-950 group-hover:text-zinc-900">
+            <h3 className="truncate text-base font-semibold tracking-[-0.02em] text-zinc-950 group-hover:text-zinc-900 dark:text-zinc-100 dark:group-hover:text-zinc-300">
               {post.title}
             </h3>
             <button
@@ -211,21 +211,21 @@ export function PostRow({ post, boardId }: PostRowProps) {
               </Badge>
             </button>
           </div>
-          <p className="max-w-3xl text-sm leading-6 text-zinc-500">{post.description}</p>
+          <p className="max-w-3xl text-sm leading-6 text-zinc-500 dark:text-zinc-400">{post.description}</p>
         </div>
 
         <div className="flex flex-col items-end justify-between gap-3 pt-0.5 text-right">
           <button
             type="button"
             onClick={() => setShowComments(!showComments)}
-            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-600 shadow-sm shadow-zinc-900/[0.02] hover:bg-zinc-50"
+            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-600 shadow-sm shadow-zinc-900/[0.02] hover:bg-zinc-50 dark:border-zinc-700 dark:bg-card dark:text-zinc-400 dark:hover:bg-zinc-800"
           >
-            <span className="text-zinc-400">◎</span>
+            <span className="text-zinc-400 dark:text-zinc-500">◎</span>
             {post.comments} comment{post.comments !== 1 ? 's' : ''}
           </button>
 
-          <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <span className="flex size-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 font-medium text-zinc-500">
+          <div className="flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
+            <span className="flex size-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
               {initials || 'EL'}
             </span>
           </div>
@@ -233,15 +233,15 @@ export function PostRow({ post, boardId }: PostRowProps) {
       </div>
 
       {showComments ? (
-        <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6">
+        <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900/40">
           {commentsQuery.isPending ? (
             <div className="space-y-3 py-2" aria-hidden="true">
               {Array.from({ length: 2 }, (_, i) => (
                 <div key={i} className="flex gap-3">
-                  <div className="mt-0.5 size-6 shrink-0 animate-pulse rounded-full bg-zinc-200" />
+                  <div className="mt-0.5 size-6 shrink-0 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-700" />
                   <div className="flex-1 space-y-1.5">
-                    <div className="h-3.5 w-full animate-pulse rounded-md bg-zinc-200" />
-                    <div className="h-3 w-16 animate-pulse rounded-md bg-zinc-100" />
+                    <div className="h-3.5 w-full animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
+                    <div className="h-3 w-16 animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-700" />
                   </div>
                 </div>
               ))}
@@ -250,12 +250,12 @@ export function PostRow({ post, boardId }: PostRowProps) {
             <div className="space-y-3">
               {commentsQuery.data?.map((c) => (
                 <div key={c.id} className="flex gap-3 text-sm">
-                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-[10px] font-medium text-zinc-500">
+                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-[10px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                     {c.authorId.slice(0, 2).toUpperCase()}
                   </span>
                   <div>
-                    <p className="text-zinc-700">{c.body}</p>
-                    <p className="text-xs text-zinc-400">
+                    <p className="text-zinc-700 dark:text-zinc-300">{c.body}</p>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500">
                       {new Date(c.createdAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -276,7 +276,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Add a comment..."
-              className="flex-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm outline-none transition-colors focus:border-zinc-400"
+              className="flex-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
             />
             <Button
               type="submit"
