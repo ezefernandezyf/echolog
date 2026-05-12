@@ -121,17 +121,38 @@ export function PostDetailPage() {
     );
   }
 
-  if (isError || !post) {
+  if (isError) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-foreground">
-        <p className="text-lg font-medium text-muted-foreground">
-          {isError
-            ? (error as Partial<ApiError>)?.message ?? 'Failed to load post'
-            : 'Post not found'}
-        </p>
-        <Button variant="outline" onClick={() => navigate(`/w/${workspaceId}`)}>
-          Back to board
-        </Button>
+      <main className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border border-dashed border-red-200 bg-red-50/30 px-6 py-16 text-center dark:border-red-800/30 dark:bg-red-950/10">
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {(error as Partial<ApiError>)?.message ?? 'Failed to load post'}
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/w/${workspaceId}`)}
+          >
+            Back to board
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
+  if (!post) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-16 text-center shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
+          <p className="text-sm text-muted-foreground">
+            Post not found. It may have been removed or the link is incorrect.
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/w/${workspaceId}`)}
+          >
+            Back to board
+          </Button>
+        </div>
       </main>
     );
   }
