@@ -18,11 +18,20 @@
 - **Database**: Prisma with composite keys for tenant isolation (`@@unique([workspaceId, slug])`)
 
 ## Conventions
-- Conventional Commits: `feat(scope):`, `fix(scope):`, `chore:`, `docs:`
+- Conventional Commits: `feat(scope):`, `fix(scope):`, `chore:`, `docs:`, `test(scope):`
 - React 19: no useMemo/useCallback (compiler handles it), named imports only
 - TypeScript: strict mode, never `any`, `as const` pattern for string literals
 - Never build after changes, never add "Co-Authored-By" to commits
 - ESLint + Prettier run on every change: `npm run lint` / `npm run format`
+
+## Git Workflow (STRICT — zero exceptions)
+1. **Feature branches**: EVERY task starts on a new branch from `main`
+2. **Branch naming**: `feat/short-name`, `fix/short-name`, `chore/short-name`
+3. **Atomic commits**: one logical change layer per commit, conventional format
+4. **Push + PR + Merge**: push branch, create PR, merge to `main` — never commit directly to `main`
+5. **Clean working tree**: no untracked files, no WIP before PR
+6. **Lint before push**: `npm run lint && npm run format` must pass
+7. **Tests before merge**: `npm test` (server + web) must pass — 31 tests minimum
 
 ## How to Run
 ```bash
@@ -64,29 +73,37 @@ npm run dev:web          # terminal 2: frontend on :5173
 - 2.6 Debounced search
 - 2.7 React Hook Form + Zod validation
 
-### Phase 3: UI/UX Polish 🔲
-- 3.1 Responsive design
-- 3.2 Dark mode
-- 3.3 Loading skeletons
-- 3.4 Toast notifications
-- 3.5 Animations (votes + transitions)
-- 3.6 Landing page
-- 3.7 Post detail view
-- 3.8 Login responsive
+### Phase 3: UI/UX Polish ✅
+- 3.1 Responsive design (mobile sidebar drawer, workspace grid, touch targets)
+- 3.2 Dark mode (theme store, toggle, system preference detection, all components)
+- 3.3 Loading skeletons (posts, boards, workspaces, session)
+- 3.4 Toast notifications (sonner success on login, register, logout, create mutations)
+- 3.5 Animations (CSS keyframes: fade-in, slide-up, vote pulse, flip)
+- 3.6 Landing page (public hero, features grid, CTA)
+- 3.7 Post detail view (server endpoint + frontend page with comment extraction)
+- 3.8 Login responsive (touch-friendly auth forms)
 
 ### Phase 4: Admin & Advanced 🔲
-- 4.1 Admin middleware
-- 4.2 Workspace settings
-- 4.3 Destructive confirmations
-- 4.4 Advanced filters
-- 4.5 Pagination
+- 4.1 Admin middleware ✅ (requireWorkspaceAdmin wired to post status endpoint)
+- 4.2 Workspace settings (name, slug, delete)
+- 4.3 Destructive confirmations (delete workspace/board/post)
+- 4.4 Advanced filters (status, date range, author) + pagination
+- 4.5 Board settings (name, description, delete)
 
-### Phase 5: Deploy 🔲
-- 5.1 Neon.tech database
-- 5.2 Backend (Render)
-- 5.3 Frontend (Vercel)
-- 5.4 README
+### Phase 5: QA & Polish 🔲
+- 5.1 Form validation edge cases (empty states, error boundaries)
+- 5.2 Accessibility audit (keyboard nav, screen reader labels, focus traps)
+- 5.3 Loading/empty/error states audit for every view
+- 5.4 Mobile UX pass (touch targets, viewport meta, safe areas)
 
 ### Phase 6: Testing 🔲
-- 6.1 More frontend tests (currently 25)
-- 6.2 E2E tests
+- 6.1 Server tests: comments CRUD, post detail, board CRUD (currently 6 tests)
+- 6.2 Web tests: modals, forms, error states, dark mode toggle (currently 25 tests)
+- 6.3 E2E tests: auth flow, workspace→board→post→vote→comment happy path
+
+### Phase 7: Deploy 🔲
+- 7.1 Neon.tech PostgreSQL database
+- 7.2 Backend deploy (Render/Railway)
+- 7.3 Frontend deploy (Vercel)
+- 7.4 CI/CD pipeline (lint, type-check, test on PR)
+- 7.5 README with setup, architecture, and deploy instructions
