@@ -1,28 +1,90 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
-import type { CreatePostDTO, PostDTO } from '../../../shared/contracts/index.js';
+import type { CreatePostDTO, PostDTO, PostListFilters, PostListResponse } from '../../../shared/contracts/index.js';
+
+interface ListPostsOptions {
+  boardId: string;
+  status?: string;
+  search?: string;
+  sort?: PostListFilters['sort'];
+  cursor?: string;
+  limit: number;
+}
+
+function mapPost(p: {
+  id: string;
+  workspaceId: string;
+  boardId: string;
+  authorId: string;
+  title: string;
+  body: string;
+  status: string;
+  _count: { votes: number; comments: number };
+}): PostDTO {
+  return {
+    id: p.id,
+    workspaceId: p.workspaceId,
+    boardId: p.boardId,
+    authorId: p.authorId,
+    title: p.title,
+    body: p.body,
+    status: p.status,
+    voteCount: p._count.votes,
+    commentCount: p._count.comments,
+  };
+}
 
 export class PostsService {
-  async list(boardId: string): Promise<PostDTO[]> {
+  async list(opts: ListPostsOptions): Promise<PostListResponse> {
+    const where: Record<string, unknown> = { boardId: opts.boardId };
+
+    if (opts.status) {
+      where.status = opts.status;
+    }
+
+    if (opts.search?.trim()) {
+      where.OR = [
+        { title: { contains: opts.search } },
+        { body: { contains: opts.search } },
+      ];
+    }
+
+    // Cursor-based pagination
+    if (opts.cursor) {
+      where.id = { lt: opts.cursor };
+    }
+
+    // Sort
+    let orderBy: Record<string, unknown>;
+    switch (opts.sort) {
+      case 'top':
+        orderBy = { votes: { _count: 'desc' } };
+        break;
+      case 'new':
+        orderBy = { createdAt: 'desc' };
+        break;
+      case 'trending':
+      default:
+        orderBy = { createdAt: 'desc' };
+        break;
+    }
+
     const posts = await prisma.post.findMany({
-      where: { boardId },
+      where,
       include: {
         _count: { select: { votes: true, comments: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy,
+      take: opts.limit + 1, // fetch one extra to determine hasMore
     });
 
-    return posts.map((p) => ({
-      id: p.id,
-      workspaceId: p.workspaceId,
-      boardId: p.boardId,
-      authorId: p.authorId,
-      title: p.title,
-      body: p.body,
-      status: p.status,
-      voteCount: p._count.votes,
-      commentCount: p._count.comments,
-    }));
+    const hasMore = posts.length > opts.limit;
+    const items = hasMore ? posts.slice(0, opts.limit) : posts;
+
+    return {
+      posts: items.map(mapPost),
+      nextCursor: hasMore ? items[items.length - 1].id : null,
+    };
   }
 
   async create(boardId: string, input: CreatePostDTO, userId: string): Promise<PostDTO> {
