@@ -79,19 +79,21 @@ export function BoardLayout() {
     ? boardsQuery.data.map((b) => ({ id: b.id, label: b.name }))
     : [];
 
-  const selectedBoardId = boardsQuery.data?.[0]?.id ?? null;
-  const selectedBoard = boardsQuery.data?.find((b) => b.id === selectedBoardId);
+  // Board selection: auto-select first, but allow manual switch
+  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
+  const effectiveBoardId = selectedBoardId ?? boardsQuery.data?.[0]?.id ?? null;
+  const selectedBoard = boardsQuery.data?.find((b) => b.id === effectiveBoardId);
 
   const postsQuery = useQuery<PostListResponse>({
-    queryKey: ['posts', selectedBoardId, { status: activeStatus, sort: activeSort, cursor }],
+    queryKey: ['posts', effectiveBoardId, { status: activeStatus, sort: activeSort, cursor }],
     queryFn: () =>
-      postApi.list(selectedBoardId!, {
+      postApi.list(effectiveBoardId!, {
         status: activeStatus ?? undefined,
         sort: SORT_TO_API[activeSort],
         cursor: cursor ?? undefined,
         limit: PAGE_SIZE,
       }),
-    enabled: !!selectedBoardId,
+    enabled: !!effectiveBoardId,
     placeholderData: (prev) => prev,
   });
 
@@ -175,9 +177,14 @@ export function BoardLayout() {
       ) : (
         <Sidebar
           workspaceName={workspaceName}
+          workspaceId={workspaceId!}
           items={sidebarItems}
-          activeItemId={selectedBoardId ?? ''}
+          activeItemId={effectiveBoardId ?? ''}
           onCreateBoard={() => openModal('create-board')}
+          onSelectBoard={(boardId) => {
+            setSelectedBoardId(boardId);
+            resetFilters();
+          }}
           onNavClick={closeSidebar}
           className={cn(
             'lg:relative lg:w-72 lg:translate-x-0 lg:z-auto',
@@ -213,7 +220,7 @@ export function BoardLayout() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
         </button>
-        {!selectedBoardId ? (
+        {!effectiveBoardId ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-sm text-zinc-400 dark:text-zinc-500">
               {boardsQuery.data && boardsQuery.data.length === 0
@@ -263,10 +270,10 @@ export function BoardLayout() {
             isLoadingMore={isLoadingMore}
             onLoadMore={handleLoadMore}
             onCreatePost={() => openModal('create-post')}
-            boardId={selectedBoardId}
+            boardId={effectiveBoardId}
           />
         )}
-        <CreatePostModal boardId={selectedBoardId ?? undefined} />
+        <CreatePostModal boardId={effectiveBoardId ?? undefined} />
         <CreateBoardModal workspaceId={workspaceId!} />
       </div>
     </main>

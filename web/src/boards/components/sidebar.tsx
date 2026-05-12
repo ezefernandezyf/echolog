@@ -22,18 +22,22 @@ export interface SidebarItem {
 
 interface SidebarProps {
   workspaceName: string;
+  workspaceId: string;
   items: SidebarItem[];
   activeItemId: string;
   onCreateBoard?: () => void;
+  onSelectBoard?: (boardId: string) => void;
   className?: string;
   onNavClick?: () => void;
 }
 
 export function Sidebar({
   workspaceName,
+  workspaceId,
   items,
   activeItemId,
   onCreateBoard,
+  onSelectBoard,
   className,
   onNavClick,
 }: SidebarProps) {
@@ -62,6 +66,7 @@ export function Sidebar({
       <div className="border-b border-zinc-200 px-5 py-5 dark:border-zinc-800">
         <button
           type="button"
+          onClick={() => navigate('/w')}
           className="flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-left transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-card dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
         >
           <div className="min-w-0">
@@ -72,7 +77,7 @@ export function Sidebar({
               {workspaceName}
             </p>
           </div>
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">⌄</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">←</span>
         </button>
       </div>
 
@@ -85,7 +90,10 @@ export function Sidebar({
               <button
                 key={item.id}
                 type="button"
-                onClick={onNavClick}
+                onClick={() => {
+                  onSelectBoard?.(item.id);
+                  onNavClick?.();
+                }}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium tracking-[-0.01em] transition-colors',
