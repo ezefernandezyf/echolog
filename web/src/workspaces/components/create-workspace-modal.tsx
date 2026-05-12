@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,6 +29,7 @@ export function CreateWorkspaceModal() {
     register,
     handleSubmit,
     watch,
+    setValue,
     reset,
     formState: { errors },
   } = useForm<CreateWorkspaceDTO & { slug?: string }>({
@@ -35,6 +37,11 @@ export function CreateWorkspaceModal() {
   });
 
   const name = watch('name', '');
+
+  // Auto-populate slug from name so Zod validation passes
+  useEffect(() => {
+    setValue('slug', slugify(name), { shouldValidate: true });
+  }, [name, setValue]);
 
   const mutation = useMutation({
     mutationFn: (data: CreateWorkspaceDTO) =>
@@ -67,6 +74,8 @@ export function CreateWorkspaceModal() {
           ) : null}
           {errors.name ? (
             <p className="text-sm text-red-600">{errors.name.message}</p>
+          ) : errors.slug ? (
+            <p className="text-sm text-red-600">{errors.slug.message}</p>
           ) : null}
         </label>
 
