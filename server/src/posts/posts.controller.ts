@@ -12,7 +12,7 @@ export const createPost = async (req: Request, res: Response) => {
 };
 
 export const getPostById = async (req: Request, res: Response) => {
-  const data = await postsService.getById(req.params.postId, req.userId);
+  const data = await postsService.getById(req.params.postId as string, req.userId);
   res.status(200).json(data);
 };
 
