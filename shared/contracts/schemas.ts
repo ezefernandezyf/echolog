@@ -41,6 +41,20 @@ export const createBoardSchema = z.object({
   description: z.string().min(1).optional().nullable(),
 });
 
+export const updateBoardSchema = z
+  .object({
+    name: z.string().min(1).optional(),
+    slug: z
+      .string()
+      .min(1)
+      .regex(/^[a-z0-9-]+$/)
+      .optional(),
+    description: z.string().min(1).optional().nullable(),
+  })
+  .refine((data) => data.name !== undefined || data.slug !== undefined || data.description !== undefined, {
+    message: 'At least one field must be provided',
+  });
+
 export const createPostSchema = z.object({
   title: z.string().min(1),
   body: z.string().min(1),

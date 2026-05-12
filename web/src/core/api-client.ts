@@ -8,6 +8,7 @@ import type {
   CreatePostDTO,
   CreateWorkspaceDTO,
   PostDTO,
+  UpdateBoardDTO,
   UpdateWorkspaceDTO,
   WorkspaceDTO,
   CommentDTO,
@@ -134,6 +135,14 @@ export const boardApi = {
       method: 'POST',
       data,
     }),
+  update: (workspaceId: string, boardId: string, data: UpdateBoardDTO) =>
+    fetchJson<BoardDTO, UpdateBoardDTO>({
+      url: `/workspaces/${workspaceId}/boards/${boardId}`,
+      method: 'PATCH',
+      data,
+    }),
+  delete: (workspaceId: string, boardId: string) =>
+    fetchJson<void>({ url: `/workspaces/${workspaceId}/boards/${boardId}`, method: 'DELETE' }),
 };
 
 export const postApi = {
