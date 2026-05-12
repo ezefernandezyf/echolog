@@ -9,6 +9,10 @@ on:
 jobs:
   backend-ci:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "file:./dev.db"
+      JWT_SECRET: "ci-test-secret"
+      NODE_ENV: test
     defaults:
       run:
         working-directory: ./server
