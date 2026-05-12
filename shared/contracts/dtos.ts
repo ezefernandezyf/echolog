@@ -33,6 +33,11 @@ export interface CreateWorkspaceDTO {
   slug: string;
 }
 
+export interface UpdateWorkspaceDTO {
+  name?: string;
+  slug?: string;
+}
+
 export interface BoardDTO {
   id: string;
   workspaceId: string;
