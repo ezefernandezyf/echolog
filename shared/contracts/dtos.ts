@@ -52,6 +52,12 @@ export interface CreateBoardDTO {
   description?: string | null;
 }
 
+export interface UpdateBoardDTO {
+  name?: string;
+  slug?: string;
+  description?: string | null;
+}
+
 export interface PostDTO {
   id: string;
   workspaceId: string;
