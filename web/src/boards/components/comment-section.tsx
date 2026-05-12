@@ -62,7 +62,11 @@ export function CommentSection({ postId, comments, isLoading }: CommentSectionPr
           ))}
         </div>
       ) : (
-        <p className="py-2 text-sm text-zinc-400 dark:text-zinc-500">No comments yet.</p>
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zinc-200 px-6 py-10 text-center dark:border-zinc-800">
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            No comments yet. Be the first to share your thoughts.
+          </p>
+        </div>
       )}
 
       <form
