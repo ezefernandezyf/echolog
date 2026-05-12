@@ -25,7 +25,7 @@ export function Skeleton({
     <div
       ref={ref}
       className={cn(
-        'animate-pulse bg-zinc-200',
+        'animate-pulse bg-zinc-200 dark:bg-zinc-700',
         rounded === 'sm' && 'rounded-sm',
         rounded === 'md' && 'rounded-md',
         rounded === 'lg' && 'rounded-lg',
