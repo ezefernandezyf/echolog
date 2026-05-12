@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Sidebar, type SidebarItem } from './sidebar';
@@ -13,6 +13,7 @@ import { CreateBoardModal } from './create-board-modal';
 import { Button } from '../../shared/components/ui/button';
 import { PostSkeleton, BoardSkeletonList } from '../../shared/components/domain-skeletons';
 import { cn } from '../../shared/lib/cn';
+import type { PostListResponse } from '../../../../shared/contracts/index.js';
 
 function mapPostToRow(post: {
   id: string;
@@ -36,6 +37,14 @@ function mapPostToRow(post: {
   };
 }
 
+const SORT_TO_API: Record<PostSort, 'trending' | 'top' | 'new'> = {
+  Trending: 'trending',
+  Top: 'top',
+  New: 'new',
+};
+
+const PAGE_SIZE = 20;
+
 export function BoardLayout() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const openModal = useUiStore((state) => state.openModal);
@@ -43,6 +52,12 @@ export function BoardLayout() {
   const openSidebar = useUiStore((state) => state.openSidebar);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const [activeSort, setActiveSort] = useState<PostSort>('Trending');
+  const [activeStatus, setActiveStatus] = useState<string | null>(null);
+  const [cursor, setCursor] = useState<string | null>(null);
+
+  // Accumulated posts across pages
+  const accumulatedRef = useRef<PostRowData[]>([]);
+  const [accumulated, setAccumulated] = useState<PostRowData[]>([]);
 
   const workspaceQuery = useQuery({
     queryKey: ['workspaces'],
@@ -64,18 +79,61 @@ export function BoardLayout() {
     ? boardsQuery.data.map((b) => ({ id: b.id, label: b.name }))
     : [];
 
-  // Auto-select first board
   const selectedBoardId = boardsQuery.data?.[0]?.id ?? null;
-
   const selectedBoard = boardsQuery.data?.find((b) => b.id === selectedBoardId);
 
-  const postsQuery = useQuery({
-    queryKey: ['posts', selectedBoardId],
-    queryFn: () => postApi.list(selectedBoardId!),
+  const postsQuery = useQuery<PostListResponse>({
+    queryKey: ['posts', selectedBoardId, { status: activeStatus, sort: activeSort, cursor }],
+    queryFn: () =>
+      postApi.list(selectedBoardId!, {
+        status: activeStatus ?? undefined,
+        sort: SORT_TO_API[activeSort],
+        cursor: cursor ?? undefined,
+        limit: PAGE_SIZE,
+      }),
     enabled: !!selectedBoardId,
+    placeholderData: (prev) => prev,
   });
 
-  const posts: PostRowData[] = postsQuery.data ? postsQuery.data.map(mapPostToRow) : [];
+  // Derive posts from accumulated state + current query page
+  const posts = useMemo(() => {
+    if (!postsQuery.data) return accumulated;
+
+    const newRows = postsQuery.data.posts.map(mapPostToRow);
+    const allRows = cursor ? [...accumulated, ...newRows] : newRows;
+
+    // Keep ref in sync (avoid stale closure in loadMore)
+    accumulatedRef.current = allRows;
+
+    return allRows;
+  }, [postsQuery.data, cursor, accumulated]);
+
+  const hasMore = postsQuery.data?.nextCursor !== null;
+  const isLoadingMore = postsQuery.isFetching && cursor !== null;
+
+  const resetFilters = (newStatus: string | null = activeStatus, newSort: PostSort = activeSort) => {
+    setCursor(null);
+    setAccumulated([]);
+    accumulatedRef.current = [];
+    setActiveStatus(newStatus);
+    setActiveSort(newSort);
+  };
+
+  const handleStatusChange = (status: string | null) => {
+    resetFilters(status, activeSort);
+  };
+
+  const handleSortChange = (sort: PostSort) => {
+    resetFilters(activeStatus, sort);
+  };
+
+  const handleLoadMore = () => {
+    if (postsQuery.data?.nextCursor) {
+      // Save current page's posts before changing cursor
+      setAccumulated(accumulatedRef.current);
+      setCursor(postsQuery.data.nextCursor);
+    }
+  };
 
   return (
     <main className="flex min-h-screen bg-zinc-50 text-zinc-950 dark:bg-background dark:text-foreground">
@@ -129,7 +187,6 @@ export function BoardLayout() {
         />
       )}
 
-      {/* Mobile overlay — shown when sidebar is open on small screens */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 lg:hidden animate-fade-in"
@@ -139,7 +196,6 @@ export function BoardLayout() {
       )}
 
       <div className="flex min-h-screen flex-1 flex-col animate-fade-in">
-        {/* Hamburger button — visible only on mobile */}
         <button
           type="button"
           onClick={openSidebar}
@@ -165,7 +221,7 @@ export function BoardLayout() {
                 : 'Select a board from the sidebar.'}
             </p>
           </div>
-        ) : postsQuery.isPending ? (
+        ) : postsQuery.isPending && !cursor ? (
           <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
             <header className="border-b border-zinc-200 px-6 py-6 sm:px-8 dark:border-zinc-800">
               <div className="space-y-2">
@@ -200,7 +256,12 @@ export function BoardLayout() {
             title={selectedBoard?.name ?? ''}
             posts={posts}
             activeSort={activeSort}
-            onSortChange={setActiveSort}
+            onSortChange={handleSortChange}
+            activeStatus={activeStatus}
+            onStatusChange={handleStatusChange}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={handleLoadMore}
             onCreatePost={() => openModal('create-post')}
             boardId={selectedBoardId}
           />

@@ -5,44 +5,40 @@ import { PostRow, type PostRowData } from './post-row';
 
 export type PostSort = 'Trending' | 'Top' | 'New';
 
+const STATUS_OPTIONS = [
+  { value: null, label: 'All' },
+  { value: 'OPEN', label: 'Open' },
+  { value: 'PLANNED', label: 'Planned' },
+  { value: 'IN_PROGRESS', label: 'In Progress' },
+  { value: 'DONE', label: 'Done' },
+] as const;
+
 interface PostListProps {
   title: string;
   posts: PostRowData[];
   activeSort: PostSort;
   onSortChange: (sort: PostSort) => void;
+  activeStatus: string | null;
+  onStatusChange: (status: string | null) => void;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  onLoadMore: () => void;
   onCreatePost?: () => void;
   boardId: string;
 }
 
 const sortTabs: PostSort[] = ['Trending', 'Top', 'New'];
 
-function sortPosts(posts: PostRowData[], sort: PostSort) {
-  const sorted = [...posts];
-
-  if (sort === 'Top') {
-    return sorted.sort((left, right) => right.upvotes - left.upvotes);
-  }
-
-  if (sort === 'New') {
-    return sorted.sort((left, right) => +new Date(right.createdAt) - +new Date(left.createdAt));
-  }
-
-  return sorted.sort((left, right) => right.trendScore - left.trendScore);
-}
-
-function filterPosts(posts: PostRowData[], query: string): PostRowData[] {
-  if (!query.trim()) return posts;
-  const q = query.toLowerCase();
-  return posts.filter(
-    (p) => p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q),
-  );
-}
-
 export function PostList({
   title,
   posts,
   activeSort,
   onSortChange,
+  activeStatus,
+  onStatusChange,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
   onCreatePost,
   boardId,
 }: PostListProps) {
@@ -54,8 +50,13 @@ export function PostList({
     return () => clearTimeout(id);
   }, [search]);
 
-  const sortedPosts = sortPosts(posts, activeSort);
-  const filtered = filterPosts(sortedPosts, debounced);
+  const filtered = debounced.trim()
+    ? posts.filter(
+        (p) =>
+          p.title.toLowerCase().includes(debounced.toLowerCase()) ||
+          p.description.toLowerCase().includes(debounced.toLowerCase()),
+      )
+    : posts;
 
   return (
     <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
@@ -80,7 +81,9 @@ export function PostList({
                     onClick={() => onSortChange(sort)}
                     className={cn(
                       'rounded-full px-4 py-2 text-sm font-medium transition-colors',
-                      active ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-900' : 'text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-100',
+                      active
+                        ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                        : 'text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-100',
                     )}
                   >
                     {sort}
@@ -99,7 +102,26 @@ export function PostList({
           </div>
         </div>
 
-        <div className="mt-4">
+        {/* Status filter pills */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {STATUS_OPTIONS.map((opt) => (
+            <button
+              key={opt.value ?? 'all'}
+              type="button"
+              onClick={() => onStatusChange(opt.value)}
+              className={cn(
+                'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+                activeStatus === opt.value
+                  ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                  : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700',
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-3">
           <input
             type="text"
             value={search}
@@ -120,11 +142,27 @@ export function PostList({
                 </p>
               </div>
             ) : (
-              filtered.map((post) => (
-                <div key={post.id} className="animate-fade-in">
-                  <PostRow post={post} boardId={boardId} />
-                </div>
-              ))
+              <>
+                {filtered.map((post) => (
+                  <div key={post.id} className="animate-fade-in">
+                    <PostRow post={post} boardId={boardId} />
+                  </div>
+                ))}
+
+                {/* Load more */}
+                {hasMore && (
+                  <div className="flex items-center justify-center border-t border-zinc-200 px-6 py-5 dark:border-zinc-800">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onLoadMore}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore ? 'Loading...' : 'Load more posts'}
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

@@ -8,6 +8,8 @@ import type {
   CreatePostDTO,
   CreateWorkspaceDTO,
   PostDTO,
+  PostListFilters,
+  PostListResponse,
   UpdateBoardDTO,
   UpdateWorkspaceDTO,
   WorkspaceDTO,
@@ -146,7 +148,16 @@ export const boardApi = {
 };
 
 export const postApi = {
-  list: (boardId: string) => fetchJson<PostDTO[]>({ url: `/boards/${boardId}/posts` }),
+  list: (boardId: string, filters?: PostListFilters) => {
+    const params = new URLSearchParams();
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.search) params.set('search', filters.search);
+    if (filters?.sort) params.set('sort', filters.sort);
+    if (filters?.cursor) params.set('cursor', filters.cursor);
+    if (filters?.limit) params.set('limit', String(filters.limit));
+    const qs = params.toString();
+    return fetchJson<PostListResponse>({ url: `/boards/${boardId}/posts${qs ? `?${qs}` : ''}` });
+  },
   create: (boardId: string, data: CreatePostDTO) =>
     fetchJson<PostDTO, CreatePostDTO>({ url: `/boards/${boardId}/posts`, method: 'POST', data }),
   getById: (postId: string) => fetchJson<PostDTO>({ url: `/posts/${postId}` }),
