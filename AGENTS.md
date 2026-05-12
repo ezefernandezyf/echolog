@@ -46,13 +46,47 @@ npm run dev:web          # terminal 2: frontend on :5173
 - `web/src/core/router.tsx` — React Router config
 - `web/vite.config.ts` — Vite + Tailwind plugin + API proxy to :3000
 
-## Roadmap (current)
-- ✅ Phase 1: Backend scaffold, Prisma schema, domain services
-- ✅ Phase 2: Frontend scaffold, auth, workspace/board/post views
-- ✅ Phase 1.1: Prisma wired to all services (in-memory→SQLite)
-- 🔲 Phase 1.2–1.5: bcrypt ✅, Zod middleware, error handler, CORS/helmet
-- 🔲 Phase 2: Votes with Optimistic UI, comments, filters, React Hook Form
-- 🔲 Phase 3: Responsive, dark mode, skeletons, toasts, animations
-- 🔲 Phase 4: Admin middleware, settings page, destructive confirmations
-- 🔲 Phase 5: Deploy (Neon.tech, Render, Vercel)
-- 🔲 Phase 6: Frontend + E2E tests
+## Roadmap
+
+### Phase 1: Foundation ✅
+- 1.1 Prisma wired to services
+- 1.2 bcrypt
+- 1.3 Zod middleware
+- 1.4 Error handler global
+- 1.5 CORS + helmet
+
+### Phase 2: Core Features ✅
+- 2.1 Optimistic UI votes
+- 2.2 Vote contract (POST/DELETE + 409)
+- 2.3 Admin post status controls
+- 2.4 Post status enum in Prisma
+- 2.5 Comments system
+- 2.6 Debounced search
+- 2.7 React Hook Form + Zod validation
+
+### Phase 3: UI/UX Polish 🔲
+- 3.1 Responsive design
+- 3.2 Dark mode
+- 3.3 Loading skeletons
+- 3.4 Toast notifications
+- 3.5 Animations (votes + transitions)
+- 3.6 Landing page
+- 3.7 Post detail view
+- 3.8 Login responsive
+
+### Phase 4: Admin & Advanced 🔲
+- 4.1 Admin middleware
+- 4.2 Workspace settings
+- 4.3 Destructive confirmations
+- 4.4 Advanced filters
+- 4.5 Pagination
+
+### Phase 5: Deploy 🔲
+- 5.1 Neon.tech database
+- 5.2 Backend (Render)
+- 5.3 Frontend (Vercel)
+- 5.4 README
+
+### Phase 6: Testing 🔲
+- 6.1 More frontend tests (currently 25)
+- 6.2 E2E tests
