@@ -1,6 +1,6 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
-import type { CreateWorkspaceDTO, WorkspaceDTO } from '../../../shared/contracts/index.js';
+import type { CreateWorkspaceDTO, UpdateWorkspaceDTO, WorkspaceDTO } from '../../../shared/contracts/index.js';
 
 export class WorkspacesService {
   async list(userId: string): Promise<WorkspaceDTO[]> {
@@ -42,6 +42,49 @@ export class WorkspacesService {
       slug: workspace.slug,
       role: 'OWNER',
     };
+  }
+
+  async update(workspaceId: string, input: UpdateWorkspaceDTO, userId: string): Promise<WorkspaceDTO> {
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId } },
+    });
+    if (!membership || membership.role === 'MEMBER') {
+      throw new HttpError('Forbidden', 403);
+    }
+
+    // If slug is being changed, check uniqueness
+    if (input.slug) {
+      const existing = await prisma.workspace.findUnique({ where: { slug: input.slug } });
+      if (existing && existing.id !== workspaceId) {
+        throw new HttpError('Workspace slug already exists', 409);
+      }
+    }
+
+    const workspace = await prisma.workspace.update({
+      where: { id: workspaceId },
+      data: {
+        ...(input.name !== undefined && { name: input.name }),
+        ...(input.slug !== undefined && { slug: input.slug }),
+      },
+    });
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      role: membership.role,
+    };
+  }
+
+  async delete(workspaceId: string, userId: string): Promise<void> {
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId } },
+    });
+    if (!membership || membership.role !== 'OWNER') {
+      throw new HttpError('Forbidden: only the workspace owner can delete it', 403);
+    }
+
+    await prisma.workspace.delete({ where: { id: workspaceId } });
   }
 }
 
