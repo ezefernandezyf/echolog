@@ -6,6 +6,7 @@ import { Toaster } from 'sonner';
 import './index.css';
 import { App } from './App';
 import { queryClient } from './core/query-client';
+import { ErrorBoundary } from './shared/components/error-boundary';
 
 const rootElement = document.getElementById('root');
 
@@ -15,11 +16,13 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <App />
-        <Toaster position="bottom-right" richColors />
-      </QueryClientProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <App />
+          <Toaster position="bottom-right" richColors />
+        </QueryClientProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>,
 );

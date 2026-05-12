@@ -50,8 +50,18 @@ export const useUiStore = create<UiStore>((set) => ({
   theme: getInitialTheme(),
   openSidebar: () => set({ sidebarOpen: true }),
   closeSidebar: () => set({ sidebarOpen: false }),
-  openModal: (modal) => set({ activeModal: modal }),
-  closeModal: () => set({ activeModal: null }),
+  openModal: (modal) => {
+    if (import.meta.env.DEV) {
+      console.log('[ui-store] openModal:', modal);
+    }
+    set({ activeModal: modal });
+  },
+  closeModal: () => {
+    if (import.meta.env.DEV) {
+      console.log('[ui-store] closeModal');
+    }
+    set({ activeModal: null });
+  },
   setNotification: (message) => set({ notification: message }),
   setTheme: (theme) => {
     persistTheme(theme);
