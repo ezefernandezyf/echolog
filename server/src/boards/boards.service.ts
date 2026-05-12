@@ -1,6 +1,6 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
-import type { BoardDTO, CreateBoardDTO } from '../../../shared/contracts/index.js';
+import type { BoardDTO, CreateBoardDTO, UpdateBoardDTO } from '../../../shared/contracts/index.js';
 
 export class BoardsService {
   async list(workspaceId: string): Promise<BoardDTO[]> {
@@ -49,6 +49,69 @@ export class BoardsService {
         description: true,
       },
     });
+  }
+
+  async update(boardId: string, input: UpdateBoardDTO, userId: string): Promise<BoardDTO> {
+    const board = await prisma.board.findUnique({ where: { id: boardId } });
+    if (!board) {
+      throw new HttpError('Board not found', 404);
+    }
+
+    // Check workspace membership
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId: board.workspaceId } },
+    });
+    if (!membership || membership.role === 'MEMBER') {
+      throw new HttpError('Forbidden', 403);
+    }
+
+    // If slug is being changed, check uniqueness within the workspace
+    if (input.slug) {
+      const existing = await prisma.board.findUnique({
+        where: {
+          workspaceId_slug: {
+            workspaceId: board.workspaceId,
+            slug: input.slug,
+          },
+        },
+      });
+      if (existing && existing.id !== boardId) {
+        throw new HttpError('Board slug already exists in this workspace', 409);
+      }
+    }
+
+    return prisma.board.update({
+      where: { id: boardId },
+      data: {
+        ...(input.name !== undefined && { name: input.name }),
+        ...(input.slug !== undefined && { slug: input.slug }),
+        ...(input.description !== undefined && { description: input.description }),
+      },
+      select: {
+        id: true,
+        workspaceId: true,
+        name: true,
+        slug: true,
+        description: true,
+      },
+    });
+  }
+
+  async delete(boardId: string, userId: string): Promise<void> {
+    const board = await prisma.board.findUnique({ where: { id: boardId } });
+    if (!board) {
+      throw new HttpError('Board not found', 404);
+    }
+
+    // Only workspace admin/owner can delete boards
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId: board.workspaceId } },
+    });
+    if (!membership || membership.role === 'MEMBER') {
+      throw new HttpError('Forbidden', 403);
+    }
+
+    await prisma.board.delete({ where: { id: boardId } });
   }
 }
 
