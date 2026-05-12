@@ -7,7 +7,6 @@ import { WorkspaceCard, type WorkspaceCardData } from './workspace-card';
 import { useUiStore } from '../../core/store/ui-store';
 import { CreateWorkspaceModal } from './create-workspace-modal';
 import { WorkspaceSkeletonGrid } from '../../shared/components/domain-skeletons';
-import { ThemeToggle } from '../../shared/components/theme-toggle';
 
 interface WorkspaceHubProps {
   onCreateWorkspace?: () => void;
@@ -41,7 +40,6 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
             >
               + Create Workspace
             </Button>
-            <ThemeToggle />
           </div>
         </header>
 

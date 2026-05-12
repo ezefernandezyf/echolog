@@ -1,6 +1,5 @@
 import { cn } from '../../shared/lib/cn';
 import { useAuthStore } from '../../auth/auth-store';
-import { ThemeToggle } from '../../shared/components/theme-toggle';
 
 function getUserInitials(name: string | null, email: string): string {
   if (name && name.trim()) {
@@ -99,10 +98,6 @@ export function Sidebar({
           ) : null}
         </div>
       </nav>
-
-      <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
-        <ThemeToggle />
-      </div>
 
       <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
         <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
