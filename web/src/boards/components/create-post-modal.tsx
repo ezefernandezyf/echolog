@@ -48,10 +48,10 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
     <Modal open={open} onClose={closeModal} className="max-w-2xl">
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
             New Feedback
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">
             Submit new feedback
           </h2>
         </div>
@@ -61,7 +61,7 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
         ) : null}
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700">Title</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Title</span>
           <Input placeholder="Add dark mode" {...register('title')} />
           {errors.title ? (
             <p className="text-sm text-red-600">{errors.title.message}</p>
@@ -69,12 +69,12 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700">Details</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Details</span>
           <textarea
             placeholder="Tell us what you'd like to improve..."
             rows={6}
             className={cn(
-              'flex w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm shadow-black/[0.02] transition-colors placeholder:text-muted-foreground focus-visible:border-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
+              'flex w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm shadow-black/[0.02] transition-colors placeholder:text-muted-foreground focus-visible:border-zinc-900 dark:focus-visible:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
             )}
             {...register('body')}
           />
@@ -95,7 +95,7 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
           </Button>
           <Button
             type="submit"
-            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900"
+            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
             disabled={mutation.isPending || !boardId}
           >
             {mutation.isPending ? 'Creating...' : 'Create Post'}

@@ -51,19 +51,19 @@ export function CreateWorkspaceModal() {
     <Modal open={open} onClose={closeModal}>
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">EchoLog</p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">Create Workspace</h2>
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">EchoLog</p>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">Create Workspace</h2>
         </div>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700">Workspace Name</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Workspace Name</span>
           <Input
             placeholder="Northstar Labs"
             autoComplete="off"
             {...register('name')}
           />
           {name.trim() ? (
-            <p className="text-xs text-zinc-400">Slug: {slugify(name)}</p>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
           ) : null}
           {errors.name ? (
             <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -82,7 +82,7 @@ export function CreateWorkspaceModal() {
           </Button>
           <Button
             type="submit"
-            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900"
+            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
             disabled={mutation.isPending || !name.trim()}
           >
             {mutation.isPending ? 'Creating...' : 'Create'}

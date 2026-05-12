@@ -59,15 +59,15 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
     <Modal open={open} onClose={closeModal}>
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">EchoLog</p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">Create Board</h2>
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">EchoLog</p>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">Create Board</h2>
         </div>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700">Board Name</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Board Name</span>
           <Input placeholder="Feature Requests" autoComplete="off" {...register('name')} />
           {name.trim() ? (
-            <p className="text-xs text-zinc-400">Slug: {slugify(name)}</p>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
           ) : null}
           {errors.name ? (
             <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -75,7 +75,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700">Description (optional)</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Description (optional)</span>
           <Input placeholder="Collect and prioritize feature ideas" {...register('description')} />
           {errors.description ? (
             <p className="text-sm text-red-600">{errors.description.message}</p>
@@ -96,7 +96,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
           </Button>
           <Button
             type="submit"
-            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900"
+            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
             disabled={mutation.isPending || !name.trim()}
           >
             {mutation.isPending ? 'Creating...' : 'Create Board'}
