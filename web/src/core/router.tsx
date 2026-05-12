@@ -5,6 +5,7 @@ import { ProtectedRoute, PublicRoute } from '../auth/auth-guard';
 import { BoardLayout } from '../boards/components/board-layout';
 import { PostDetailPage } from '../boards/components/post-detail-page';
 import { WorkspaceHub } from '../workspaces/components/workspace-hub';
+import { WorkspaceSettingsPage } from '../workspaces/components/workspace-settings-page';
 import { LandingPage } from '../shared/components/landing-page';
 
 export function AppRouter() {
@@ -19,6 +20,7 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route path="/w" element={<WorkspaceHub />} />
         <Route path="/w/:workspaceId" element={<BoardLayout />} />
+        <Route path="/w/:workspaceId/settings" element={<WorkspaceSettingsPage />} />
         <Route path="/w/:workspaceId/p/:postId" element={<PostDetailPage />} />
       </Route>
 

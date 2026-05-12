@@ -19,6 +19,19 @@ export const createWorkspaceSchema = z.object({
     .regex(/^[a-z0-9-]+$/),
 });
 
+export const updateWorkspaceSchema = z
+  .object({
+    name: z.string().min(1).optional(),
+    slug: z
+      .string()
+      .min(1)
+      .regex(/^[a-z0-9-]+$/)
+      .optional(),
+  })
+  .refine((data) => data.name !== undefined || data.slug !== undefined, {
+    message: 'At least one field (name or slug) must be provided',
+  });
+
 export const createBoardSchema = z.object({
   name: z.string().min(1),
   slug: z
