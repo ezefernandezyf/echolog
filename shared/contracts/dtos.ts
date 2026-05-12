@@ -95,3 +95,16 @@ export interface CommentDTO {
 export interface CreateCommentDTO {
   body: string;
 }
+
+export interface PostListFilters {
+  status?: string;
+  search?: string;
+  sort?: 'trending' | 'top' | 'new';
+  cursor?: string;
+  limit?: number;
+}
+
+export interface PostListResponse {
+  posts: PostDTO[];
+  nextCursor: string | null;
+}
