@@ -3,14 +3,20 @@ import { createToken, verifyToken } from '../infra/http.js';
 import { parseCookies } from '../infra/request.js';
 import { authService } from './auth.service.js';
 
-const secure = process.env.NODE_ENV === 'production' ? 'Secure; ' : '';
-const cookieOptions = `HttpOnly; ${secure}Path=/; SameSite=Lax`;
+const isProduction = process.env.NODE_ENV === 'production';
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: 'lax' as const,
+  path: '/',
+};
 
 export const register = async (req: Request, res: Response) => {
   const session = await authService.register(req.body);
   const token = createToken({ sub: session.user.id }, process.env.JWT_SECRET ?? 'dev-secret');
 
-  res.setHeader('Set-Cookie', `echolog_token=${token}; ${cookieOptions}`);
+  res.cookie('echolog_token', token, cookieOptions);
   res.status(201).json(session);
 };
 
@@ -18,12 +24,12 @@ export const login = async (req: Request, res: Response) => {
   const session = await authService.login(req.body);
   const token = createToken({ sub: session.user.id }, process.env.JWT_SECRET ?? 'dev-secret');
 
-  res.setHeader('Set-Cookie', `echolog_token=${token}; ${cookieOptions}`);
+  res.cookie('echolog_token', token, cookieOptions);
   res.status(200).json(session);
 };
 
 export const logout = (_req: Request, res: Response) => {
-  res.setHeader('Set-Cookie', `echolog_token=; HttpOnly; ${secure}Path=/; SameSite=Lax; Max-Age=0`);
+  res.cookie('echolog_token', '', { ...cookieOptions, maxAge: 0 });
   res.status(204).send();
 };
 
