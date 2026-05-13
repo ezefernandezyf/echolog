@@ -3,7 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import type { AuthSessionDTO, AuthRegisterDTO } from '../../../../shared/contracts/index.js';
+import { z } from 'zod';
+import type { AuthSessionDTO } from '../../../../shared/contracts/index.js';
 import { authRegisterSchema } from '../../../../shared/contracts/index.js';
 import { authApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
@@ -23,7 +24,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<AuthRegisterDTO>({
+  } = useForm<z.input<typeof authRegisterSchema>, undefined, z.output<typeof authRegisterSchema>>({
     resolver: zodResolver(authRegisterSchema),
   });
 

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
@@ -34,10 +35,10 @@ export function BoardSettingsPage() {
     handleSubmit,
     reset,
     formState: { errors, isDirty },
-  } = useForm<UpdateBoardDTO>({
+  } = useForm<z.input<typeof updateBoardSchema>, undefined, z.output<typeof updateBoardSchema>>({
     resolver: zodResolver(updateBoardSchema),
     values: board
-      ? { name: board.name, slug: board.slug, description: board.description ?? '' }
+      ? { name: board.name, slug: board.slug, description: board.description }
       : undefined,
   });
 
@@ -46,7 +47,7 @@ export function BoardSettingsPage() {
     onSuccess: (data) => {
       toast.success('Board updated');
       queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
-      reset({ name: data.name, slug: data.slug, description: data.description ?? '' });
+      reset({ name: data.name, slug: data.slug, description: data.description });
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : 'Failed to update board');

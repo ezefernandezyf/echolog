@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
@@ -36,7 +37,7 @@ export function WorkspaceSettingsPage() {
     handleSubmit,
     reset,
     formState: { errors, isDirty },
-  } = useForm<UpdateWorkspaceDTO>({
+  } = useForm<z.input<typeof updateWorkspaceSchema>, undefined, z.output<typeof updateWorkspaceSchema>>({
     resolver: zodResolver(updateWorkspaceSchema),
     values: workspace
       ? { name: workspace.name, slug: workspace.slug }
