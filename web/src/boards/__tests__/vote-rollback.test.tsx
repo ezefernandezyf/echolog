@@ -31,6 +31,7 @@ vi.mock('sonner', () => ({
 // Import the mocked module AFTER the mock declaration
 import { voteApi } from '../../core/api-client';
 import { PostRow, type PostRowData } from '../components/post-row';
+import type { PostListResponse } from '../../../../shared/contracts/index.js';
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -72,6 +73,34 @@ function renderPostRow(
 
   // Pre-populate the cache so onMutate can snapshot it for rollback
   queryClient.setQueryData(['posts', boardId], [post]);
+
+  const renderResult = render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={['/w/ws-test']}>
+        <PostRow post={post} boardId={boardId} />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+
+  return { ...renderResult, queryClient };
+}
+
+function renderPostRowWithListResponse(
+  post: PostRowData,
+): ReturnType<typeof render> & RenderPostRowResult {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
+  const response: PostListResponse = {
+    posts: [post],
+    nextCursor: null,
+  };
+
+  queryClient.setQueryData(['posts', boardId, { status: null, sort: 'Trending', cursor: null }], response);
 
   const renderResult = render(
     <QueryClientProvider client={queryClient}>
@@ -128,6 +157,36 @@ describe('PostRow vote interactions', () => {
       const cached = getCachedPost(queryClient);
       expect(cached?.isUpvoted).toBe(true);
       expect(cached?.upvotes).toBe(6);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // 1b. The updater must also handle cached PostListResponse objects
+  // -----------------------------------------------------------------------
+  it('updates vote state when the posts cache entry is a PostListResponse object', async () => {
+    const user = userEvent.setup();
+    const post = makePost({ upvotes: 5, isUpvoted: false });
+
+    vi.mocked(voteApi.addVote).mockResolvedValue({
+      postId: post.id,
+      userId: 'user-1',
+      voteCount: 6,
+      voted: true,
+    });
+
+    const { queryClient } = renderPostRowWithListResponse(post);
+
+    const voteButton = screen.getByRole('button', { name: `Upvote ${post.title}` });
+    await user.click(voteButton);
+
+    await waitFor(() => {
+      const cached = queryClient.getQueryData<PostListResponse>([
+        'posts',
+        boardId,
+        { status: null, sort: 'Trending', cursor: null },
+      ]);
+      expect(cached?.posts[0]?.isUpvoted).toBe(true);
+      expect(cached?.posts[0]?.upvotes).toBe(6);
     });
   });
 

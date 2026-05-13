@@ -6,6 +6,7 @@ import { Badge } from '../../shared/components/ui/badge';
 import { cn } from '../../shared/lib/cn';
 import { commentApi, postApi, voteApi } from '../../core/api-client';
 import type { ApiError } from '../../core/api-client';
+import type { PostListResponse } from '../../../../shared/contracts/index.js';
 import { CommentSection } from './comment-section';
 
 export interface PostRowData {
@@ -27,6 +28,22 @@ interface PostRowProps {
 }
 
 const POST_STATUSES = ['OPEN', 'PLANNED', 'IN_PROGRESS', 'DONE'] as const;
+
+function updatePostsCache(
+  old: PostRowData[] | PostListResponse | undefined,
+  updater: (post: PostRowData) => PostRowData,
+): PostRowData[] | PostListResponse | undefined {
+  if (!old) return old;
+
+  if (Array.isArray(old)) {
+    return old.map(updater);
+  }
+
+  return {
+    ...old,
+    posts: old.posts.map(updater),
+  };
+}
 
 function nextStatus(current: string): string {
   const idx = POST_STATUSES.indexOf(current as (typeof POST_STATUSES)[number]);
@@ -64,8 +81,8 @@ export function PostRow({ post, boardId }: PostRowProps) {
 
         const previousPosts = queryClient.getQueriesData<PostRowData[]>({ queryKey: postsQueryKey });
 
-        queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
-          old?.map((p) =>
+        queryClient.setQueriesData<PostRowData[] | PostListResponse>({ queryKey: postsQueryKey }, (old) =>
+          updatePostsCache(old, (p) =>
             p.id === post.id
               ? {
                   ...p,
@@ -81,11 +98,9 @@ export function PostRow({ post, boardId }: PostRowProps) {
 
       onSuccess: (data: { voteCount: number; voted: boolean }) => {
         toast.success(data.voted ? 'Vote added' : 'Vote removed');
-        queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
-          old?.map((p) =>
-            p.id === post.id
-              ? { ...p, upvotes: data.voteCount, isUpvoted: data.voted }
-              : p,
+        queryClient.setQueriesData<PostRowData[] | PostListResponse>({ queryKey: postsQueryKey }, (old) =>
+          updatePostsCache(old, (p) =>
+            p.id === post.id ? { ...p, upvotes: data.voteCount, isUpvoted: data.voted } : p,
           ),
         );
       },
@@ -144,8 +159,8 @@ export function PostRow({ post, boardId }: PostRowProps) {
       await queryClient.cancelQueries({ queryKey: postsQueryKey });
       const previousPosts = queryClient.getQueryData<PostRowData[]>(postsQueryKey);
 
-      queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
-        old?.map((p) => (p.id === post.id ? { ...p, status: newStatus } : p)),
+      queryClient.setQueriesData<PostRowData[] | PostListResponse>({ queryKey: postsQueryKey }, (old) =>
+        updatePostsCache(old, (p) => (p.id === post.id ? { ...p, status: newStatus } : p)),
       );
 
       return { previousPosts };
