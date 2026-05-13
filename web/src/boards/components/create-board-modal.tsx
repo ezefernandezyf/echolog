@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
@@ -36,7 +37,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
     setValue,
     reset,
     formState: { errors },
-  } = useForm<CreateBoardDTO & { slug?: string }>({
+  } = useForm<z.input<typeof createBoardSchema>, undefined, z.output<typeof createBoardSchema>>({
     resolver: zodResolver(createBoardSchema),
   });
 
@@ -48,7 +49,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
   }, [name, setValue]);
 
   const mutation = useMutation({
-    mutationFn: (data: CreateBoardDTO) =>
+    mutationFn: (data: z.output<typeof createBoardSchema>) =>
       boardApi.create(workspaceId, {
         name: data.name,
         slug: slugify(data.name),
