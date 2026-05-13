@@ -7,6 +7,7 @@ import { cn } from '../../shared/lib/cn';
 import { postApi, voteApi, commentApi } from '../../core/api-client';
 import type { ApiError } from '../../core/api-client';
 import type { PostDTO } from '../../../../shared/contracts/index.js';
+import type { PostRowData } from './post-row';
 import { CommentSection } from './comment-section';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
 
@@ -28,10 +29,13 @@ export function PostDetailPage() {
     isError,
     error,
   } = useQuery({
-    queryKey: ['post', postId],
+    queryKey: ['post', postId] as const,
     queryFn: () => postApi.getById(postId!),
     enabled: !!postId,
   });
+
+  const postQueryKey = ['post', postId] as const;
+  const postsQueryKey = post?.boardId ? (['posts', post.boardId] as const) : null;
 
   const commentsQuery = useQuery({
     queryKey: ['comments', postId],
@@ -42,10 +46,10 @@ export function PostDetailPage() {
   const addVoteMutation = useMutation({
     mutationFn: () => voteApi.addVote(postId!),
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['post', postId] });
-      const previousPost = queryClient.getQueryData<PostDTO>(['post', postId]);
+      await queryClient.cancelQueries({ queryKey: postQueryKey });
+      const previousPost = queryClient.getQueryData<PostDTO>(postQueryKey);
 
-      queryClient.setQueryData<PostDTO>(['post', postId], (old) =>
+      queryClient.setQueryData<PostDTO>(postQueryKey, (old) =>
         old
           ? { ...old, voteCount: old.voteCount + 1, isUpvoted: true }
           : old,
@@ -55,13 +59,20 @@ export function PostDetailPage() {
     },
     onSuccess: (data) => {
       toast.success('Vote added');
-      queryClient.setQueryData<PostDTO>(['post', postId], (old) =>
+      queryClient.setQueryData<PostDTO>(postQueryKey, (old) =>
         old ? { ...old, voteCount: data.voteCount, isUpvoted: data.voted } : old,
       );
+      if (postsQueryKey) {
+        queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
+          old?.map((row) =>
+            row.id === postId ? { ...row, upvotes: data.voteCount, isUpvoted: data.voted } : row,
+          ),
+        );
+      }
     },
     onError: (err: unknown, _vars, context) => {
       if (context?.previousPost) {
-        queryClient.setQueryData(['post', postId], context.previousPost);
+        queryClient.setQueryData(postQueryKey, context.previousPost);
       }
       const apiErr = err as Partial<ApiError>;
       const msg =
@@ -71,17 +82,20 @@ export function PostDetailPage() {
       toast.error(msg);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+      queryClient.invalidateQueries({ queryKey: postQueryKey });
+      if (postsQueryKey) {
+        queryClient.invalidateQueries({ queryKey: postsQueryKey });
+      }
     },
   });
 
   const removeVoteMutation = useMutation({
     mutationFn: () => voteApi.removeVote(postId!),
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['post', postId] });
-      const previousPost = queryClient.getQueryData<PostDTO>(['post', postId]);
+      await queryClient.cancelQueries({ queryKey: postQueryKey });
+      const previousPost = queryClient.getQueryData<PostDTO>(postQueryKey);
 
-      queryClient.setQueryData<PostDTO>(['post', postId], (old) =>
+      queryClient.setQueryData<PostDTO>(postQueryKey, (old) =>
         old
           ? { ...old, voteCount: Math.max(0, old.voteCount - 1), isUpvoted: false }
           : old,
@@ -91,13 +105,20 @@ export function PostDetailPage() {
     },
     onSuccess: (data) => {
       toast.success('Vote removed');
-      queryClient.setQueryData<PostDTO>(['post', postId], (old) =>
+      queryClient.setQueryData<PostDTO>(postQueryKey, (old) =>
         old ? { ...old, voteCount: data.voteCount, isUpvoted: data.voted } : old,
       );
+      if (postsQueryKey) {
+        queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
+          old?.map((row) =>
+            row.id === postId ? { ...row, upvotes: data.voteCount, isUpvoted: data.voted } : row,
+          ),
+        );
+      }
     },
     onError: (err: unknown, _vars, context) => {
       if (context?.previousPost) {
-        queryClient.setQueryData(['post', postId], context.previousPost);
+        queryClient.setQueryData(postQueryKey, context.previousPost);
       }
       const apiErr = err as Partial<ApiError>;
       const msg =
@@ -107,7 +128,10 @@ export function PostDetailPage() {
       toast.error(msg);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+      queryClient.invalidateQueries({ queryKey: postQueryKey });
+      if (postsQueryKey) {
+        queryClient.invalidateQueries({ queryKey: postsQueryKey });
+      }
     },
   });
 
