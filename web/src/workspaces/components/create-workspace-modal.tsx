@@ -40,7 +40,7 @@ export function CreateWorkspaceModal() {
 
   // Auto-populate slug from name so Zod validation passes
   useEffect(() => {
-    setValue('slug', slugify(name), { shouldValidate: true });
+    setValue('slug', slugify(name), { shouldValidate: false });
   }, [name, setValue]);
 
   const mutation = useMutation({

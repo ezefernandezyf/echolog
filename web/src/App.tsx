@@ -3,7 +3,6 @@ import { useSession } from './auth/use-session';
 import { AppRouter } from './core/router';
 import { useUiStore } from './core/store/ui-store';
 import { SessionSkeleton } from './shared/components/domain-skeletons';
-import { ThemeToggle } from './shared/components/theme-toggle';
 
 export function App() {
   const sessionQuery = useSession();
@@ -49,9 +48,6 @@ export function App() {
 
   return (
     <>
-      <div className="fixed right-4 top-4 z-40">
-        <ThemeToggle />
-      </div>
       <AppRouter />
     </>
   );
