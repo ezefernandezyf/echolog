@@ -95,10 +95,11 @@ function renderPostRowWithListResponse(
     },
   });
 
-  const response: PostListResponse = {
+  // Test data is PostRowData-shaped; cast satisfies the PostListResponse contract
+  const response = {
     posts: [post],
     nextCursor: null,
-  };
+  } as unknown as PostListResponse;
 
   queryClient.setQueryData(['posts', boardId, { status: null, sort: 'Trending', cursor: null }], response);
 
@@ -185,8 +186,10 @@ describe('PostRow vote interactions', () => {
         boardId,
         { status: null, sort: 'Trending', cursor: null },
       ]);
-      expect(cached?.posts[0]?.isUpvoted).toBe(true);
-      expect(cached?.posts[0]?.upvotes).toBe(6);
+      // Cast: cache objects are PostRowData-shaped at runtime (set via makePost)
+      const cachedPost = cached?.posts[0] as PostRowData | undefined;
+      expect(cachedPost?.isUpvoted).toBe(true);
+      expect(cachedPost?.upvotes).toBe(6);
     });
   });
 

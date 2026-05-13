@@ -14,16 +14,24 @@ export interface PostRowData {
   trendScore: number;
 }
 
+// The React Query cache stores a mix of server DTOs and mapped row data at runtime.
+// We use unknown[] to avoid TS fighting between PostRowData and PostDTO shapes.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PostArray = any[];
+type PostCachePage = { posts: PostArray };
+type PostCacheInfinite = { pages: PostCachePage[] };
+
 export type PostsCacheEntry =
-  | PostRowData[]
-  | PostListResponse
-  | InfiniteData<PostListResponse>;
+  | PostArray
+  | PostCachePage
+  | PostCacheInfinite;
 
 /**
- * Shape-aware cache updater that handles three query data shapes:
- * - PostRowData[] (direct array of mapped rows)
- * - PostListResponse (single paginated page from useQuery)
- * - InfiniteData<PostListResponse> (multi-page data from useInfiniteQuery)
+ * Shape-aware cache updater that handles three query data shapes.
+ * All three co-exist under ['posts', ...] keys:
+ * - PostArray (direct array, e.g. legacy cache)
+ * - PostCachePage (single PostListResponse-like page)
+ * - PostCacheInfinite (useInfiniteQuery multi-page data)
  */
 export function updatePostsCache(
   old: PostsCacheEntry | undefined,
@@ -35,21 +43,21 @@ export function updatePostsCache(
     return old.map(updater);
   }
 
-  // InfiniteData<PostListResponse> from useInfiniteQuery —
-  // checked before PostListResponse since InfiniteData also has .pages.
+  // InfiniteData from useInfiniteQuery — has .pages with .posts inside each page
   if ('pages' in old && Array.isArray(old.pages)) {
     return {
       ...old,
-      pages: old.pages.map((page) => ({
+      pages: old.pages.map((page: PostCachePage) => ({
         ...page,
-        posts: page.posts.map(updater),
+        posts: page.posts.map((p) => updater(p as unknown as PostRowData)),
       })),
     };
   }
 
-  // PostListResponse (single-page response with .posts)
+  // Single-page object with .posts
+  const response = old as PostCachePage;
   return {
-    ...old,
-    posts: old.posts.map(updater),
+    ...response,
+    posts: response.posts.map((p) => updater(p as unknown as PostRowData)),
   };
 }
