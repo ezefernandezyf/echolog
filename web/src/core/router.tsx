@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginForm } from '../auth/components/login-form';
 import { RegisterForm } from '../auth/components/register-form';
 import { ProtectedRoute, PublicRoute } from '../auth/auth-guard';
+import { AuthenticatedLayout } from '../auth/authenticated-layout';
 import { BoardLayout } from '../boards/components/board-layout';
 import { BoardSettingsPage } from '../boards/components/board-settings-page';
 import { PostDetailPage } from '../boards/components/post-detail-page';
@@ -19,11 +20,13 @@ export function AppRouter() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/w" element={<WorkspaceHub />} />
-        <Route path="/w/:workspaceId" element={<BoardLayout />} />
-        <Route path="/w/:workspaceId/settings" element={<WorkspaceSettingsPage />} />
-        <Route path="/w/:workspaceId/b/:boardId/settings" element={<BoardSettingsPage />} />
-        <Route path="/w/:workspaceId/p/:postId" element={<PostDetailPage />} />
+        <Route element={<AuthenticatedLayout />}>
+          <Route path="/w" element={<WorkspaceHub />} />
+          <Route path="/w/:workspaceId" element={<BoardLayout />} />
+          <Route path="/w/:workspaceId/settings" element={<WorkspaceSettingsPage />} />
+          <Route path="/w/:workspaceId/b/:boardId/settings" element={<BoardSettingsPage />} />
+          <Route path="/w/:workspaceId/p/:postId" element={<PostDetailPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
