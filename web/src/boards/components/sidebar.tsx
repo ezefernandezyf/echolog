@@ -149,6 +149,10 @@ export function Sidebar({
       </nav>
 
       <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+        <div className="mb-4">
+          <ThemeToggle />
+        </div>
+
         <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
           <div className="flex size-10 items-center justify-center rounded-full bg-zinc-900 text-xs font-semibold text-white dark:bg-zinc-700">
             {initials}
@@ -167,10 +171,6 @@ export function Sidebar({
         >
           Sign out
         </button>
-
-        <div className="mt-4">
-          <ThemeToggle />
-        </div>
 
         <ConfirmDialog
           open={showSignOutDialog}
