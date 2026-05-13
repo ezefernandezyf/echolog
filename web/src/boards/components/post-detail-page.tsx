@@ -7,6 +7,7 @@ import { cn } from '../../shared/lib/cn';
 import { postApi, voteApi, commentApi } from '../../core/api-client';
 import type { ApiError } from '../../core/api-client';
 import type { PostDTO } from '../../../../shared/contracts/index.js';
+import type { PostListResponse } from '../../../../shared/contracts/index.js';
 import type { PostRowData } from './post-row';
 import { CommentSection } from './comment-section';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
@@ -17,6 +18,22 @@ const statusStyles: Record<string, string> = {
   IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700 dark:border-zinc-700 dark:bg-card dark:text-zinc-300',
   DONE: 'border-zinc-200 bg-zinc-900 text-white dark:border-zinc-600 dark:bg-zinc-300 dark:text-zinc-900',
 };
+
+function updatePostsCache(
+  old: PostRowData[] | PostListResponse | undefined,
+  updater: (post: PostRowData) => PostRowData,
+): PostRowData[] | PostListResponse | undefined {
+  if (!old) return old;
+
+  if (Array.isArray(old)) {
+    return old.map(updater);
+  }
+
+  return {
+    ...old,
+    posts: old.posts.map(updater),
+  };
+}
 
 export function PostDetailPage() {
   const navigate = useNavigate();
@@ -63,8 +80,8 @@ export function PostDetailPage() {
         old ? { ...old, voteCount: data.voteCount, isUpvoted: data.voted } : old,
       );
       if (postsQueryKey) {
-        queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
-          old?.map((row) =>
+        queryClient.setQueriesData<PostRowData[] | PostListResponse>({ queryKey: postsQueryKey }, (old) =>
+          updatePostsCache(old, (row) =>
             row.id === postId ? { ...row, upvotes: data.voteCount, isUpvoted: data.voted } : row,
           ),
         );
@@ -109,8 +126,8 @@ export function PostDetailPage() {
         old ? { ...old, voteCount: data.voteCount, isUpvoted: data.voted } : old,
       );
       if (postsQueryKey) {
-        queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
-          old?.map((row) =>
+        queryClient.setQueriesData<PostRowData[] | PostListResponse>({ queryKey: postsQueryKey }, (old) =>
+          updatePostsCache(old, (row) =>
             row.id === postId ? { ...row, upvotes: data.voteCount, isUpvoted: data.voted } : row,
           ),
         );
