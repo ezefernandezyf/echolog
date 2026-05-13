@@ -9,6 +9,26 @@ declare module 'express' {
   }
 }
 
+export function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  try {
+    const cookies = parseCookies(req);
+    const token = cookies.echolog_token;
+    if (!token) {
+      next();
+      return;
+    }
+
+    const payload = verifyToken<{ sub?: string }>(token, process.env.JWT_SECRET ?? 'dev-secret');
+    if (payload?.sub) {
+      req.userId = payload.sub;
+    }
+    next();
+  } catch {
+    // Invalid token → continue without auth
+    next();
+  }
+}
+
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const cookies = parseCookies(req);

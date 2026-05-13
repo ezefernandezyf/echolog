@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { PostList, type PostSort } from './post-list';
 import type { PostRowData } from './post-row';
 import { boardApi, postApi } from '../../core/api-client';
@@ -48,11 +48,6 @@ export function BoardLayout() {
   const { selectedBoardId, setSelectedBoardId } = useAuthenticatedShell();
   const [activeSort, setActiveSort] = useState<PostSort>('Trending');
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
-  const [cursor, setCursor] = useState<string | null>(null);
-
-  // Accumulated posts across pages
-  const accumulatedRef = useRef<PostRowData[]>([]);
-  const [accumulated, setAccumulated] = useState<PostRowData[]>([]);
 
   const boardsQuery = useQuery({
     queryKey: ['boards', workspaceId],
@@ -72,56 +67,41 @@ export function BoardLayout() {
   const effectiveBoardId = selectedBoardId ?? boardsQuery.data?.[0]?.id ?? null;
   const selectedBoard = boardsQuery.data?.find((b) => b.id === effectiveBoardId);
 
-  const postsQuery = useQuery<PostListResponse>({
-    queryKey: ['posts', effectiveBoardId, { status: activeStatus, sort: activeSort, cursor }],
-    queryFn: () =>
+  const postsQuery = useInfiniteQuery({
+    queryKey: ['posts', effectiveBoardId, { status: activeStatus, sort: activeSort }],
+    queryFn: async ({ pageParam }) =>
       postApi.list(effectiveBoardId!, {
         status: activeStatus ?? undefined,
         sort: SORT_TO_API[activeSort],
-        cursor: cursor ?? undefined,
+        cursor: (pageParam as string | null) ?? undefined,
         limit: PAGE_SIZE,
       }),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
     enabled: !!effectiveBoardId,
-    placeholderData: (prev) => prev,
   });
 
-  // Derive posts from accumulated state + current query page
+  // Derive posts from all loaded pages — no local accumulated state.
+  // React Query cache is the single source of truth for vote/status data.
   const posts = useMemo(() => {
-    if (!postsQuery.data) return accumulated;
+    if (!postsQuery.data) return [];
+    return postsQuery.data.pages.flatMap((page) => page.posts).map(mapPostToRow);
+  }, [postsQuery.data]);
 
-    const newRows = postsQuery.data.posts.map(mapPostToRow);
-    const allRows = cursor ? [...accumulated, ...newRows] : newRows;
-
-    // Keep ref in sync (avoid stale closure in loadMore)
-    accumulatedRef.current = allRows;
-
-    return allRows;
-  }, [postsQuery.data, cursor, accumulated]);
-
-  const hasMore = postsQuery.data?.nextCursor !== null;
-  const isLoadingMore = postsQuery.isFetching && cursor !== null;
-
-  const resetFilters = (newStatus: string | null = activeStatus, newSort: PostSort = activeSort) => {
-    setCursor(null);
-    setAccumulated([]);
-    accumulatedRef.current = [];
-    setActiveStatus(newStatus);
-    setActiveSort(newSort);
-  };
+  const hasMore = postsQuery.hasNextPage;
+  const isLoadingMore = postsQuery.isFetchingNextPage;
 
   const handleStatusChange = (status: string | null) => {
-    resetFilters(status, activeSort);
+    setActiveStatus(status);
   };
 
   const handleSortChange = (sort: PostSort) => {
-    resetFilters(activeStatus, sort);
+    setActiveSort(sort);
   };
 
   const handleLoadMore = () => {
-    if (postsQuery.data?.nextCursor) {
-      // Save current page's posts before changing cursor
-      setAccumulated(accumulatedRef.current);
-      setCursor(postsQuery.data.nextCursor);
+    if (postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) {
+      postsQuery.fetchNextPage();
     }
   };
 
@@ -169,7 +149,7 @@ export function BoardLayout() {
               : 'Select a board from the sidebar.'}
           </p>
         </div>
-      ) : postsQuery.isPending && !cursor ? (
+      ) : postsQuery.isPending ? (
         <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
           <header className="border-b border-zinc-200 px-6 py-6 sm:px-8 dark:border-zinc-800">
             <div className="space-y-2">

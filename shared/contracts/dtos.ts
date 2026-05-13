@@ -81,6 +81,7 @@ export interface VoteDTO {
   postId: string;
   userId: string;
   voteCount: number;
+  voted: boolean;
 }
 
 export interface CommentDTO {
