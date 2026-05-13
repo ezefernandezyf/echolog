@@ -19,6 +19,7 @@ function mapPostToRow(post: {
   voteCount: number;
   commentCount: number;
   authorId: string;
+  isUpvoted?: boolean;
 }): PostRowData {
   return {
     id: post.id,
@@ -28,6 +29,7 @@ function mapPostToRow(post: {
     upvotes: post.voteCount,
     comments: post.commentCount,
     author: post.authorId,
+    isUpvoted: post.isUpvoted,
     createdAt: new Date().toISOString(),
     trendScore: post.voteCount,
   };

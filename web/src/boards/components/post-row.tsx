@@ -45,6 +45,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const queryClient = useQueryClient();
   const [showComments, setShowComments] = useState(false);
+  const postsQueryKey = ['posts', boardId] as const;
 
   // Prevents mutations from overlapping past onSettled (race condition guard)
   const voteLockRef = useRef(false);
@@ -54,14 +55,16 @@ export function PostRow({ post, boardId }: PostRowProps) {
     const isAdd = direction === 'add';
 
     return {
-      onMutate: async (): Promise<{ previousPosts: PostRowData[] | undefined }> => {
+      onMutate: async (): Promise<{
+        previousPosts: Array<[readonly unknown[], PostRowData[] | undefined]> | undefined;
+      }> => {
         if (voteLockRef.current) return { previousPosts: undefined };
 
-        await queryClient.cancelQueries({ queryKey: ['posts', boardId] });
+        await queryClient.cancelQueries({ queryKey: postsQueryKey });
 
-        const previousPosts = queryClient.getQueryData<PostRowData[]>(['posts', boardId]) ?? [];
+        const previousPosts = queryClient.getQueriesData<PostRowData[]>({ queryKey: postsQueryKey });
 
-        queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
+        queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
           old?.map((p) =>
             p.id === post.id
               ? {
@@ -78,7 +81,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
 
       onSuccess: (data: { voteCount: number; voted: boolean }) => {
         toast.success(data.voted ? 'Vote added' : 'Vote removed');
-        queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
+        queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
           old?.map((p) =>
             p.id === post.id
               ? { ...p, upvotes: data.voteCount, isUpvoted: data.voted }
@@ -87,11 +90,23 @@ export function PostRow({ post, boardId }: PostRowProps) {
         );
       },
 
-      onError: (error: unknown, _vars: void, context: { previousPosts: PostRowData[] | undefined } | undefined) => {
+      onError: (
+        error: unknown,
+        _vars: void,
+        context:
+          | {
+              previousPosts:
+                | Array<[readonly unknown[], PostRowData[] | undefined]>
+                | undefined;
+            }
+          | undefined,
+      ) => {
         if (context?.previousPosts) {
-          queryClient.setQueryData(['posts', boardId], context.previousPosts);
+          for (const [queryKey, previousPosts] of context.previousPosts) {
+            queryClient.setQueryData(queryKey, previousPosts);
+          }
         } else {
-          queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
+          queryClient.invalidateQueries({ queryKey: postsQueryKey });
         }
 
         const apiErr = error as Partial<ApiError>;
@@ -105,7 +120,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
       },
 
       onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
+        queryClient.invalidateQueries({ queryKey: postsQueryKey });
         voteLockRef.current = false;
       },
     };
@@ -126,10 +141,10 @@ export function PostRow({ post, boardId }: PostRowProps) {
   const statusMutation = useMutation({
     mutationFn: (newStatus: string) => postApi.updateStatus(boardId, post.id, newStatus),
     onMutate: async (newStatus) => {
-      await queryClient.cancelQueries({ queryKey: ['posts', boardId] });
-      const previousPosts = queryClient.getQueryData<PostRowData[]>(['posts', boardId]);
+      await queryClient.cancelQueries({ queryKey: postsQueryKey });
+      const previousPosts = queryClient.getQueryData<PostRowData[]>(postsQueryKey);
 
-      queryClient.setQueryData<PostRowData[]>(['posts', boardId], (old) =>
+      queryClient.setQueriesData<PostRowData[]>({ queryKey: postsQueryKey }, (old) =>
         old?.map((p) => (p.id === post.id ? { ...p, status: newStatus } : p)),
       );
 
@@ -140,12 +155,12 @@ export function PostRow({ post, boardId }: PostRowProps) {
     },
     onError: (_err, _vars, context) => {
       if (context?.previousPosts) {
-        queryClient.setQueryData(['posts', boardId], context.previousPosts);
+        queryClient.setQueryData(postsQueryKey, context.previousPosts);
       }
       toast.error('Failed to update status.');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
+      queryClient.invalidateQueries({ queryKey: postsQueryKey });
     },
   });
 
