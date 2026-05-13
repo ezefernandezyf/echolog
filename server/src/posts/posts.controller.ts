@@ -18,6 +18,7 @@ export const listPosts = async (req: Request, res: Response) => {
 
   const data = await postsService.list({
     boardId: req.params.boardId as string,
+    userId: req.userId,
     status,
     search,
     sort,

@@ -40,6 +40,11 @@ describe('posts filtering & pagination', () => {
       posts.push(postRes.body);
     }
 
+    // Vote on the first post so the list can hydrate per-user state
+    const voteRes = await agent.post(`/api/posts/${posts[0].id}/vote`);
+    expect(voteRes.status).toBe(200);
+    expect(voteRes.body.voted).toBe(true);
+
     // Update post 3 → PLANNED (index 2)
     const plannedRes = await agent
       .patch(`/api/posts/${posts[2].id}/status`)
@@ -63,6 +68,11 @@ describe('posts filtering & pagination', () => {
     expect(allRes.status).toBe(200);
     expect(allRes.body.posts).toHaveLength(5);
     expect(allRes.body.nextCursor).toBeNull();
+    expect(allRes.body.posts.find((post: { id: string; isUpvoted?: boolean }) => post.id === posts[0].id)?.isUpvoted).toBe(true);
+
+    const anonRes = await request(app).get(`/api/boards/${boardId}/posts?limit=50`);
+    expect(anonRes.status).toBe(200);
+    expect(anonRes.body.posts.find((post: { id: string; isUpvoted?: boolean }) => post.id === posts[0].id)?.isUpvoted).toBe(false);
 
     // Test: filter by status=OPEN → 200, returns 2 posts (all with status OPEN)
     const openRes = await agent.get(`/api/boards/${boardId}/posts?status=OPEN`);

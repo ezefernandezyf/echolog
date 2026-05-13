@@ -4,6 +4,7 @@ import type { CreatePostDTO, PostDTO, PostListFilters, PostListResponse } from '
 
 interface ListPostsOptions {
   boardId: string;
+  userId?: string;
   status?: string;
   search?: string;
   sort?: PostListFilters['sort'];
@@ -20,6 +21,7 @@ function mapPost(p: {
   body: string;
   status: string;
   _count: { votes: number; comments: number };
+  isUpvoted?: boolean;
 }): PostDTO {
   return {
     id: p.id,
@@ -31,6 +33,7 @@ function mapPost(p: {
     status: p.status,
     voteCount: p._count.votes,
     commentCount: p._count.comments,
+    isUpvoted: p.isUpvoted,
   };
 }
 
@@ -78,11 +81,25 @@ export class PostsService {
       take: opts.limit + 1, // fetch one extra to determine hasMore
     });
 
+    const upvotedPostIds = opts.userId
+      ? new Set(
+          (
+            await prisma.vote.findMany({
+              where: {
+                userId: opts.userId,
+                postId: { in: posts.map((post) => post.id) },
+              },
+              select: { postId: true },
+            })
+          ).map((vote) => vote.postId),
+        )
+      : new Set<string>();
+
     const hasMore = posts.length > opts.limit;
     const items = hasMore ? posts.slice(0, opts.limit) : posts;
 
     return {
-      posts: items.map(mapPost),
+      posts: items.map((post) => mapPost({ ...post, isUpvoted: upvotedPostIds.has(post.id) })),
       nextCursor: hasMore ? items[items.length - 1].id : null,
     };
   }
