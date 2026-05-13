@@ -60,7 +60,7 @@ export function PostList({
 
   return (
     <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
-      <header className="border-b border-zinc-200 px-6 py-6 sm:px-8 dark:border-zinc-800">
+      <header className="border-b border-zinc-200 px-6 py-6 sm:px-8 pr-14 lg:pr-8 dark:border-zinc-800">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400 dark:text-zinc-500">

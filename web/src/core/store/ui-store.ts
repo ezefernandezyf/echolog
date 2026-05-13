@@ -44,7 +44,7 @@ interface UiStore {
 }
 
 export const useUiStore = create<UiStore>((set) => ({
-  sidebarOpen: true,
+  sidebarOpen: typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
   activeModal: null,
   notification: null,
   theme: getInitialTheme(),

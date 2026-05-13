@@ -138,7 +138,7 @@ export function BoardLayout() {
   };
 
   return (
-    <main className="flex min-h-screen bg-zinc-50 text-zinc-950 dark:bg-background dark:text-foreground">
+    <main className="flex min-h-screen overflow-x-hidden bg-zinc-50 text-zinc-950 dark:bg-background dark:text-foreground">
       {boardsQuery.isPending ? (
         <aside
           className={cn(
@@ -202,24 +202,27 @@ export function BoardLayout() {
         />
       )}
 
-      <div className="flex min-h-screen flex-1 flex-col animate-fade-in">
-        <button
-          type="button"
-          onClick={openSidebar}
-          aria-label="Open sidebar"
-          className="fixed top-4 left-4 z-20 rounded-full border border-zinc-200 bg-white p-2 shadow-sm transition-colors hover:bg-zinc-50 lg:hidden dark:border-zinc-700 dark:bg-card dark:hover:bg-zinc-800"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-5 text-zinc-700 dark:text-zinc-300"
+      <div className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden">
+        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-zinc-200 bg-white px-4 lg:hidden dark:border-zinc-800 dark:bg-card">
+          <button
+            type="button"
+            onClick={openSidebar}
+            aria-label="Open sidebar"
+            className="inline-flex size-10 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 shadow-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/60 dark:hover:bg-zinc-800"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-5 text-zinc-700 dark:text-zinc-300"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+          <span className="font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">EchoLog</span>
+        </header>
         {!effectiveBoardId ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-sm text-zinc-400 dark:text-zinc-500">
