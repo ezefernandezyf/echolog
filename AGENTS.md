@@ -83,27 +83,44 @@ npm run dev:web          # terminal 2: frontend on :5173
 - 3.7 Post detail view (server endpoint + frontend page with comment extraction)
 - 3.8 Login responsive (touch-friendly auth forms)
 
-### Phase 4: Admin & Advanced 🔲
+### Phase 4: Admin & Advanced ✅
 - 4.1 Admin middleware ✅ (requireWorkspaceAdmin wired to post status endpoint)
-- 4.2 Workspace settings (name, slug, delete)
-- 4.3 Destructive confirmations (delete workspace/board/post)
-- 4.4 Advanced filters (status, date range, author) + pagination
-- 4.5 Board settings (name, description, delete)
+- 4.2 Workspace settings ✅ (edit name/slug, delete with typed confirmation; sidebar nav link added recently)
+- 4.3 Destructive confirmations ✅ (typing-based confirm dialog for workspace/board delete)
+- 4.4 Advanced filters ✅ (status pills, Trending/Top/New sort, cursor pagination, load-more)
+- 4.5 Board settings ✅ (edit name/slug/description, delete with typed confirmation)
 
-### Phase 5: QA & Polish 🔲
-- 5.1 Form validation edge cases (empty states, error boundaries)
-- 5.2 Accessibility audit (keyboard nav, screen reader labels, focus traps)
-- 5.3 Loading/empty/error states audit for every view
-- 5.4 Mobile UX pass (touch targets, viewport meta, safe areas)
+### Phase 5: QA & Polish 🟡
+- 5.1 Form validation edge cases 🟡 (ErrorBoundary exists, empty states done)
+- 5.2 Accessibility audit 🟡 (focus traps on modals, keyboard nav partial)
+- 5.3 Loading/empty/error states audit 🟡 (most views covered, audit in progress)
+- 5.4 Mobile UX pass 🟡 (touch targets, viewport meta, safe areas)
+
+### Phase 5.5: Quick Polish ✅
+- [x] 5.5.1 Fix board form validation — custom Zod messages + remove `shouldValidate`
+- [x] 5.5.2 Fix hamburger overlap — mobile padding so it doesn't cover "EchoLog Board" text
+- [x] 5.5.3 Fix sidebar auto-open on mobile — initialize `sidebarOpen` based on viewport width
+- [x] 5.5.4 Fix ThemeToggle overlap with submit feedback — adjust header padding/z-index
+- [x] 5.5.5 Add sign out confirmation dialog using existing ConfirmDialog component
+- [x] 5.5.6 Add workspace settings navigation link in sidebar → ✅ DONE (sidebar.tsx now has Settings link below workspace name)
 
 ### Phase 6: Testing 🔲
-- 6.1 Server tests: comments CRUD, post detail, board CRUD (currently 6 tests)
-- 6.2 Web tests: modals, forms, error states, dark mode toggle (currently 25 tests)
+- 6.1 Server tests: auth, comments, votes, workspace CRUD, post filters, isolation (14 tests)
+- 6.2 Web tests: auth bootstrap, vote optimistic rollback, workspace navigation (25 tests)
 - 6.3 E2E tests: auth flow, workspace→board→post→vote→comment happy path
 
 ### Phase 7: Deploy 🔲
 - 7.1 Neon.tech PostgreSQL database
 - 7.2 Backend deploy (Render/Railway)
 - 7.3 Frontend deploy (Vercel)
-- 7.4 CI/CD pipeline (lint, type-check, test on PR)
+- 7.4 CI/CD pipeline ✅ (GitHub Actions: lint, type-check, test on PR + push to main)
 - 7.5 README with setup, architecture, and deploy instructions
+
+### Phase 8: User Features 🔲
+- [ ] 8.1 Comment deletion — service + controller + router + UI with authorization (own comments + workspace owner)
+- [ ] 8.2 Better login page — split layout with landing preview, or inline form with hero
+- [ ] 8.3 User settings page — change username, email, password with proper validation
+
+### Phase 9: Growth Features (post-deploy) 🔲
+- [ ] 9.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
+- [ ] 9.2 Public workspace discovery — visibility enum + public feed + popularity ranking + invite/approval system
