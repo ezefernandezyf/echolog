@@ -18,7 +18,6 @@ describe('workspace CRUD', () => {
     // Create workspace
     const createRes = await agent.post('/api/workspaces').send({
       name: 'Original Name',
-      slug: `original-${suffix}`,
     });
     expect(createRes.status).toBe(201);
     const workspaceId: string = createRes.body.id;

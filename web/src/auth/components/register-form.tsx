@@ -9,6 +9,7 @@ import { authRegisterSchema } from '../../../../shared/contracts/index.js';
 import { authApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
+import { CharCounter } from '../../shared/components/ui/char-counter';
 import { useAuthStore } from '../auth-store';
 import { AUTH_QUERY_KEYS } from '../use-session';
 
@@ -23,10 +24,13 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<z.input<typeof authRegisterSchema>, undefined, z.output<typeof authRegisterSchema>>({
     resolver: zodResolver(authRegisterSchema),
   });
+
+  const name = watch('name', '');
 
   const registerMutation = useMutation({
     mutationFn: authApi.register,
@@ -57,9 +61,11 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           type="text"
           autoComplete="name"
           placeholder="Your name"
+          maxLength={120}
           className="min-h-[44px]"
           {...register('name')}
         />
+        <CharCounter current={name.length} max={120} />
         {errors.name ? <p className="text-sm text-red-600">{errors.name.message}</p> : null}
       </div>
 

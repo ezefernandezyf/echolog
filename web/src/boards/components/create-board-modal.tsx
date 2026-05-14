@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,16 +9,12 @@ import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { Modal } from '../../shared/components/ui/modal';
+import { CharCounter } from '../../shared/components/ui/char-counter';
+import { mapServerErrors } from '../../shared/lib/map-server-errors';
+import { slugify } from '../../../../shared/lib/slugify';
 import { boardApi } from '../../core/api-client';
 import type { CreateBoardDTO } from '../../../../shared/contracts/index.js';
 import { createBoardSchema } from '../../../../shared/contracts/index.js';
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
 
 interface CreateBoardModalProps {
   workspaceId: string;
@@ -34,32 +29,30 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
     register,
     handleSubmit,
     watch,
-    setValue,
     reset,
-    formState: { errors },
+    setError,
+    formState: { errors, isDirty },
   } = useForm<z.input<typeof createBoardSchema>, undefined, z.output<typeof createBoardSchema>>({
     resolver: zodResolver(createBoardSchema),
   });
 
-  const name = watch('name', '');
-
-  // Auto-populate slug from name so Zod validation passes
-  useEffect(() => {
-    setValue('slug', slugify(name), { shouldValidate: false });
-  }, [name, setValue]);
+  const name = watch('name', '') as string;
+  const description = watch('description', '') as string;
 
   const mutation = useMutation({
     mutationFn: (data: z.output<typeof createBoardSchema>) =>
-      boardApi.create(workspaceId, {
-        name: data.name,
-        slug: slugify(data.name),
-        description: data.description,
-      }),
+      boardApi.create(workspaceId, data),
     onSuccess: () => {
       toast.success('Board created');
       queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
       reset();
       closeModal();
+    },
+    onError: (error) => {
+      const fallback = mapServerErrors(error, setError);
+      if (fallback) {
+        toast.error(fallback);
+      }
     },
   });
 
@@ -73,32 +66,24 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
 
         <label className="block space-y-2">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Board Name</span>
-          <Input placeholder="Feature Requests" autoComplete="off" {...register('name')} />
+          <Input placeholder="Feature Requests" autoComplete="off" maxLength={120} {...register('name')} />
           {name.trim() ? (
             <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
           ) : null}
+          <CharCounter current={name.length} max={120} />
           {errors.name ? (
             <p className="text-sm text-red-600">{errors.name.message}</p>
-          ) : errors.slug ? (
-            <p className="text-sm text-red-600">{errors.slug.message}</p>
           ) : null}
         </label>
 
         <label className="block space-y-2">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Description (optional)</span>
-          <Input placeholder="Collect and prioritize feature ideas" {...register('description')} />
+          <Input placeholder="Collect and prioritize feature ideas" maxLength={500} {...register('description')} />
+          <CharCounter current={description?.length ?? 0} max={500} />
           {errors.description ? (
             <p className="text-sm text-red-600">{errors.description.message}</p>
           ) : null}
         </label>
-
-        {mutation.error ? (
-          <p className="text-sm text-red-600">
-            {mutation.error instanceof Error
-              ? mutation.error.message
-              : 'Failed to create board'}
-          </p>
-        ) : null}
 
         <div className="flex items-center justify-end gap-3 pt-2">
           <Button type="button" variant="ghost" onClick={closeModal} disabled={mutation.isPending}>
@@ -107,7 +92,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
           <Button
             type="submit"
             className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
-            disabled={mutation.isPending || !name.trim()}
+            disabled={mutation.isPending || !isDirty}
           >
             {mutation.isPending ? 'Creating...' : 'Create Board'}
           </Button>

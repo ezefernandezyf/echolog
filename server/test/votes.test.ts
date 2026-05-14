@@ -18,7 +18,6 @@ describe('votes routes', () => {
     // 2. Create a workspace
     const wsRes = await agent.post('/api/workspaces').send({
       name: 'Voter Workspace',
-      slug: `voter-ws-${suffix}`,
     });
     expect(wsRes.status).toBe(201);
     const workspaceId: string = wsRes.body.id;
@@ -26,7 +25,7 @@ describe('votes routes', () => {
     // 3. Create a board
     const boardRes = await agent
       .post(`/api/workspaces/${workspaceId}/boards`)
-      .send({ name: 'Feature Requests', slug: `features-${suffix}` });
+      .send({ name: 'Feature Requests' });
     expect(boardRes.status).toBe(201);
     const boardId: string = boardRes.body.id;
 

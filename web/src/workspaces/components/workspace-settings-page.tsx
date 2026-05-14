@@ -10,6 +10,9 @@ import { z } from 'zod';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
+import { CharCounter } from '../../shared/components/ui/char-counter';
+import { mapServerErrors } from '../../shared/lib/map-server-errors';
+import { slugify } from '../../../../shared/lib/slugify';
 import { workspaceApi } from '../../core/api-client';
 import type { UpdateWorkspaceDTO, WorkspaceDTO } from '../../../../shared/contracts/index.js';
 import { updateWorkspaceSchema } from '../../../../shared/contracts/index.js';
@@ -35,7 +38,9 @@ export function WorkspaceSettingsPage() {
   const {
     register,
     handleSubmit,
+    watch,
     reset,
+    setError,
     formState: { errors, isDirty },
   } = useForm<z.input<typeof updateWorkspaceSchema>, undefined, z.output<typeof updateWorkspaceSchema>>({
     resolver: zodResolver(updateWorkspaceSchema),
@@ -43,6 +48,8 @@ export function WorkspaceSettingsPage() {
       ? { name: workspace.name, slug: workspace.slug }
       : undefined,
   });
+
+  const name = watch('name', '') as string;
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateWorkspaceDTO) => workspaceApi.update(workspaceId!, data),
@@ -52,7 +59,10 @@ export function WorkspaceSettingsPage() {
       reset({ name: data.name, slug: data.slug });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to update workspace');
+      const fallback = mapServerErrors(error, setError);
+      if (fallback) {
+        toast.error(fallback);
+      }
     },
   });
 
@@ -136,7 +146,11 @@ export function WorkspaceSettingsPage() {
           >
             <label className="block space-y-2">
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Workspace Name</span>
-              <Input placeholder="Northstar Labs" autoComplete="off" {...register('name')} />
+              <Input placeholder="Northstar Labs" autoComplete="off" maxLength={120} {...register('name')} />
+              {name.trim() ? (
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
+              ) : null}
+              <CharCounter current={name.length} max={120} />
               {errors.name ? (
                 <p className="text-sm text-red-600">{errors.name.message}</p>
               ) : null}
@@ -144,7 +158,7 @@ export function WorkspaceSettingsPage() {
 
             <label className="block space-y-2">
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Slug</span>
-              <Input placeholder="northstar-labs" autoComplete="off" {...register('slug')} />
+              <Input placeholder="northstar-labs" autoComplete="off" maxLength={120} {...register('slug')} />
               <p className="text-xs text-zinc-400 dark:text-zinc-500">
                 Used in URLs: echolog.app/w/{workspace.slug}
               </p>
@@ -152,14 +166,6 @@ export function WorkspaceSettingsPage() {
                 <p className="text-sm text-red-600">{errors.slug.message}</p>
               ) : null}
             </label>
-
-            {updateMutation.error ? (
-              <p className="text-sm text-red-600">
-                {updateMutation.error instanceof Error
-                  ? updateMutation.error.message
-                  : 'Failed to update workspace'}
-              </p>
-            ) : null}
 
             <div className="flex items-center justify-end gap-3 pt-2">
               <Button

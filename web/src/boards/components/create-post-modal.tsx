@@ -8,6 +8,8 @@ import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { Modal } from '../../shared/components/ui/modal';
+import { CharCounter } from '../../shared/components/ui/char-counter';
+import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { cn } from '../../shared/lib/cn';
 import { postApi } from '../../core/api-client';
 import type { CreatePostDTO } from '../../../../shared/contracts/index.js';
@@ -25,11 +27,15 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
   const {
     register,
     handleSubmit,
+    watch,
     reset,
-    formState: { errors },
+    setError,
+    formState: { errors, isDirty },
   } = useForm<CreatePostDTO>({
     resolver: zodResolver(createPostSchema),
   });
+
+  const title = watch('title', '');
 
   const mutation = useMutation({
     mutationFn: (data: CreatePostDTO) => {
@@ -41,6 +47,12 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
       queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
       reset();
       closeModal();
+    },
+    onError: (error) => {
+      const fallback = mapServerErrors(error, setError);
+      if (fallback) {
+        toast.error(fallback);
+      }
     },
   });
 
@@ -62,7 +74,8 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
 
         <label className="block space-y-2">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Title</span>
-          <Input placeholder="Add dark mode" {...register('title')} />
+          <Input placeholder="Add dark mode" maxLength={120} {...register('title')} />
+          <CharCounter current={title.length} max={120} />
           {errors.title ? (
             <p className="text-sm text-red-600">{errors.title.message}</p>
           ) : null}
@@ -83,12 +96,6 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
           ) : null}
         </label>
 
-        {mutation.error ? (
-          <p className="text-sm text-red-600">
-            {mutation.error instanceof Error ? mutation.error.message : 'Failed to create post'}
-          </p>
-        ) : null}
-
         <div className="flex items-center justify-end gap-3 pt-2">
           <Button type="button" variant="ghost" onClick={closeModal} disabled={mutation.isPending}>
             Cancel
@@ -96,7 +103,7 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
           <Button
             type="submit"
             className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
-            disabled={mutation.isPending || !boardId}
+            disabled={mutation.isPending || !isDirty}
           >
             {mutation.isPending ? 'Creating...' : 'Create Post'}
           </Button>

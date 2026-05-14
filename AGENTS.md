@@ -31,7 +31,7 @@
 4. **Push + PR + Merge**: push branch, create PR, merge to `main` — never commit directly to `main`
 5. **Clean working tree**: no untracked files, no WIP before PR
 6. **Lint before push**: `npm run lint && npm run format` must pass
-7. **Tests before merge**: `npm test` (server + web) must pass — 31 tests minimum
+7. **Tests before merge**: `npm test` (server + web) must pass — 75 tests minimum
 
 ## How to Run
 ```bash
@@ -91,7 +91,7 @@ npm run dev:web          # terminal 2: frontend on :5173
 - 4.5 Board settings ✅ (edit name/slug/description, delete with typed confirmation)
 
 ### Phase 5: QA & Polish 🟡
-- 5.1 Form validation edge cases 🟡 (ErrorBoundary exists, empty states done)
+- 5.1 Form validation edge cases ✅ — 8/8 spec requirements, 20/20 tasks, 75 tests passing
 - 5.2 Accessibility audit 🟡 (focus traps on modals, keyboard nav partial)
 - 5.3 Loading/empty/error states audit 🟡 (most views covered, audit in progress)
 - 5.4 Mobile UX pass 🟡 (touch targets, viewport meta, safe areas)

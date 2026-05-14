@@ -27,7 +27,6 @@ export const authLoginSchema = z.object({
 
 export const createWorkspaceSchema = z.object({
   name: requiredText('Workspace name').max(120),
-  slug: slugSchema,
 });
 
 export const updateWorkspaceSchema = z
@@ -41,7 +40,6 @@ export const updateWorkspaceSchema = z
 
 export const createBoardSchema = z.object({
   name: requiredText('Board name').max(120),
-  slug: slugSchema,
   description: optionalText(z.string().trim().max(500, 'Description must be at most 500 characters')),
 });
 
@@ -65,5 +63,5 @@ export const updatePostStatusSchema = z.object({
 });
 
 export const createCommentSchema = z.object({
-  body: requiredText('Comment body'),
+  body: requiredText('Comment body').max(500, 'Comment must be at most 500 characters'),
 });

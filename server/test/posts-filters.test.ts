@@ -18,7 +18,6 @@ describe('posts filtering & pagination', () => {
     // Create workspace
     const wsRes = await agent.post('/api/workspaces').send({
       name: 'Filters Workspace',
-      slug: `filters-ws-${suffix}`,
     });
     expect(wsRes.status).toBe(201);
     const workspaceId: string = wsRes.body.id;
@@ -26,7 +25,7 @@ describe('posts filtering & pagination', () => {
     // Create board
     const boardRes = await agent
       .post(`/api/workspaces/${workspaceId}/boards`)
-      .send({ name: 'Roadmap', slug: `roadmap-${suffix}` });
+      .send({ name: 'Roadmap' });
     expect(boardRes.status).toBe(201);
     const boardId: string = boardRes.body.id;
 

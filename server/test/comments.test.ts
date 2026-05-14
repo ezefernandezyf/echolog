@@ -18,7 +18,6 @@ describe('comments CRUD', () => {
     // Create workspace
     const wsRes = await agent.post('/api/workspaces').send({
       name: 'Comments Workspace',
-      slug: `comments-ws-${suffix}`,
     });
     expect(wsRes.status).toBe(201);
     const workspaceId: string = wsRes.body.id;
@@ -26,7 +25,7 @@ describe('comments CRUD', () => {
     // Create board
     const boardRes = await agent
       .post(`/api/workspaces/${workspaceId}/boards`)
-      .send({ name: 'General', slug: `general-${suffix}` });
+      .send({ name: 'General' });
     expect(boardRes.status).toBe(201);
     const boardId: string = boardRes.body.id;
 

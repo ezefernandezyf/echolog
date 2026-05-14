@@ -20,7 +20,6 @@ describe('workspace isolation', () => {
     // Create workspace as User A
     const createRes = await userA.post('/api/workspaces').send({
       name: 'Alice Workspace',
-      slug: `alice-ws-${suffix}`,
     });
     expect(createRes.status).toBe(201);
     const aliceSlug = createRes.body.slug;
