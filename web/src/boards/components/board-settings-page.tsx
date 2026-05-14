@@ -10,6 +10,9 @@ import { z } from 'zod';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
+import { CharCounter } from '../../shared/components/ui/char-counter';
+import { mapServerErrors } from '../../shared/lib/map-server-errors';
+import { slugify } from '../../../../shared/lib/slugify';
 import { boardApi } from '../../core/api-client';
 import type { BoardDTO, UpdateBoardDTO } from '../../../../shared/contracts/index.js';
 import { updateBoardSchema } from '../../../../shared/contracts/index.js';
@@ -33,24 +36,32 @@ export function BoardSettingsPage() {
   const {
     register,
     handleSubmit,
+    watch,
     reset,
+    setError,
     formState: { errors, isDirty },
   } = useForm<z.input<typeof updateBoardSchema>, undefined, z.output<typeof updateBoardSchema>>({
     resolver: zodResolver(updateBoardSchema),
     values: board
-      ? { name: board.name, slug: board.slug, description: board.description }
+      ? { name: board.name, slug: board.slug, description: board.description ?? '' }
       : undefined,
   });
+
+  const name = watch('name', '') as string;
+  const description = watch('description', '') as string;
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateBoardDTO) => boardApi.update(workspaceId!, boardId!, data),
     onSuccess: (data) => {
       toast.success('Board updated');
       queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
-      reset({ name: data.name, slug: data.slug, description: data.description });
+      reset({ name: data.name, slug: data.slug, description: data.description ?? '' });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to update board');
+      const fallback = mapServerErrors(error, setError);
+      if (fallback) {
+        toast.error(fallback);
+      }
     },
   });
 
@@ -140,13 +151,17 @@ export function BoardSettingsPage() {
           >
             <label className="block space-y-2">
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Board Name</span>
-              <Input placeholder="Feature Requests" autoComplete="off" {...register('name')} />
+              <Input placeholder="Feature Requests" autoComplete="off" maxLength={120} {...register('name')} />
+              {name.trim() ? (
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
+              ) : null}
+              <CharCounter current={name.length} max={120} />
               {errors.name ? <p className="text-sm text-red-600">{errors.name.message}</p> : null}
             </label>
 
             <label className="block space-y-2">
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Slug</span>
-              <Input placeholder="feature-requests" autoComplete="off" {...register('slug')} />
+              <Input placeholder="feature-requests" autoComplete="off" maxLength={120} {...register('slug')} />
               <p className="text-xs text-zinc-400 dark:text-zinc-500">
                 Used in URLs: /w/acme/feature-requests
               </p>
@@ -155,7 +170,8 @@ export function BoardSettingsPage() {
 
             <label className="block space-y-2">
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Description</span>
-              <Input placeholder="Collect and prioritize feature ideas" {...register('description')} />
+              <Input placeholder="Collect and prioritize feature ideas" maxLength={500} {...register('description')} />
+              <CharCounter current={description?.length ?? 0} max={500} />
               {errors.description ? (
                 <p className="text-sm text-red-600">{errors.description.message}</p>
               ) : null}

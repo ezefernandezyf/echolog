@@ -7,6 +7,9 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
       error: true,
       message: err.message,
       code: err.statusCode,
+      ...(err.issues && err.issues.length > 0
+        ? { details: { issues: err.issues.map((i) => ({ path: i.path, message: i.message })) } }
+        : {}),
     });
     return;
   }

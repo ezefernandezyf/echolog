@@ -2,7 +2,7 @@ import {
   authLoginSchema,
   authRegisterSchema,
   createBoardSchema,
-  createWorkspaceSchema,
+  updateWorkspaceSchema,
 } from '../../shared/contracts/schemas.js';
 
 describe('auth schemas', () => {
@@ -27,8 +27,7 @@ describe('auth schemas', () => {
   });
 
   it('rejects punctuation-only slugs with an explicit message', () => {
-    const result = createWorkspaceSchema.safeParse({
-      name: 'Roadmap',
+    const result = updateWorkspaceSchema.safeParse({
       slug: '---',
     });
 
@@ -43,7 +42,6 @@ describe('auth schemas', () => {
   it('treats blank optional descriptions as omitted', () => {
     const result = createBoardSchema.safeParse({
       name: 'General',
-      slug: 'general',
       description: '   ',
     });
 

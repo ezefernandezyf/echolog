@@ -1,5 +1,6 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
+import { slugify } from '../../../shared/lib/slugify.js';
 import type { BoardDTO, CreateBoardDTO, UpdateBoardDTO } from '../../../shared/contracts/index.js';
 
 export class BoardsService {
@@ -17,11 +18,13 @@ export class BoardsService {
   }
 
   async create(workspaceId: string, input: CreateBoardDTO): Promise<BoardDTO> {
+    const slug = slugify(input.name);
+
     const existing = await prisma.board.findUnique({
       where: {
         workspaceId_slug: {
           workspaceId,
-          slug: input.slug,
+          slug,
         },
       },
     });
@@ -38,7 +41,7 @@ export class BoardsService {
       data: {
         workspaceId,
         name: input.name,
-        slug: input.slug,
+        slug,
         description: input.description ?? null,
       },
       select: {

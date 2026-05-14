@@ -13,7 +13,7 @@ export interface AuthSessionDTO {
 export interface AuthRegisterDTO {
   email: string;
   password: string;
-  name?: string | null;
+  name: string;
 }
 
 export interface AuthLoginDTO {
@@ -30,7 +30,6 @@ export interface WorkspaceDTO {
 
 export interface CreateWorkspaceDTO {
   name: string;
-  slug: string;
 }
 
 export interface UpdateWorkspaceDTO {
@@ -48,7 +47,6 @@ export interface BoardDTO {
 
 export interface CreateBoardDTO {
   name: string;
-  slug: string;
   description?: string | null;
 }
 

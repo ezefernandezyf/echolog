@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { commentApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
-import type { CommentDTO } from '../../../../shared/contracts/index.js';
+import { CharCounter } from '../../shared/components/ui/char-counter';
+import { mapServerErrors } from '../../shared/lib/map-server-errors';
+import type { CommentDTO, CreateCommentDTO } from '../../../../shared/contracts/index.js';
+import { createCommentSchema } from '../../../../shared/contracts/index.js';
 
 interface CommentSectionProps {
   postId: string;
@@ -13,16 +17,33 @@ interface CommentSectionProps {
 
 export function CommentSection({ postId, comments, isLoading }: CommentSectionProps) {
   const queryClient = useQueryClient();
-  const [commentText, setCommentText] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm<CreateCommentDTO>({
+    resolver: zodResolver(createCommentSchema),
+  });
+
+  const body = watch('body', '');
 
   const commentMutation = useMutation({
-    mutationFn: (body: string) => commentApi.create(postId, { body }),
+    mutationFn: (data: CreateCommentDTO) => commentApi.create(postId, data),
     onSuccess: () => {
       toast.success('Comment added');
       queryClient.invalidateQueries({ queryKey: ['comments', postId] });
-      setCommentText('');
+      reset();
     },
-    onError: () => toast.error('Failed to add comment.'),
+    onError: (error) => {
+      const fallback = mapServerErrors(error, setError);
+      if (fallback) {
+        toast.error(fallback);
+      }
+    },
   });
 
   if (isLoading) {
@@ -70,22 +91,25 @@ export function CommentSection({ postId, comments, isLoading }: CommentSectionPr
       )}
 
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (commentText.trim()) commentMutation.mutate(commentText.trim());
-        }}
+        onSubmit={handleSubmit((data) => commentMutation.mutate(data))}
         className="mt-3 flex gap-2"
       >
-        <input
-          type="text"
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Add a comment..."
-          className="flex-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
-        />
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder="Add a comment..."
+            maxLength={500}
+            className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
+            {...register('body')}
+          />
+          <CharCounter current={body.length} max={500} />
+          {errors.body ? (
+            <p className="text-sm text-red-600">{errors.body.message}</p>
+          ) : null}
+        </div>
         <Button
           type="submit"
-          disabled={!commentText.trim() || commentMutation.isPending}
+          disabled={commentMutation.isPending || !body.trim()}
           className="h-auto px-3 py-1.5 text-xs"
         >
           {commentMutation.isPending ? '...' : 'Send'}

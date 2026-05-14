@@ -1,5 +1,6 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
+import { slugify } from '../../../shared/lib/slugify.js';
 import type { CreateWorkspaceDTO, UpdateWorkspaceDTO, WorkspaceDTO } from '../../../shared/contracts/index.js';
 
 export class WorkspacesService {
@@ -18,7 +19,9 @@ export class WorkspacesService {
   }
 
   async create(input: CreateWorkspaceDTO, userId: string): Promise<WorkspaceDTO> {
-    const existing = await prisma.workspace.findUnique({ where: { slug: input.slug } });
+    const slug = slugify(input.name);
+
+    const existing = await prisma.workspace.findUnique({ where: { slug } });
     if (existing) {
       throw new HttpError('Workspace slug already exists', 409);
     }
@@ -26,7 +29,7 @@ export class WorkspacesService {
     const workspace = await prisma.workspace.create({
       data: {
         name: input.name,
-        slug: input.slug,
+        slug,
         members: {
           create: {
             userId,
