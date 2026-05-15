@@ -66,7 +66,9 @@ export function PostList({
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400 dark:text-zinc-500">
               EchoLog Board
             </p>
-            <h1 className="text-3xl font-semibold tracking-[-0.03em] text-zinc-950 dark:text-zinc-100">{title}</h1>
+            <h1 className="text-3xl font-semibold tracking-[-0.03em] text-zinc-950 dark:text-zinc-100">
+              {title}
+            </h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -127,6 +129,7 @@ export function PostList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search posts..."
+            aria-label="Search posts"
             className="w-full sm:max-w-md rounded-xl border border-zinc-200 px-4 py-2 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-800 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
           />
         </div>
@@ -134,7 +137,12 @@ export function PostList({
 
       <div className="flex-1 bg-zinc-50/40 dark:bg-background/40">
         <div className="mx-auto w-full max-w-6xl px-0 py-0">
-          <div className="overflow-hidden border-x border-b border-zinc-200 bg-white shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
+          <div
+            className="overflow-hidden border-x border-b border-zinc-200 bg-white shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card"
+            role="region"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             {filtered.length === 0 ? (
               <div className="flex items-center justify-center py-20">
                 <p className="text-sm text-zinc-400 dark:text-zinc-500">

@@ -6,7 +6,6 @@ import { Badge } from '../../shared/components/ui/badge';
 import { cn } from '../../shared/lib/cn';
 import { commentApi, postApi, voteApi } from '../../core/api-client';
 import type { ApiError } from '../../core/api-client';
-import type { PostListResponse } from '../../../../shared/contracts/index.js';
 import { CommentSection } from './comment-section';
 import { updatePostsCache, type PostRowData, type PostsCacheEntry } from './vote-helpers';
 
@@ -26,8 +25,10 @@ function nextStatus(current: string): string {
 
 const statusStyles: Record<string, string> = {
   OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 cursor-pointer hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700',
-  PLANNED: 'border-zinc-200 bg-zinc-100 text-zinc-600 cursor-pointer hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
-  IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700 cursor-pointer hover:bg-zinc-100 dark:border-zinc-700 dark:bg-card dark:text-zinc-300 dark:hover:bg-zinc-800',
+  PLANNED:
+    'border-zinc-200 bg-zinc-100 text-zinc-600 cursor-pointer hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
+  IN_PROGRESS:
+    'border-zinc-200 bg-white text-zinc-700 cursor-pointer hover:bg-zinc-100 dark:border-zinc-700 dark:bg-card dark:text-zinc-300 dark:hover:bg-zinc-800',
   DONE: 'border-zinc-200 bg-zinc-900 text-white cursor-pointer hover:bg-zinc-800 dark:border-zinc-600 dark:bg-zinc-300 dark:text-zinc-900 dark:hover:bg-zinc-400',
 };
 
@@ -53,7 +54,9 @@ export function PostRow({ post, boardId }: PostRowProps) {
 
         await queryClient.cancelQueries({ queryKey: postsQueryKey });
 
-        const previousPosts = queryClient.getQueriesData<PostRowData[]>({ queryKey: postsQueryKey });
+        const previousPosts = queryClient.getQueriesData<PostRowData[]>({
+          queryKey: postsQueryKey,
+        });
 
         queryClient.setQueriesData<PostsCacheEntry>({ queryKey: postsQueryKey }, (old) =>
           updatePostsCache(old, (p) =>
@@ -84,9 +87,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
         _vars: void,
         context:
           | {
-              previousPosts:
-                | Array<[readonly unknown[], PostRowData[] | undefined]>
-                | undefined;
+              previousPosts: Array<[readonly unknown[], PostRowData[] | undefined]> | undefined;
             }
           | undefined,
       ) => {
@@ -172,9 +173,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
         <button
           type="button"
           disabled={voteIsPending || voteLockRef.current}
-          onClick={() =>
-            post.isUpvoted ? removeVoteMutation.mutate() : addVoteMutation.mutate()
-          }
+          onClick={() => (post.isUpvoted ? removeVoteMutation.mutate() : addVoteMutation.mutate())}
           aria-label={`${post.isUpvoted ? 'Remove vote from' : 'Upvote'} ${post.title}`}
           className={cn(
             'flex h-14 w-12 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-all duration-150 active:scale-95 min-w-[44px] min-h-[44px]',
@@ -211,7 +210,9 @@ export function PostRow({ post, boardId }: PostRowProps) {
               </Badge>
             </button>
           </div>
-          <p className="max-w-3xl text-sm leading-6 text-zinc-500 dark:text-zinc-400">{post.description}</p>
+          <p className="max-w-3xl text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+            {post.description}
+          </p>
         </div>
 
         <div className="flex flex-col items-end justify-between gap-3 pt-0.5 text-right">

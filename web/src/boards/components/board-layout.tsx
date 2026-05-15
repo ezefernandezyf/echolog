@@ -8,7 +8,6 @@ import type { PostRowData } from './post-row';
 import { boardApi, postApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
-import type { PostListResponse } from '../../../../shared/contracts/index.js';
 import { useAuthenticatedShell } from '../../auth/authenticated-layout';
 
 function mapPostToRow(post: {
@@ -106,10 +105,15 @@ export function BoardLayout() {
   };
 
   return (
-    <main className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden bg-zinc-50 text-zinc-950 dark:bg-background dark:text-foreground">
+    <main
+      id="main-content"
+      className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden bg-zinc-50 text-zinc-950 dark:bg-background dark:text-foreground"
+    >
       {!workspaceId ? (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-zinc-400 dark:text-zinc-500">Select a workspace from the sidebar.</p>
+          <p className="text-sm text-zinc-400 dark:text-zinc-500">
+            Select a workspace from the sidebar.
+          </p>
         </div>
       ) : boardsQuery.isPending ? (
         <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">

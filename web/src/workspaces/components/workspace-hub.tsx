@@ -22,12 +22,19 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
   });
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-8 lg:px-10 animate-fade-in">
+    <main
+      id="main-content"
+      className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-8 lg:px-10 animate-fade-in"
+    >
       <section className="space-y-8">
         <header className="flex flex-col gap-4 border-b border-zinc-200 pb-6 sm:flex-row sm:items-end sm:justify-between dark:border-zinc-800">
           <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">EchoLog</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Your Workspaces</h1>
+            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+              EchoLog
+            </p>
+            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Your Workspaces
+            </h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">

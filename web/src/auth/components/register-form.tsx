@@ -45,83 +45,110 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   return (
     <div className="mx-auto w-full max-w-sm px-4 py-10 sm:py-20">
       <form className="space-y-6" onSubmit={handleSubmit((data) => registerMutation.mutate(data))}>
-      <div className="space-y-2 text-center sm:text-left">
-        <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Create account</h2>
-        <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
-          Start a clean feedback workflow for your team.
-        </p>
-      </div>
+        <div className="space-y-2 text-center sm:text-left">
+          <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            Create account
+          </h2>
+          <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+            Start a clean feedback workflow for your team.
+          </p>
+        </div>
 
-      <div className="space-y-2">
-        <label htmlFor="register-name" className="text-sm font-medium text-zinc-900 dark:text-zinc-300">
-          Name
-        </label>
-        <Input
-          id="register-name"
-          type="text"
-          autoComplete="name"
-          placeholder="Your name"
-          maxLength={120}
-          className="min-h-[44px]"
-          {...register('name')}
-        />
-        <CharCounter current={name.length} max={120} />
-        {errors.name ? <p className="text-sm text-red-600">{errors.name.message}</p> : null}
-      </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="register-name"
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+          >
+            Name
+          </label>
+          <Input
+            id="register-name"
+            type="text"
+            autoComplete="name"
+            placeholder="Your name"
+            maxLength={120}
+            className="min-h-[44px]"
+            aria-describedby={errors.name ? 'register-name-error' : undefined}
+            aria-invalid={errors.name ? true : undefined}
+            {...register('name')}
+          />
+          <CharCounter current={name.length} max={120} />
+          {errors.name ? (
+            <p id="register-name-error" role="alert" className="text-sm text-red-600">
+              {errors.name.message}
+            </p>
+          ) : null}
+        </div>
 
-      <div className="space-y-2">
-        <label htmlFor="register-email" className="text-sm font-medium text-zinc-900 dark:text-zinc-300">
-          Email
-        </label>
-        <Input
-          id="register-email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@company.com"
-          className="min-h-[44px]"
-          {...register('email')}
-        />
-        {errors.email ? <p className="text-sm text-red-600">{errors.email.message}</p> : null}
-      </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="register-email"
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+          >
+            Email
+          </label>
+          <Input
+            id="register-email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            className="min-h-[44px]"
+            aria-describedby={errors.email ? 'register-email-error' : undefined}
+            aria-invalid={errors.email ? true : undefined}
+            {...register('email')}
+          />
+          {errors.email ? (
+            <p id="register-email-error" role="alert" className="text-sm text-red-600">
+              {errors.email.message}
+            </p>
+          ) : null}
+        </div>
 
-      <div className="space-y-2">
-        <label htmlFor="register-password" className="text-sm font-medium text-zinc-900 dark:text-zinc-300">
-          Password
-        </label>
-        <Input
-          id="register-password"
-          type="password"
-          autoComplete="new-password"
-          placeholder="At least 8 characters"
-          className="min-h-[44px]"
-          {...register('password')}
-        />
-        {errors.password ? (
-          <p className="text-sm text-red-600">{errors.password.message}</p>
+        <div className="space-y-2">
+          <label
+            htmlFor="register-password"
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+          >
+            Password
+          </label>
+          <Input
+            id="register-password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="At least 8 characters"
+            className="min-h-[44px]"
+            aria-describedby={errors.password ? 'register-password-error' : undefined}
+            aria-invalid={errors.password ? true : undefined}
+            {...register('password')}
+          />
+          {errors.password ? (
+            <p id="register-password-error" role="alert" className="text-sm text-red-600">
+              {errors.password.message}
+            </p>
+          ) : null}
+        </div>
+
+        {registerMutation.error ? (
+          <p className="text-sm text-red-600">
+            {registerMutation.error instanceof Error
+              ? registerMutation.error.message
+              : 'Registration failed'}
+          </p>
         ) : null}
-      </div>
 
-      {registerMutation.error ? (
-        <p className="text-sm text-red-600">
-          {registerMutation.error instanceof Error
-            ? registerMutation.error.message
-            : 'Registration failed'}
+        <Button className="w-full" type="submit" disabled={registerMutation.isPending}>
+          {registerMutation.isPending ? 'Creating account...' : 'Create account'}
+        </Button>
+
+        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+          Already have an account?{' '}
+          <Link
+            to="/login"
+            className="font-medium text-zinc-900 underline underline-offset-4 transition-colors hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
+          >
+            Sign in
+          </Link>
         </p>
-      ) : null}
-
-      <Button className="w-full" type="submit" disabled={registerMutation.isPending}>
-        {registerMutation.isPending ? 'Creating account...' : 'Create account'}
-      </Button>
-
-      <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-        Already have an account?{' '}
-        <Link
-          to="/login"
-          className="font-medium text-zinc-900 underline underline-offset-4 transition-colors hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
-        >
-          Sign in
-        </Link>
-      </p>
       </form>
     </div>
   );

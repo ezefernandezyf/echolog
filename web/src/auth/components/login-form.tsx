@@ -40,64 +40,82 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <div className="mx-auto w-full max-w-sm px-4 py-10 sm:py-20">
       <form className="space-y-6" onSubmit={handleSubmit((data) => loginMutation.mutate(data))}>
-      <div className="space-y-2 text-center sm:text-left">
-        <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Welcome back</h2>
-        <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
-          Sign in to keep collecting feedback in one place.
-        </p>
-      </div>
+        <div className="space-y-2 text-center sm:text-left">
+          <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            Welcome back
+          </h2>
+          <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+            Sign in to keep collecting feedback in one place.
+          </p>
+        </div>
 
-      <div className="space-y-2">
-        <label htmlFor="login-email" className="text-sm font-medium text-zinc-900 dark:text-zinc-300">
-          Email
-        </label>
-        <Input
-          id="login-email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@company.com"
-          className="min-h-[44px]"
-          {...register('email')}
-        />
-        {errors.email ? <p className="text-sm text-red-600">{errors.email.message}</p> : null}
-      </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="login-email"
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+          >
+            Email
+          </label>
+          <Input
+            id="login-email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            className="min-h-[44px]"
+            aria-describedby={errors.email ? 'login-email-error' : undefined}
+            aria-invalid={errors.email ? true : undefined}
+            {...register('email')}
+          />
+          {errors.email ? (
+            <p id="login-email-error" role="alert" className="text-sm text-red-600">
+              {errors.email.message}
+            </p>
+          ) : null}
+        </div>
 
-      <div className="space-y-2">
-        <label htmlFor="login-password" className="text-sm font-medium text-zinc-900 dark:text-zinc-300">
-          Password
-        </label>
-        <Input
-          id="login-password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="Enter your password"
-          className="min-h-[44px]"
-          {...register('password')}
-        />
-        {errors.password ? (
-          <p className="text-sm text-red-600">{errors.password.message}</p>
+        <div className="space-y-2">
+          <label
+            htmlFor="login-password"
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+          >
+            Password
+          </label>
+          <Input
+            id="login-password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="Enter your password"
+            className="min-h-[44px]"
+            aria-describedby={errors.password ? 'login-password-error' : undefined}
+            aria-invalid={errors.password ? true : undefined}
+            {...register('password')}
+          />
+          {errors.password ? (
+            <p id="login-password-error" role="alert" className="text-sm text-red-600">
+              {errors.password.message}
+            </p>
+          ) : null}
+        </div>
+
+        {loginMutation.error ? (
+          <p className="text-sm text-red-600">
+            {loginMutation.error instanceof Error ? loginMutation.error.message : 'Login failed'}
+          </p>
         ) : null}
-      </div>
 
-      {loginMutation.error ? (
-        <p className="text-sm text-red-600">
-          {loginMutation.error instanceof Error ? loginMutation.error.message : 'Login failed'}
+        <Button className="w-full" type="submit" disabled={loginMutation.isPending}>
+          {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
+        </Button>
+
+        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+          No account yet?{' '}
+          <Link
+            to="/register"
+            className="font-medium text-zinc-900 underline underline-offset-4 transition-colors hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
+          >
+            Create one
+          </Link>
         </p>
-      ) : null}
-
-      <Button className="w-full" type="submit" disabled={loginMutation.isPending}>
-        {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
-      </Button>
-
-      <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-        No account yet?{' '}
-        <Link
-          to="/register"
-          className="font-medium text-zinc-900 underline underline-offset-4 transition-colors hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
-        >
-          Create one
-        </Link>
-      </p>
       </form>
     </div>
   );

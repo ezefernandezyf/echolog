@@ -6,7 +6,10 @@ import { cn } from '../lib/cn';
  */
 export function PostSkeleton() {
   return (
-    <article className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-card" aria-hidden="true">
+    <article
+      className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-card"
+      aria-hidden="true"
+    >
       <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-5 py-5 sm:px-6">
         {/* Vote button shape */}
         <Skeleton width={48} height={56} rounded="2xl" />
@@ -60,10 +63,7 @@ export function BoardSkeletonList({ count = 4, className }: BoardSkeletonListPro
  */
 export function WorkspaceSkeleton() {
   return (
-    <div
-      className="rounded-2xl border border-border bg-card p-5"
-      aria-hidden="true"
-    >
+    <div className="rounded-2xl border border-border bg-card p-5" aria-hidden="true">
       <div className="flex items-start gap-4">
         <Skeleton width={48} height={48} rounded="2xl" className="shrink-0" />
         <div className="min-w-0 flex-1 space-y-2 pt-1">

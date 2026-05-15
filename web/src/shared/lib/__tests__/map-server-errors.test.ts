@@ -45,9 +45,7 @@ describe('mapServerErrors', () => {
     const setError = createMockSetError();
     const error = {
       details: {
-        issues: [
-          { path: ['items', 0, 'name'], message: 'Invalid item name' },
-        ],
+        issues: [{ path: ['items', 0, 'name'], message: 'Invalid item name' }],
       },
     };
 

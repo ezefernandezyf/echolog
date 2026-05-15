@@ -61,10 +61,14 @@
 *,
 *::before,
 *::after {
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
 }
 
 html {
+  color-scheme: light;
   background: var(--color-background);
   color: var(--color-foreground);
 }
@@ -107,4 +111,15 @@ body {
 
 .animate-scale-in {
   animation: scaleIn 0.15s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

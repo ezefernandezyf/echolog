@@ -87,9 +87,7 @@ describe('Session bootstrap via useSession', () => {
 
     const { result } = renderHook(() => useSession(), {
       wrapper: ({ children }) => (
-        <QueryClientProvider client={createTestQueryClient()}>
-          {children}
-        </QueryClientProvider>
+        <QueryClientProvider client={createTestQueryClient()}>{children}</QueryClientProvider>
       ),
     });
 
@@ -110,9 +108,7 @@ describe('Session bootstrap via useSession', () => {
 
     const { result } = renderHook(() => useSession(), {
       wrapper: ({ children }) => (
-        <QueryClientProvider client={createTestQueryClient()}>
-          {children}
-        </QueryClientProvider>
+        <QueryClientProvider client={createTestQueryClient()}>{children}</QueryClientProvider>
       ),
     });
 

@@ -67,7 +67,7 @@ export function CommentSection({ postId, comments, isLoading }: CommentSectionPr
   return (
     <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900/40">
       {comments.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-3" role="region" aria-live="polite" aria-label="Comments">
           {comments.map((c) => (
             <div key={c.id} className="flex gap-3 text-sm">
               <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-[10px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
@@ -96,15 +96,21 @@ export function CommentSection({ postId, comments, isLoading }: CommentSectionPr
       >
         <div className="flex-1">
           <input
+            id="comment-body-input"
             type="text"
             placeholder="Add a comment..."
+            aria-label="Add a comment"
             maxLength={500}
+            aria-describedby={errors.body ? 'comment-body-input-error' : undefined}
+            aria-invalid={errors.body ? true : undefined}
             className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
             {...register('body')}
           />
           <CharCounter current={body.length} max={500} />
           {errors.body ? (
-            <p className="text-sm text-red-600">{errors.body.message}</p>
+            <p id="comment-body-input-error" role="alert" className="text-sm text-red-600">
+              {errors.body.message}
+            </p>
           ) : null}
         </div>
         <Button

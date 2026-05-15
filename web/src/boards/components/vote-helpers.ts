@@ -1,6 +1,3 @@
-import type { InfiniteData } from '@tanstack/react-query';
-import type { PostListResponse } from '../../../../shared/contracts/index.js';
-
 export interface PostRowData {
   id: string;
   title: string;
@@ -21,10 +18,7 @@ type PostArray = any[];
 type PostCachePage = { posts: PostArray };
 type PostCacheInfinite = { pages: PostCachePage[] };
 
-export type PostsCacheEntry =
-  | PostArray
-  | PostCachePage
-  | PostCacheInfinite;
+export type PostsCacheEntry = PostArray | PostCachePage | PostCacheInfinite;
 
 /**
  * Shape-aware cache updater that handles three query data shapes.

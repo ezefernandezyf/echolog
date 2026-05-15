@@ -7,16 +7,16 @@ import { cn } from '../../shared/lib/cn';
 import { postApi, voteApi, commentApi } from '../../core/api-client';
 import type { ApiError } from '../../core/api-client';
 import type { PostDTO } from '../../../../shared/contracts/index.js';
-import type { PostListResponse } from '../../../../shared/contracts/index.js';
-import type { PostRowData } from './post-row';
 import { CommentSection } from './comment-section';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
 import { updatePostsCache, type PostsCacheEntry } from './vote-helpers';
 
 const statusStyles: Record<string, string> = {
   OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400',
-  PLANNED: 'border-zinc-200 bg-zinc-100 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
-  IN_PROGRESS: 'border-zinc-200 bg-white text-zinc-700 dark:border-zinc-700 dark:bg-card dark:text-zinc-300',
+  PLANNED:
+    'border-zinc-200 bg-zinc-100 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
+  IN_PROGRESS:
+    'border-zinc-200 bg-white text-zinc-700 dark:border-zinc-700 dark:bg-card dark:text-zinc-300',
   DONE: 'border-zinc-200 bg-zinc-900 text-white dark:border-zinc-600 dark:bg-zinc-300 dark:text-zinc-900',
 };
 
@@ -52,9 +52,7 @@ export function PostDetailPage() {
       const previousPost = queryClient.getQueryData<PostDTO>(postQueryKey);
 
       queryClient.setQueryData<PostDTO>(postQueryKey, (old) =>
-        old
-          ? { ...old, voteCount: old.voteCount + 1, isUpvoted: true }
-          : old,
+        old ? { ...old, voteCount: old.voteCount + 1, isUpvoted: true } : old,
       );
 
       return { previousPost };
@@ -98,9 +96,7 @@ export function PostDetailPage() {
       const previousPost = queryClient.getQueryData<PostDTO>(postQueryKey);
 
       queryClient.setQueryData<PostDTO>(postQueryKey, (old) =>
-        old
-          ? { ...old, voteCount: Math.max(0, old.voteCount - 1), isUpvoted: false }
-          : old,
+        old ? { ...old, voteCount: Math.max(0, old.voteCount - 1), isUpvoted: false } : old,
       );
 
       return { previousPost };
@@ -141,7 +137,7 @@ export function PostDetailPage() {
 
   if (isPending) {
     return (
-      <main className="min-h-screen bg-background text-foreground">
+      <main id="main-content" className="min-h-screen bg-background text-foreground">
         <PostSkeleton />
       </main>
     );
@@ -149,15 +145,15 @@ export function PostDetailPage() {
 
   if (isError) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background px-4">
+      <main
+        id="main-content"
+        className="flex min-h-screen items-center justify-center bg-background px-4"
+      >
         <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border border-dashed border-red-200 bg-red-50/30 px-6 py-16 text-center dark:border-red-800/30 dark:bg-red-950/10">
           <p className="text-sm text-red-600 dark:text-red-400">
             {(error as Partial<ApiError>)?.message ?? 'Failed to load post'}
           </p>
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/w/${workspaceId}`)}
-          >
+          <Button variant="outline" onClick={() => navigate(`/w/${workspaceId}`)}>
             Back to board
           </Button>
         </div>
@@ -167,15 +163,15 @@ export function PostDetailPage() {
 
   if (!post) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background px-4">
+      <main
+        id="main-content"
+        className="flex min-h-screen items-center justify-center bg-background px-4"
+      >
         <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-16 text-center shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
           <p className="text-sm text-muted-foreground">
             Post not found. It may have been removed or the link is incorrect.
           </p>
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/w/${workspaceId}`)}
-          >
+          <Button variant="outline" onClick={() => navigate(`/w/${workspaceId}`)}>
             Back to board
           </Button>
         </div>
@@ -184,7 +180,7 @@ export function PostDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main id="main-content" className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
         {/* Back button */}
         <button
@@ -243,7 +239,9 @@ export function PostDetailPage() {
                   </span>
                 )}
                 <span className="text-zinc-300 dark:text-zinc-700">·</span>
-                <span>{post.commentCount} comment{post.commentCount !== 1 ? 's' : ''}</span>
+                <span>
+                  {post.commentCount} comment{post.commentCount !== 1 ? 's' : ''}
+                </span>
               </div>
 
               {/* Post body */}
@@ -261,9 +259,7 @@ export function PostDetailPage() {
         {/* Comments section */}
         <section className="mt-6 rounded-2xl border border-border bg-card overflow-hidden">
           <div className="px-5 py-4 sm:px-8 sm:py-5">
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-foreground">
-              Comments
-            </h2>
+            <h2 className="text-sm font-semibold tracking-[-0.01em] text-foreground">Comments</h2>
           </div>
           <CommentSection
             postId={post.id}

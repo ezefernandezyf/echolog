@@ -74,5 +74,10 @@ export const useUiStore = create<UiStore>((set) => ({
       return { theme: next };
     }),
   resetUi: () =>
-    set((state) => ({ sidebarOpen: true, activeModal: null, notification: null, theme: state.theme })),
+    set((state) => ({
+      sidebarOpen: true,
+      activeModal: null,
+      notification: null,
+      theme: state.theme,
+    })),
 }));
