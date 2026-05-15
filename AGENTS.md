@@ -92,7 +92,7 @@ npm run dev:web          # terminal 2: frontend on :5173
 
 ### Phase 5: QA & Polish 🟡
 - 5.1 Form validation edge cases ✅ — 8/8 spec requirements, 20/20 tasks, 75 tests passing
-- 5.2 Accessibility audit 🟡 (focus traps on modals, keyboard nav partial)
+- 5.2 Accessibility audit 🟡 (P0 ✅: skip link, form errors, input labels, live regions, reduced-motion, color-scheme — P1-P3 pending)
 - 5.3 Loading/empty/error states audit 🟡 (most views covered, audit in progress)
 - 5.4 Mobile UX pass 🟡 (touch targets, viewport meta, safe areas)
 
