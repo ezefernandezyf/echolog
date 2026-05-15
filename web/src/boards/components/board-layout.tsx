@@ -81,6 +81,7 @@ export function BoardLayout() {
       }),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
+    placeholderData: (previousData) => previousData,
     enabled: !!effectiveBoardId,
   });
 
@@ -158,7 +159,7 @@ export function BoardLayout() {
               : 'Select a board from the sidebar.'}
           </p>
         </div>
-      ) : postsQuery.isPending ? (
+      ) : !postsQuery.data && postsQuery.isPending ? (
         <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
           <header className="border-b border-zinc-200 px-6 py-6 sm:px-8 dark:border-zinc-800">
             <div className="space-y-2">

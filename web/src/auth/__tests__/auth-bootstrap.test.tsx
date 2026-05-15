@@ -250,7 +250,7 @@ describe('LoginForm', () => {
 
   it('shows error message on failed login', async () => {
     const user = userEvent.setup();
-    vi.mocked(authApi.login).mockRejectedValue(new Error('Invalid credentials'));
+    vi.mocked(authApi.login).mockRejectedValue({ message: 'Invalid credentials', status: 401 });
 
     render(<LoginForm />, { wrapper: TestWrapper });
 
@@ -264,7 +264,7 @@ describe('LoginForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+      expect(screen.getByText('Invalid email or password')).toBeInTheDocument();
     });
 
     expect(useAuthStore.getState().session).toBeNull();

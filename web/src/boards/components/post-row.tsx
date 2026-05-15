@@ -239,6 +239,8 @@ export function PostRow({ post, boardId }: PostRowProps) {
           postId={post.id}
           comments={commentsQuery.data ?? []}
           isLoading={commentsQuery.isPending}
+          isError={commentsQuery.isError}
+          onRetry={() => commentsQuery.refetch()}
         />
       )}
     </article>

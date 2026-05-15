@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { commentApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { CharCounter } from '../../shared/components/ui/char-counter';
+import { ErrorAlert } from '../../shared/components/ui/error-alert';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import type { CommentDTO, CreateCommentDTO } from '../../../../shared/contracts/index.js';
 import { createCommentSchema } from '../../../../shared/contracts/index.js';
@@ -13,9 +14,11 @@ interface CommentSectionProps {
   postId: string;
   comments: CommentDTO[];
   isLoading: boolean;
+  isError: boolean;
+  onRetry: () => void;
 }
 
-export function CommentSection({ postId, comments, isLoading }: CommentSectionProps) {
+export function CommentSection({ postId, comments, isLoading, isError, onRetry }: CommentSectionProps) {
   const queryClient = useQueryClient();
 
   const {
@@ -60,6 +63,19 @@ export function CommentSection({ postId, comments, isLoading }: CommentSectionPr
             </div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900/40">
+        <ErrorAlert
+          message="Failed to load comments"
+          onRetry={onRetry}
+          retryLabel="Retry"
+          className="rounded-2xl"
+        />
       </div>
     );
   }

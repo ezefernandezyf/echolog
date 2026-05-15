@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import type { AuthSessionDTO, AuthLoginDTO } from '../../../../shared/contracts/index.js';
 import { authLoginSchema } from '../../../../shared/contracts/index.js';
 import { authApi } from '../../core/api-client';
+import type { ApiError } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
@@ -104,7 +105,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
         {loginMutation.error ? (
           <p className="text-sm text-red-600">
-            {loginMutation.error instanceof Error ? loginMutation.error.message : 'Login failed'}
+            {(() => {
+              const apiErr = loginMutation.error as Partial<ApiError>;
+              if (apiErr.status === undefined) return 'Check your connection and try again';
+              if (apiErr.status === 401) return 'Invalid email or password';
+              return apiErr.message || 'Login failed';
+            })()}
           </p>
         ) : null}
 

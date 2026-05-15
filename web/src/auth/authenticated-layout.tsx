@@ -9,6 +9,7 @@ import { boardApi, workspaceApi } from '../core/api-client';
 import { CreateBoardModal } from '../boards/components/create-board-modal';
 import { cn } from '../shared/lib/cn';
 import { Button } from '../shared/components/ui/button';
+import { ErrorAlert } from '../shared/components/ui/error-alert';
 
 type AuthenticatedShellContextValue = {
   selectedBoardId: string | null;
@@ -122,6 +123,24 @@ export function AuthenticatedLayout() {
                 <div className="h-10 w-full animate-pulse rounded-2xl bg-zinc-200 dark:bg-zinc-700" />
               </div>
             </div>
+          </aside>
+        ) : null}
+
+        {!workspaceId && workspacesQuery.isError ? (
+          <aside
+            className={cn(
+              'flex flex-col items-center justify-center gap-3 border-r border-zinc-200 p-5 dark:border-zinc-800',
+              'lg:relative lg:w-72 lg:translate-x-0 lg:z-auto',
+              'fixed inset-y-0 left-0 z-40 w-72 transition-transform duration-300 ease-in-out',
+              sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+            )}
+          >
+            <ErrorAlert
+              message="Failed to load workspaces"
+              onRetry={() => workspacesQuery.refetch()}
+              retryLabel="Retry"
+              className="rounded-2xl w-full"
+            />
           </aside>
         ) : null}
 
