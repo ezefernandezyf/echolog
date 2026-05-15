@@ -2,11 +2,11 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
-import { Toaster } from 'sonner';
 import './index.css';
 import { App } from './App';
 import { queryClient } from './core/query-client';
 import { ErrorBoundary } from './shared/components/error-boundary';
+import { MobileAwareToaster } from './shared/components/mobile-aware-toaster';
 
 const rootElement = document.getElementById('root');
 
@@ -20,7 +20,7 @@ createRoot(rootElement).render(
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
           <App />
-          <Toaster position="bottom-right" richColors />
+          <MobileAwareToaster richColors />
         </QueryClientProvider>
       </BrowserRouter>
     </ErrorBoundary>

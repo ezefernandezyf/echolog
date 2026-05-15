@@ -73,7 +73,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             autoComplete="name"
             placeholder="Your name"
             maxLength={120}
-            className="min-h-[44px]"
             aria-describedby={errors.name ? 'register-name-error' : undefined}
             aria-invalid={errors.name ? true : undefined}
             {...register('name')}
@@ -98,7 +97,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             type="email"
             autoComplete="email"
             placeholder="you@company.com"
-            className="min-h-[44px]"
             aria-describedby={errors.email ? 'register-email-error' : undefined}
             aria-invalid={errors.email ? true : undefined}
             {...register('email')}
@@ -122,7 +120,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             type="password"
             autoComplete="new-password"
             placeholder="At least 8 characters"
-            className="min-h-[44px]"
             aria-describedby={errors.password ? 'register-password-error' : undefined}
             aria-invalid={errors.password ? true : undefined}
             {...register('password')}

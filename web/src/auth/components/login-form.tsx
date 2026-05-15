@@ -67,7 +67,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             type="email"
             autoComplete="email"
             placeholder="you@company.com"
-            className="min-h-[44px]"
             aria-describedby={errors.email ? 'login-email-error' : undefined}
             aria-invalid={errors.email ? true : undefined}
             {...register('email')}
@@ -91,7 +90,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             type="password"
             autoComplete="current-password"
             placeholder="Enter your password"
-            className="min-h-[44px]"
             aria-describedby={errors.password ? 'login-password-error' : undefined}
             aria-invalid={errors.password ? true : undefined}
             {...register('password')}

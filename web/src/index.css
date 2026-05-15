@@ -1,5 +1,16 @@
 @import 'tailwindcss';
 
+/*
+ * Safe Area — use Tailwind arbitrary values directly on containers
+ * that need notch/home-indicator padding:
+ *   pt-[env(safe-area-inset-top)]
+ *   pb-[env(safe-area-inset-bottom)]
+ *   pl-[env(safe-area-inset-left)]
+ *   pr-[env(safe-area-inset-right)]
+ *
+ * No utility classes needed. Tailwind 4 supports arbitrary env() values natively.
+ */
+
 @variant dark (&:where(.dark, .dark *));
 
 @theme {

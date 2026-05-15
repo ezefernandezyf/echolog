@@ -85,7 +85,7 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-border px-4 py-6 text-center text-sm text-muted-foreground">
+      <footer className="mt-auto border-t border-border px-4 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] text-center text-sm text-muted-foreground">
         Built with ♥ — EchoLog
       </footer>
     </main>
