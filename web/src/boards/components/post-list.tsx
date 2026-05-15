@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '../../shared/components/ui/button';
 import { cn } from '../../shared/lib/cn';
 import { PostRow, type PostRowData } from './post-row';
@@ -29,6 +30,44 @@ interface PostListProps {
 
 const sortTabs: PostSort[] = ['Trending', 'Top', 'New'];
 
+function VirtualizedPostList({ posts, boardId }: { posts: PostRowData[]; boardId: string }) {
+  const virtualizer = useWindowVirtualizer({
+    count: posts.length,
+    estimateSize: () => 120,
+    overscan: 5,
+  });
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        height: `${virtualizer.getTotalSize()}px`,
+        width: '100%',
+      }}
+    >
+      {virtualizer.getVirtualItems().map((virtualItem) => {
+        const post = posts[virtualItem.index];
+        return (
+          <div
+            key={virtualItem.key}
+            data-index={virtualItem.index}
+            ref={virtualizer.measureElement}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              transform: `translateY(${virtualItem.start}px)`,
+            }}
+          >
+            <PostRow post={post} boardId={boardId} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function PostList({
   title,
   posts,
@@ -45,10 +84,21 @@ export function PostList({
   const [search, setSearch] = useState('');
   const [debounced, setDebounced] = useState('');
 
+  // Mobile detection for virtualization gate
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' ? window.innerWidth < 768 : false,
+  );
+
   useEffect(() => {
     const id = setTimeout(() => setDebounced(search), 300);
     return () => clearTimeout(id);
   }, [search]);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const filtered = debounced.trim()
     ? posts.filter(
@@ -57,6 +107,8 @@ export function PostList({
           p.description.toLowerCase().includes(debounced.toLowerCase()),
       )
     : posts;
+
+  const shouldVirtualize = isMobile || filtered.length > 20;
 
   return (
     <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
@@ -151,6 +203,24 @@ export function PostList({
                   {debounced ? 'No posts match your search.' : 'No posts yet.'}
                 </p>
               </div>
+            ) : shouldVirtualize ? (
+              <>
+                <VirtualizedPostList posts={filtered} boardId={boardId} />
+
+                {/* Load more */}
+                {hasMore && (
+                  <div className="flex items-center justify-center border-t border-zinc-200 px-6 py-5 dark:border-zinc-800">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onLoadMore}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore ? 'Loading...' : 'Load more posts'}
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
               <>
                 {filtered.map((post) => (
