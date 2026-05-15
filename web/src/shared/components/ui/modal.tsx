@@ -90,6 +90,7 @@ export function Modal({ open, onClose, children, className, ...props }: ModalPro
         {...props}
         role="dialog"
         aria-modal="true"
+        aria-keyshortcuts="Escape"
         onMouseDown={(event) => event.stopPropagation()}
         className={cn(
           'relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-2xl shadow-black/20 transition-colors animate-scale-in',
