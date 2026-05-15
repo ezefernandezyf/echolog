@@ -1,6 +1,8 @@
+import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { toast } from 'sonner';
 import { commentApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
@@ -9,6 +11,66 @@ import { ErrorAlert } from '../../shared/components/ui/error-alert';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import type { CommentDTO, CreateCommentDTO } from '../../../../shared/contracts/index.js';
 import { createCommentSchema } from '../../../../shared/contracts/index.js';
+
+function CommentItem({ comment }: { comment: CommentDTO }) {
+  return (
+    <div className="flex gap-3 text-sm" role="listitem">
+      <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-[10px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+        {(comment.authorName ?? comment.authorId).slice(0, 2).toUpperCase()}
+      </span>
+      <div>
+        <p className="text-zinc-700 dark:text-zinc-300">{comment.body}</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+          {new Date(comment.createdAt).toLocaleDateString()}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function VirtualizedCommentList({ comments }: { comments: CommentDTO[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: comments.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 60,
+    overscan: 3,
+  });
+
+  return (
+    <div ref={scrollRef} className="max-h-[400px] overflow-y-auto" role="region" aria-live="polite" aria-label="Comments">
+      <div
+        style={{
+          position: 'relative',
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const comment = comments[virtualItem.index];
+          return (
+            <div
+              key={virtualItem.key}
+              data-index={virtualItem.index}
+              ref={virtualizer.measureElement}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+              className="px-5 py-2"
+            >
+              <CommentItem comment={comment} />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 interface CommentSectionProps {
   postId: string;
@@ -83,21 +145,15 @@ export function CommentSection({ postId, comments, isLoading, isError, onRetry }
   return (
     <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900/40">
       {comments.length > 0 ? (
-        <div className="space-y-3" role="region" aria-live="polite" aria-label="Comments">
-          {comments.map((c) => (
-            <div key={c.id} className="flex gap-3 text-sm">
-              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-[10px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
-                {(c.authorName ?? c.authorId).slice(0, 2).toUpperCase()}
-              </span>
-              <div>
-                <p className="text-zinc-700 dark:text-zinc-300">{c.body}</p>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500">
-                  {new Date(c.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        comments.length > 10 ? (
+          <VirtualizedCommentList comments={comments} />
+        ) : (
+          <div className="space-y-3" role="region" aria-live="polite" aria-label="Comments">
+            {comments.map((c) => (
+              <CommentItem key={c.id} comment={c} />
+            ))}
+          </div>
+        )
       ) : (
         <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zinc-200 px-6 py-10 text-center dark:border-zinc-800">
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
