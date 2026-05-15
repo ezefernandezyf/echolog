@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '../../shared/lib/cn';
 import { useAuthStore } from '../../auth/auth-store';
 import { authApi } from '../../core/api-client';
@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { ThemeToggle } from '../../shared/components/theme-toggle';
+import { useUiStore } from '../../core/store/ui-store';
 
 function getUserInitials(name: string | null, email: string): string {
   if (name && name.trim()) {
@@ -34,6 +35,9 @@ interface SidebarProps {
   onNavClick?: () => void;
 }
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function Sidebar({
   workspaceName,
   workspaceId,
@@ -47,10 +51,59 @@ export function Sidebar({
   const user = useAuthStore((state) => state.session?.user);
   const clearSession = useAuthStore((state) => state.clearSession);
   const navigate = useNavigate();
+  const sidebarOpen = useUiStore((state) => state.sidebarOpen);
+  const closeSidebar = useUiStore((state) => state.closeSidebar);
+  const asideRef = useRef<HTMLElement>(null);
   const userName = user?.name ?? 'Unknown User';
   const userEmail = user?.email ?? '';
   const initials = getUserInitials(user?.name ?? null, userEmail);
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+
+  // Focus trap for mobile sidebar overlay
+  useEffect(() => {
+    if (!sidebarOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeSidebar();
+        document.getElementById('mobile-hamburger')?.focus();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !asideRef.current) return;
+
+      const focusable = asideRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Focus the first focusable element in the sidebar when opened
+    const frame = requestAnimationFrame(() => {
+      const focusable = asideRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      focusable?.[0]?.focus();
+    });
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      cancelAnimationFrame(frame);
+    };
+  }, [sidebarOpen, closeSidebar]);
 
   const logoutMutation = useMutation({
     mutationFn: () => authApi.logout(),
@@ -63,6 +116,7 @@ export function Sidebar({
 
   return (
     <aside
+      ref={asideRef}
       className={cn(
         'flex w-72 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-background',
         className,

@@ -8,6 +8,7 @@ import { useUiStore } from '../../core/store/ui-store';
 import { CreateWorkspaceModal } from './create-workspace-modal';
 import { WorkspaceSkeletonGrid } from '../../shared/components/domain-skeletons';
 import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
+import { PageTitle } from '../../core/page-title';
 
 interface WorkspaceHubProps {
   onCreateWorkspace?: () => void;
@@ -29,6 +30,7 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
       id="main-content"
       className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-8 lg:px-10 animate-fade-in"
     >
+      <PageTitle title="Workspaces" />
       <section className="space-y-8">
         <header className="flex flex-col gap-4 border-b border-zinc-200 pb-6 sm:flex-row sm:items-end sm:justify-between dark:border-zinc-800">
           <div className="space-y-2">

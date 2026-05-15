@@ -11,6 +11,7 @@ import { CommentSection } from './comment-section';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
 import { updatePostsCache, type PostsCacheEntry } from './vote-helpers';
 import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
+import { PageTitle } from '../../core/page-title';
 
 const statusStyles: Record<string, string> = {
   OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400',
@@ -184,6 +185,7 @@ export function PostDetailPage() {
 
   return (
     <main id="main-content" className="min-h-screen bg-background text-foreground">
+      <PageTitle title={post.title} />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
         {/* Back button */}
         <button
@@ -227,6 +229,7 @@ export function PostDetailPage() {
                 <Badge
                   variant="outline"
                   className={cn('border px-2.5 py-1 text-xs', statusStyles[post.status])}
+                  aria-label={`Status: ${post.status.replace('_', ' ')}`}
                 >
                   {post.status.replace('_', ' ')}
                 </Badge>

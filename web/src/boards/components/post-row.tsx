@@ -200,6 +200,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
               type="button"
               disabled={statusMutation.isPending}
               onClick={() => statusMutation.mutate(nextStatus(post.status))}
+              aria-label={`Status: ${post.status.replace('_', ' ')}. Click to change`}
               title="Click to change status"
             >
               <Badge
