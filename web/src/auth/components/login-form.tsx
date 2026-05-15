@@ -9,6 +9,7 @@ import { authApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
+import { PageTitle } from '../../core/page-title';
 import { useAuthStore } from '../auth-store';
 import { AUTH_QUERY_KEYS } from '../use-session';
 
@@ -42,6 +43,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   return (
     <main id="main-content" className="mx-auto w-full max-w-sm px-4 py-10 sm:py-20">
+      <PageTitle title="Sign In" />
       <form className="space-y-6" onSubmit={handleSubmit((data) => loginMutation.mutate(data))}>
         <div className="space-y-2 text-center sm:text-left">
           <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">

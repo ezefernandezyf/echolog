@@ -10,6 +10,7 @@ import { Button } from '../../shared/components/ui/button';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
 import { useAuthenticatedShell } from '../../auth/authenticated-layout';
 import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
+import { PageTitle } from '../../core/page-title';
 
 function mapPostToRow(post: {
   id: string;
@@ -112,6 +113,7 @@ export function BoardLayout() {
       id="main-content"
       className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden bg-zinc-50 text-zinc-950 dark:bg-background dark:text-foreground"
     >
+      <PageTitle title={selectedBoard?.name ?? ''} />
       {!workspaceId ? (
         <div className="flex flex-1 items-center justify-center">
           <p className="text-sm text-zinc-400 dark:text-zinc-500">

@@ -16,6 +16,7 @@ import { slugify } from '../../../../shared/lib/slugify';
 import { boardApi } from '../../core/api-client';
 import type { UpdateBoardDTO } from '../../../../shared/contracts/index.js';
 import { updateBoardSchema } from '../../../../shared/contracts/index.js';
+import { PageTitle } from '../../core/page-title';
 
 export function BoardSettingsPage() {
   const { workspaceId, boardId } = useParams<{ workspaceId: string; boardId: string }>();
@@ -109,9 +110,10 @@ export function BoardSettingsPage() {
 
   return (
     <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
+      <PageTitle title="Board Settings" />
       <div className="space-y-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
           <Link
             to="/w"
             className="text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -126,8 +128,10 @@ export function BoardSettingsPage() {
             Board
           </Link>
           <span className="text-zinc-300 dark:text-zinc-600">/</span>
-          <span className="text-zinc-900 dark:text-zinc-100">Settings</span>
-        </div>
+          <span className="text-zinc-900 dark:text-zinc-100" aria-current="page">
+            Settings
+          </span>
+        </nav>
 
         {/* General Settings */}
         <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-card">

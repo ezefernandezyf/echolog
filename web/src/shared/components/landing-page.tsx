@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
+import { PageTitle } from '../../core/page-title';
 
 const features = [
   {
@@ -33,6 +34,7 @@ export function LandingPage() {
 
   return (
     <main id="main-content" className="flex min-h-screen flex-col bg-background text-foreground">
+      <PageTitle title="" />
       {/* Hero */}
       <header className="flex flex-col items-center px-4 pb-16 pt-20 sm:pb-24 sm:pt-32">
         <h1 className="text-5xl font-bold tracking-[-0.04em] text-foreground sm:text-6xl">
