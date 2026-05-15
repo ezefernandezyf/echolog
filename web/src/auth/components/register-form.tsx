@@ -7,6 +7,7 @@ import { z } from 'zod';
 import type { AuthSessionDTO } from '../../../../shared/contracts/index.js';
 import { authRegisterSchema } from '../../../../shared/contracts/index.js';
 import { authApi } from '../../core/api-client';
+import type { ApiError } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { CharCounter } from '../../shared/components/ui/char-counter';
@@ -135,9 +136,12 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
         {registerMutation.error ? (
           <p className="text-sm text-red-600">
-            {registerMutation.error instanceof Error
-              ? registerMutation.error.message
-              : 'Registration failed'}
+            {(() => {
+              const apiErr = registerMutation.error as Partial<ApiError>;
+              if (apiErr.status === undefined) return 'Check your connection and try again';
+              if (apiErr.status === 409) return 'An account with this email already exists';
+              return apiErr.message || 'Registration failed';
+            })()}
           </p>
         ) : null}
 

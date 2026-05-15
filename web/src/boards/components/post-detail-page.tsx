@@ -272,6 +272,8 @@ export function PostDetailPage() {
             postId={post.id}
             comments={commentsQuery.data ?? []}
             isLoading={commentsQuery.isPending}
+            isError={commentsQuery.isError}
+            onRetry={() => commentsQuery.refetch()}
           />
         </section>
       </div>
