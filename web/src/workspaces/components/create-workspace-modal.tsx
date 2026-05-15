@@ -53,16 +53,25 @@ export function CreateWorkspaceModal() {
     <Modal open={open} onClose={closeModal}>
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">EchoLog</p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">Create Workspace</h2>
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+            EchoLog
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">
+            Create Workspace
+          </h2>
         </div>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Workspace Name</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Workspace Name
+          </span>
           <Input
+            id="create-workspace-name"
             placeholder="Northstar Labs"
             autoComplete="off"
             maxLength={120}
+            aria-describedby={errors.name ? 'create-workspace-name-error' : undefined}
+            aria-invalid={errors.name ? true : undefined}
             {...register('name')}
           />
           {name.trim() ? (
@@ -70,7 +79,9 @@ export function CreateWorkspaceModal() {
           ) : null}
           <CharCounter current={name.length} max={120} />
           {errors.name ? (
-            <p className="text-sm text-red-600">{errors.name.message}</p>
+            <p id="create-workspace-name-error" role="alert" className="text-sm text-red-600">
+              {errors.name.message}
+            </p>
           ) : null}
         </label>
 

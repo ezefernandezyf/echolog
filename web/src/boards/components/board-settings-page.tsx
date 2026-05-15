@@ -14,7 +14,7 @@ import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { slugify } from '../../../../shared/lib/slugify';
 import { boardApi } from '../../core/api-client';
-import type { BoardDTO, UpdateBoardDTO } from '../../../../shared/contracts/index.js';
+import type { UpdateBoardDTO } from '../../../../shared/contracts/index.js';
 import { updateBoardSchema } from '../../../../shared/contracts/index.js';
 
 export function BoardSettingsPage() {
@@ -79,7 +79,7 @@ export function BoardSettingsPage() {
 
   if (boardsQuery.isPending) {
     return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
+      <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
         <div className="space-y-6">
           <div className="h-8 w-48 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
           <div className="space-y-4">
@@ -93,7 +93,7 @@ export function BoardSettingsPage() {
 
   if (!board) {
     return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
+      <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
         <div className="rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-card">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Board not found</p>
           <Link
@@ -108,7 +108,7 @@ export function BoardSettingsPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
+    <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
       <div className="space-y-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm">
@@ -144,36 +144,80 @@ export function BoardSettingsPage() {
               const changed: UpdateBoardDTO = {};
               if (data.name !== board.name) changed.name = data.name;
               if (data.slug !== board.slug) changed.slug = data.slug;
-              if (data.description !== (board.description ?? '')) changed.description = data.description || null;
+              if (data.description !== (board.description ?? ''))
+                changed.description = data.description || null;
               if (Object.keys(changed).length === 0) return;
               updateMutation.mutate(changed);
             })}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Board Name</span>
-              <Input placeholder="Feature Requests" autoComplete="off" maxLength={120} {...register('name')} />
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Board Name
+              </span>
+              <Input
+                id="board-settings-name"
+                placeholder="Feature Requests"
+                autoComplete="off"
+                maxLength={120}
+                aria-describedby={errors.name ? 'board-settings-name-error' : undefined}
+                aria-invalid={errors.name ? true : undefined}
+                {...register('name')}
+              />
               {name.trim() ? (
                 <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
               ) : null}
               <CharCounter current={name.length} max={120} />
-              {errors.name ? <p className="text-sm text-red-600">{errors.name.message}</p> : null}
+              {errors.name ? (
+                <p id="board-settings-name-error" role="alert" className="text-sm text-red-600">
+                  {errors.name.message}
+                </p>
+              ) : null}
             </label>
 
             <label className="block space-y-2">
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Slug</span>
-              <Input placeholder="feature-requests" autoComplete="off" maxLength={120} {...register('slug')} />
+              <Input
+                id="board-settings-slug"
+                placeholder="feature-requests"
+                autoComplete="off"
+                maxLength={120}
+                aria-describedby={errors.slug ? 'board-settings-slug-error' : undefined}
+                aria-invalid={errors.slug ? true : undefined}
+                {...register('slug')}
+              />
               <p className="text-xs text-zinc-400 dark:text-zinc-500">
                 Used in URLs: /w/acme/feature-requests
               </p>
-              {errors.slug ? <p className="text-sm text-red-600">{errors.slug.message}</p> : null}
+              {errors.slug ? (
+                <p id="board-settings-slug-error" role="alert" className="text-sm text-red-600">
+                  {errors.slug.message}
+                </p>
+              ) : null}
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Description</span>
-              <Input placeholder="Collect and prioritize feature ideas" maxLength={500} {...register('description')} />
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Description
+              </span>
+              <Input
+                id="board-settings-description"
+                placeholder="Collect and prioritize feature ideas"
+                maxLength={500}
+                aria-describedby={
+                  errors.description ? 'board-settings-description-error' : undefined
+                }
+                aria-invalid={errors.description ? true : undefined}
+                {...register('description')}
+              />
               <CharCounter current={description?.length ?? 0} max={500} />
               {errors.description ? (
-                <p className="text-sm text-red-600">{errors.description.message}</p>
+                <p
+                  id="board-settings-description-error"
+                  role="alert"
+                  className="text-sm text-red-600"
+                >
+                  {errors.description.message}
+                </p>
               ) : null}
             </label>
 

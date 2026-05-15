@@ -14,7 +14,7 @@ import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { slugify } from '../../../../shared/lib/slugify';
 import { workspaceApi } from '../../core/api-client';
-import type { UpdateWorkspaceDTO, WorkspaceDTO } from '../../../../shared/contracts/index.js';
+import type { UpdateWorkspaceDTO } from '../../../../shared/contracts/index.js';
 import { updateWorkspaceSchema } from '../../../../shared/contracts/index.js';
 
 export function WorkspaceSettingsPage() {
@@ -30,10 +30,9 @@ export function WorkspaceSettingsPage() {
     staleTime: 60_000,
   });
 
-  const workspace =
-    Array.isArray(workspaceQuery.data)
-      ? workspaceQuery.data.find((w) => w.id === workspaceId)
-      : null;
+  const workspace = Array.isArray(workspaceQuery.data)
+    ? workspaceQuery.data.find((w) => w.id === workspaceId)
+    : null;
 
   const {
     register,
@@ -42,11 +41,13 @@ export function WorkspaceSettingsPage() {
     reset,
     setError,
     formState: { errors, isDirty },
-  } = useForm<z.input<typeof updateWorkspaceSchema>, undefined, z.output<typeof updateWorkspaceSchema>>({
+  } = useForm<
+    z.input<typeof updateWorkspaceSchema>,
+    undefined,
+    z.output<typeof updateWorkspaceSchema>
+  >({
     resolver: zodResolver(updateWorkspaceSchema),
-    values: workspace
-      ? { name: workspace.name, slug: workspace.slug }
-      : undefined,
+    values: workspace ? { name: workspace.name, slug: workspace.slug } : undefined,
   });
 
   const name = watch('name', '') as string;
@@ -80,7 +81,7 @@ export function WorkspaceSettingsPage() {
 
   if (workspaceQuery.isPending) {
     return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
+      <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
         <div className="space-y-6">
           <div className="h-8 w-48 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
           <div className="space-y-4">
@@ -94,10 +95,13 @@ export function WorkspaceSettingsPage() {
 
   if (!workspace) {
     return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
+      <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
         <div className="rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-card">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Workspace not found</p>
-          <Link to="/w" className="mt-4 inline-block text-sm font-medium text-zinc-900 underline dark:text-zinc-100">
+          <Link
+            to="/w"
+            className="mt-4 inline-block text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
+          >
             Back to workspaces
           </Link>
         </div>
@@ -106,11 +110,14 @@ export function WorkspaceSettingsPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
+    <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
       <div className="space-y-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm">
-          <Link to="/w" className="text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200">
+          <Link
+            to="/w"
+            className="text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+          >
             Workspaces
           </Link>
           <span className="text-zinc-300 dark:text-zinc-600">/</span>
@@ -145,25 +152,47 @@ export function WorkspaceSettingsPage() {
             })}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Workspace Name</span>
-              <Input placeholder="Northstar Labs" autoComplete="off" maxLength={120} {...register('name')} />
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Workspace Name
+              </span>
+              <Input
+                id="workspace-settings-name"
+                placeholder="Northstar Labs"
+                autoComplete="off"
+                maxLength={120}
+                aria-describedby={errors.name ? 'workspace-settings-name-error' : undefined}
+                aria-invalid={errors.name ? true : undefined}
+                {...register('name')}
+              />
               {name.trim() ? (
                 <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
               ) : null}
               <CharCounter current={name.length} max={120} />
               {errors.name ? (
-                <p className="text-sm text-red-600">{errors.name.message}</p>
+                <p id="workspace-settings-name-error" role="alert" className="text-sm text-red-600">
+                  {errors.name.message}
+                </p>
               ) : null}
             </label>
 
             <label className="block space-y-2">
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Slug</span>
-              <Input placeholder="northstar-labs" autoComplete="off" maxLength={120} {...register('slug')} />
+              <Input
+                id="workspace-settings-slug"
+                placeholder="northstar-labs"
+                autoComplete="off"
+                maxLength={120}
+                aria-describedby={errors.slug ? 'workspace-settings-slug-error' : undefined}
+                aria-invalid={errors.slug ? true : undefined}
+                {...register('slug')}
+              />
               <p className="text-xs text-zinc-400 dark:text-zinc-500">
                 Used in URLs: echolog.app/w/{workspace.slug}
               </p>
               {errors.slug ? (
-                <p className="text-sm text-red-600">{errors.slug.message}</p>
+                <p id="workspace-settings-slug-error" role="alert" className="text-sm text-red-600">
+                  {errors.slug.message}
+                </p>
               ) : null}
             </label>
 

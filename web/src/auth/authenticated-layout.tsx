@@ -51,10 +51,9 @@ export function AuthenticatedLayout() {
     staleTime: 60_000,
   });
 
-  const workspaceName =
-    workspaceId
-      ? workspacesQuery.data?.find((workspace) => workspace.id === workspaceId)?.name ?? workspaceId
-      : 'Workspaces';
+  const workspaceName = workspaceId
+    ? (workspacesQuery.data?.find((workspace) => workspace.id === workspaceId)?.name ?? workspaceId)
+    : 'Workspaces';
 
   useEffect(() => {
     if (!workspaceId) {
@@ -75,9 +74,12 @@ export function AuthenticatedLayout() {
 
   const sidebarItems: SidebarItem[] = workspaceId
     ? (boardsQuery.data ?? []).map((board) => ({ id: board.id, label: board.name }))
-    : (workspacesQuery.data ?? []).map((workspace) => ({ id: workspace.id, label: workspace.name }));
+    : (workspacesQuery.data ?? []).map((workspace) => ({
+        id: workspace.id,
+        label: workspace.name,
+      }));
 
-  const activeItemId = workspaceId ? selectedBoardId ?? '' : workspaceId ?? '';
+  const activeItemId = workspaceId ? (selectedBoardId ?? '') : (workspaceId ?? '');
 
   return (
     <AuthenticatedShellContext.Provider
@@ -87,6 +89,13 @@ export function AuthenticatedLayout() {
       }}
     >
       <div className="flex min-h-screen overflow-x-hidden bg-zinc-50 text-zinc-950 dark:bg-background dark:text-foreground">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[60] focus:rounded-xl focus:bg-zinc-900 focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+        >
+          Skip to main content
+        </a>
+
         {boardsQuery.isPending && workspaceId ? (
           <aside
             className={cn(
@@ -126,10 +135,7 @@ export function AuthenticatedLayout() {
             )}
           >
             <p className="text-sm text-red-600 dark:text-red-400">Failed to load boards</p>
-            <Button
-              type="button"
-              onClick={() => boardsQuery.refetch()}
-            >
+            <Button type="button" onClick={() => boardsQuery.refetch()}>
               Retry
             </Button>
           </aside>
@@ -185,10 +191,16 @@ export function AuthenticatedLayout() {
                 stroke="currentColor"
                 className="size-5 text-zinc-700 dark:text-zinc-300"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
               </svg>
             </button>
-            <span className="font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">EchoLog</span>
+            <span className="font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              EchoLog
+            </span>
           </header>
 
           <Outlet />

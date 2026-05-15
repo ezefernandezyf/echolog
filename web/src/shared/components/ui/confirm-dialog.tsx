@@ -53,7 +53,11 @@ export function ConfirmDialog({
         {confirmInput ? (
           <label className="block space-y-2">
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Type <strong className="select-all rounded bg-red-100 px-1 py-0.5 font-mono text-red-700 dark:bg-red-950 dark:text-red-400">{confirmInput}</strong> to confirm
+              Type{' '}
+              <strong className="select-all rounded bg-red-100 px-1 py-0.5 font-mono text-red-700 dark:bg-red-950 dark:text-red-400">
+                {confirmInput}
+              </strong>{' '}
+              to confirm
             </span>
             <Input
               placeholder={confirmInput}

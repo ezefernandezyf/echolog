@@ -13,7 +13,6 @@ import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { slugify } from '../../../../shared/lib/slugify';
 import { boardApi } from '../../core/api-client';
-import type { CreateBoardDTO } from '../../../../shared/contracts/index.js';
 import { createBoardSchema } from '../../../../shared/contracts/index.js';
 
 interface CreateBoardModalProps {
@@ -40,8 +39,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
   const description = watch('description', '') as string;
 
   const mutation = useMutation({
-    mutationFn: (data: z.output<typeof createBoardSchema>) =>
-      boardApi.create(workspaceId, data),
+    mutationFn: (data: z.output<typeof createBoardSchema>) => boardApi.create(workspaceId, data),
     onSuccess: () => {
       toast.success('Board created');
       queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
@@ -60,28 +58,53 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
     <Modal open={open} onClose={closeModal}>
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">EchoLog</p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">Create Board</h2>
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+            EchoLog
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">
+            Create Board
+          </h2>
         </div>
 
         <label className="block space-y-2">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Board Name</span>
-          <Input placeholder="Feature Requests" autoComplete="off" maxLength={120} {...register('name')} />
+          <Input
+            id="create-board-name"
+            placeholder="Feature Requests"
+            autoComplete="off"
+            maxLength={120}
+            aria-describedby={errors.name ? 'create-board-name-error' : undefined}
+            aria-invalid={errors.name ? true : undefined}
+            {...register('name')}
+          />
           {name.trim() ? (
             <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
           ) : null}
           <CharCounter current={name.length} max={120} />
           {errors.name ? (
-            <p className="text-sm text-red-600">{errors.name.message}</p>
+            <p id="create-board-name-error" role="alert" className="text-sm text-red-600">
+              {errors.name.message}
+            </p>
           ) : null}
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Description (optional)</span>
-          <Input placeholder="Collect and prioritize feature ideas" maxLength={500} {...register('description')} />
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Description (optional)
+          </span>
+          <Input
+            id="create-board-description"
+            placeholder="Collect and prioritize feature ideas"
+            maxLength={500}
+            aria-describedby={errors.description ? 'create-board-description-error' : undefined}
+            aria-invalid={errors.description ? true : undefined}
+            {...register('description')}
+          />
           <CharCounter current={description?.length ?? 0} max={500} />
           {errors.description ? (
-            <p className="text-sm text-red-600">{errors.description.message}</p>
+            <p id="create-board-description-error" role="alert" className="text-sm text-red-600">
+              {errors.description.message}
+            </p>
           ) : null}
         </label>
 

@@ -9,7 +9,9 @@ describe('CharCounter', () => {
       // 7/10 = 0.7 ≤ 0.75 → not visible
       expect(container.firstChild).toBeNull();
 
-      const { container: container2 } = render(<CharCounter current={75} max={100} showAt={0.75} />);
+      const { container: container2 } = render(
+        <CharCounter current={75} max={100} showAt={0.75} />,
+      );
       // 75/100 = 0.75 → not visible
       expect(container2.firstChild).toBeNull();
     });

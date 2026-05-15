@@ -61,9 +61,7 @@ interface RenderPostRowResult {
   queryClient: QueryClient;
 }
 
-function renderPostRow(
-  post: PostRowData,
-): ReturnType<typeof render> & RenderPostRowResult {
+function renderPostRow(post: PostRowData): ReturnType<typeof render> & RenderPostRowResult {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -101,7 +99,10 @@ function renderPostRowWithListResponse(
     nextCursor: null,
   } as unknown as PostListResponse;
 
-  queryClient.setQueryData(['posts', boardId, { status: null, sort: 'Trending', cursor: null }], response);
+  queryClient.setQueryData(
+    ['posts', boardId, { status: null, sort: 'Trending', cursor: null }],
+    response,
+  );
 
   const renderResult = render(
     <QueryClientProvider client={queryClient}>

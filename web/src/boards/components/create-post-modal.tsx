@@ -74,25 +74,39 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
 
         <label className="block space-y-2">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Title</span>
-          <Input placeholder="Add dark mode" maxLength={120} {...register('title')} />
+          <Input
+            id="create-post-title"
+            placeholder="Add dark mode"
+            maxLength={120}
+            aria-describedby={errors.title ? 'create-post-title-error' : undefined}
+            aria-invalid={errors.title ? true : undefined}
+            {...register('title')}
+          />
           <CharCounter current={title.length} max={120} />
           {errors.title ? (
-            <p className="text-sm text-red-600">{errors.title.message}</p>
+            <p id="create-post-title-error" role="alert" className="text-sm text-red-600">
+              {errors.title.message}
+            </p>
           ) : null}
         </label>
 
         <label className="block space-y-2">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Details</span>
           <textarea
+            id="create-post-body"
             placeholder="Tell us what you'd like to improve..."
             rows={6}
+            aria-describedby={errors.body ? 'create-post-body-error' : undefined}
+            aria-invalid={errors.body ? true : undefined}
             className={cn(
               'flex w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm shadow-black/[0.02] transition-colors placeholder:text-muted-foreground focus-visible:border-zinc-900 dark:focus-visible:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
             )}
             {...register('body')}
           />
           {errors.body ? (
-            <p className="text-sm text-red-600">{errors.body.message}</p>
+            <p id="create-post-body-error" role="alert" className="text-sm text-red-600">
+              {errors.body.message}
+            </p>
           ) : null}
         </label>
 
