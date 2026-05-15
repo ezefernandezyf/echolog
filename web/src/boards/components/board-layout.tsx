@@ -9,6 +9,7 @@ import { boardApi, postApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
 import { useAuthenticatedShell } from '../../auth/authenticated-layout';
+import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 
 function mapPostToRow(post: {
   id: string;
@@ -65,6 +66,8 @@ export function BoardLayout() {
 
   const effectiveBoardId = selectedBoardId ?? boardsQuery.data?.[0]?.id ?? null;
   const selectedBoard = boardsQuery.data?.find((b) => b.id === effectiveBoardId);
+
+  useFocusOnMount('h1');
 
   const postsQuery = useInfiniteQuery({
     queryKey: ['posts', effectiveBoardId, { status: activeStatus, sort: activeSort }],

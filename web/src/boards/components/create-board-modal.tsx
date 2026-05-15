@@ -55,7 +55,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
   });
 
   return (
-    <Modal open={open} onClose={closeModal}>
+    <Modal open={open} onClose={closeModal} aria-label="Create Board">
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
