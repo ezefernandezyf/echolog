@@ -10,6 +10,7 @@
 - **Validation**: Zod (shared contracts in `shared/contracts/`)
 - **Testing**: Vitest (server), Vitest + React Testing Library (web TBD)
 - **Lint/Format**: ESLint 9 flat config + Prettier
+- **Package Manager**: pnpm (workspace monorepo via `pnpm-workspace.yaml`)
 
 ## Architecture
 - **Full Screaming Architecture**: business domains are top-level folders in `server/src/`
@@ -22,7 +23,7 @@
 - React 19: no useMemo/useCallback (compiler handles it), named imports only
 - TypeScript: strict mode, never `any`, `as const` pattern for string literals
 - Never build after changes, never add "Co-Authored-By" to commits
-- ESLint + Prettier run on every change: `npm run lint` / `npm run format`
+- ESLint + Prettier run on every change: `pnpm run lint` / `pnpm run format`
 
 ## Git Workflow (STRICT — zero exceptions)
 1. **Feature branches**: EVERY task starts on a new branch from `main`
@@ -30,19 +31,17 @@
 3. **Atomic commits**: one logical change layer per commit, conventional format
 4. **Push + PR + Merge**: push branch, create PR, merge to `main` — never commit directly to `main`
 5. **Clean working tree**: no untracked files, no WIP before PR
-6. **Lint before push**: `npm run lint && npm run format` must pass
-7. **Tests before merge**: `npm test` (server + web) must pass — 75 tests minimum
+6. **Lint before push**: `pnpm run lint && pnpm run format` must pass
+7. **Tests before merge**: `pnpm test` (server + web) must pass — 75 tests minimum
 
 ## How to Run
 ```bash
-npm install              # root
-cd server && npm install # server deps
-cd web && npm install    # web deps
-npm run prisma:generate  # generate Prisma client
-npm run prisma:migrate   # run migrations
-npm run prisma:seed      # seed demo data (demo@echolog.dev / password123)
-npm run dev:server       # terminal 1: backend on :3000
-npm run dev:web          # terminal 2: frontend on :5173
+pnpm install              # installs all workspace deps (root + server + web + shared)
+pnpm run prisma:generate  # generate Prisma client
+pnpm run prisma:migrate   # run migrations
+pnpm run prisma:seed      # seed demo data (demo@echolog.dev / password123)
+pnpm run dev:server       # terminal 1: backend on :3000
+pnpm run dev:web          # terminal 2: frontend on :5173
 ```
 
 ## Key Files
