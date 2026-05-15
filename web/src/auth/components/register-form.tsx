@@ -10,6 +10,7 @@ import { authApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { CharCounter } from '../../shared/components/ui/char-counter';
+import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 import { useAuthStore } from '../auth-store';
 import { AUTH_QUERY_KEYS } from '../use-session';
 
@@ -42,8 +43,10 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     },
   });
 
+  useFocusOnMount('h2');
+
   return (
-    <div className="mx-auto w-full max-w-sm px-4 py-10 sm:py-20">
+    <main id="main-content" className="mx-auto w-full max-w-sm px-4 py-10 sm:py-20">
       <form className="space-y-6" onSubmit={handleSubmit((data) => registerMutation.mutate(data))}>
         <div className="space-y-2 text-center sm:text-left">
           <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
@@ -150,6 +153,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           </Link>
         </p>
       </form>
-    </div>
+    </main>
   );
 }

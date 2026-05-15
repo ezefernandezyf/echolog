@@ -35,18 +35,31 @@ export function ConfirmDialog({
   const canConfirm = confirmInput ? typed === confirmInput : true;
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby="confirm-dialog-title"
+      aria-describedby="confirm-dialog-desc"
+    >
       <div className="space-y-6">
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
             EchoLog
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">
+          <h2
+            id="confirm-dialog-title"
+            className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100"
+          >
             {title}
           </h2>
         </div>
 
-        <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">{message}</p>
+        <p
+          id="confirm-dialog-desc"
+          className="text-sm leading-6 text-zinc-600 dark:text-zinc-400"
+        >
+          {message}
+        </p>
 
         {children}
 

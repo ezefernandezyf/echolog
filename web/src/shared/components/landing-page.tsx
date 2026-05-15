@@ -32,7 +32,7 @@ export function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <main id="main-content" className="flex min-h-screen flex-col bg-background text-foreground">
       {/* Hero */}
       <header className="flex flex-col items-center px-4 pb-16 pt-20 sm:pb-24 sm:pt-32">
         <h1 className="text-5xl font-bold tracking-[-0.04em] text-foreground sm:text-6xl">
@@ -61,6 +61,7 @@ export function LandingPage() {
 
       {/* Features Grid */}
       <section className="mx-auto w-full max-w-5xl px-4 pb-20 sm:pb-32">
+        <h2 className="sr-only">Features</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {features.map((feature) => (
             <div
@@ -70,9 +71,9 @@ export function LandingPage() {
               <span className="text-2xl" aria-hidden="true">
                 {feature.icon}
               </span>
-              <h3 className="mt-3 text-base font-semibold tracking-[-0.02em] text-foreground">
+              <h2 className="mt-3 text-base font-semibold tracking-[-0.02em] text-foreground">
                 {feature.title}
-              </h3>
+              </h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {feature.description}
               </p>
@@ -85,6 +86,6 @@ export function LandingPage() {
       <footer className="mt-auto border-t border-border px-4 py-6 text-center text-sm text-muted-foreground">
         Built with ♥ — EchoLog
       </footer>
-    </div>
+    </main>
   );
 }

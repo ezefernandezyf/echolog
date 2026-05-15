@@ -57,7 +57,7 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
   });
 
   return (
-    <Modal open={open} onClose={closeModal} className="max-w-2xl">
+    <Modal open={open} onClose={closeModal} className="max-w-2xl" aria-label="Submit new feedback">
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">

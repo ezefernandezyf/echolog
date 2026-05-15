@@ -7,6 +7,7 @@ import { WorkspaceCard, type WorkspaceCardData } from './workspace-card';
 import { useUiStore } from '../../core/store/ui-store';
 import { CreateWorkspaceModal } from './create-workspace-modal';
 import { WorkspaceSkeletonGrid } from '../../shared/components/domain-skeletons';
+import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 
 interface WorkspaceHubProps {
   onCreateWorkspace?: () => void;
@@ -20,6 +21,8 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
     queryFn: workspaceApi.list,
     staleTime: 60_000,
   });
+
+  useFocusOnMount('h1');
 
   return (
     <main

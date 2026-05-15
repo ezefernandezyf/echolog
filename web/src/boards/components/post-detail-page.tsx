@@ -10,6 +10,7 @@ import type { PostDTO } from '../../../../shared/contracts/index.js';
 import { CommentSection } from './comment-section';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
 import { updatePostsCache, type PostsCacheEntry } from './vote-helpers';
+import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 
 const statusStyles: Record<string, string> = {
   OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400',
@@ -134,6 +135,8 @@ export function PostDetailPage() {
   });
 
   const voteIsPending = addVoteMutation.isPending || removeVoteMutation.isPending;
+
+  useFocusOnMount('h1');
 
   if (isPending) {
     return (
