@@ -83,7 +83,7 @@ export function PostList({
                     onClick={() => onSortChange(sort)}
                     aria-pressed={active}
                     className={cn(
-                      'rounded-full px-4 py-2 text-sm font-medium transition-colors',
+                      'rounded-full px-4 py-2 text-sm font-medium transition-colors max-sm:min-h-[44px] max-sm:py-3',
                       active
                         ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-900'
                         : 'text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-100',
@@ -114,7 +114,7 @@ export function PostList({
               onClick={() => onStatusChange(opt.value)}
               aria-pressed={activeStatus === opt.value}
               className={cn(
-                'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+                'rounded-full px-3 py-1.5 text-xs font-medium transition-colors max-sm:min-h-[44px] max-sm:py-3',
                 activeStatus === opt.value
                   ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-900'
                   : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700',
@@ -132,7 +132,7 @@ export function PostList({
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search posts..."
             aria-label="Search posts"
-            className="w-full sm:max-w-md rounded-xl border border-zinc-200 px-4 py-2 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-800 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
+            className="w-full sm:max-w-md rounded-xl border border-zinc-200 px-4 py-2 text-base outline-none transition-colors focus:border-zinc-400 dark:border-zinc-800 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
           />
         </div>
       </header>

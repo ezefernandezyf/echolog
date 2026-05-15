@@ -191,7 +191,7 @@ export function PostDetailPage() {
         <button
           type="button"
           onClick={() => navigate(`/w/${workspaceId}`)}
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors max-sm:min-h-[44px]"
         >
           <span aria-hidden="true">←</span>
           <span className="sr-only">Back to board</span>

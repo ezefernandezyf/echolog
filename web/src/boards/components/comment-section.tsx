@@ -119,7 +119,7 @@ export function CommentSection({ postId, comments, isLoading, isError, onRetry }
             maxLength={500}
             aria-describedby={errors.body ? 'comment-body-input-error' : undefined}
             aria-invalid={errors.body ? true : undefined}
-            className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
+            className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-base outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
             {...register('body')}
           />
           <CharCounter current={body.length} max={500} />

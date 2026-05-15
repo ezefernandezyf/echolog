@@ -195,13 +195,13 @@ export function AuthenticatedLayout() {
         ) : null}
 
         <div className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden">
-          <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-zinc-200 bg-white px-4 lg:hidden dark:border-zinc-800 dark:bg-card">
+          <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-zinc-200 bg-white px-4 pt-[env(safe-area-inset-top)] lg:hidden dark:border-zinc-800 dark:bg-card">
             <button
               type="button"
               id="mobile-hamburger"
               onClick={openSidebar}
               aria-label="Open sidebar"
-              className="inline-flex size-10 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 shadow-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/60 dark:hover:bg-zinc-800"
+              className="inline-flex size-11 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 shadow-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/60 dark:hover:bg-zinc-800"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

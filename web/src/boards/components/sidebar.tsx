@@ -118,7 +118,7 @@ export function Sidebar({
     <aside
       ref={asideRef}
       className={cn(
-        'flex w-72 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-background',
+        'flex w-72 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 pt-[env(safe-area-inset-top)] dark:border-zinc-800 dark:bg-background',
         className,
       )}
     >
@@ -202,7 +202,7 @@ export function Sidebar({
         </div>
       </nav>
 
-      <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="border-t border-zinc-200 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] dark:border-zinc-800">
         <div className="mb-4">
           <ThemeToggle />
         </div>

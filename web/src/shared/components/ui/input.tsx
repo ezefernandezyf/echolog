@@ -11,7 +11,7 @@ export function Input({ ref, className, type = 'text', ...props }: InputProps) {
       ref={ref}
       type={type}
       className={cn(
-        'flex min-h-10 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground shadow-sm shadow-black/[0.02] transition-colors placeholder:text-muted-foreground focus-visible:border-zinc-900 dark:focus-visible:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
+        'flex min-h-11 w-full rounded-xl border border-border bg-card px-3 text-base text-foreground shadow-sm shadow-black/[0.02] transition-colors placeholder:text-muted-foreground focus-visible:border-zinc-900 dark:focus-visible:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}
