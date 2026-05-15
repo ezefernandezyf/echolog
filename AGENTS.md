@@ -89,11 +89,11 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - 4.4 Advanced filters ✅ (status pills, Trending/Top/New sort, cursor pagination, load-more)
 - 4.5 Board settings ✅ (edit name/slug/description, delete with typed confirmation)
 
-### Phase 5: QA & Polish 🟡
+### Phase 5: QA & Polish ✅
 - 5.1 Form validation edge cases ✅ — 8/8 spec requirements, 20/20 tasks, 75 tests passing
 - 5.2 Accessibility audit ✅ (P0 ✅: skip link, form errors, input labels, live regions, reduced-motion, color-scheme; P1 ✅: landmarks, aria-pressed, dialog naming, focus management, heading hierarchy; P2 ✅: status badge labels, dynamic page titles, mobile sidebar focus trap, breadcrumb semantics, interactive element audit; P3 ✅: decorative icon sr-only text, keyboard shortcut hints, font preload, color-scheme meta — WCAG 2.1 AA complete, 20/20 tasks)
 - 5.3 Loading/empty/error states audit ✅ (ErrorAlert component, comment error+retry, sidebar error fallback, board flash prevention, auth form error UX)
-- 5.4 Mobile UX pass 🟡 (Batch 1 ✅: safe areas, toast positioning, touch targets 44px, font sizing 16px, bottom-sheet modals — PR #39. Batch 2 🔲: list virtualization)
+- 5.4 Mobile UX pass ✅ (Batch 1 ✅: safe areas, toast positioning, touch targets 44px, font sizing 16px, bottom-sheet modals — PR #39. Batch 2 ✅: list virtualization with @tanstack/react-virtual — PR #41)
 
 ### Phase 5.5: Quick Polish ✅
 - [x] 5.5.1 Fix board form validation — custom Zod messages + remove `shouldValidate`
