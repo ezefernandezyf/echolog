@@ -92,7 +92,7 @@ npm run dev:web          # terminal 2: frontend on :5173
 
 ### Phase 5: QA & Polish 🟡
 - 5.1 Form validation edge cases ✅ — 8/8 spec requirements, 20/20 tasks, 75 tests passing
-- 5.2 Accessibility audit 🟡 (P0 ✅: skip link, form errors, input labels, live regions, reduced-motion, color-scheme; P1 ✅: landmarks, aria-pressed, dialog naming, focus management, heading hierarchy; P2 ✅: status badge labels, dynamic page titles, mobile sidebar focus trap, breadcrumb semantics, interactive element audit — P3 pending)
+- 5.2 Accessibility audit ✅ (P0 ✅: skip link, form errors, input labels, live regions, reduced-motion, color-scheme; P1 ✅: landmarks, aria-pressed, dialog naming, focus management, heading hierarchy; P2 ✅: status badge labels, dynamic page titles, mobile sidebar focus trap, breadcrumb semantics, interactive element audit; P3 ✅: decorative icon sr-only text, keyboard shortcut hints, font preload, color-scheme meta — WCAG 2.1 AA complete, 20/20 tasks)
 - 5.3 Loading/empty/error states audit 🟡 (most views covered, audit in progress)
 - 5.4 Mobile UX pass 🟡 (touch targets, viewport meta, safe areas)
 
