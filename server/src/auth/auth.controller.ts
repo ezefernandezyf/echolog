@@ -21,11 +21,16 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  const session = await authService.login(req.body);
-  const token = createToken({ sub: session.user.id }, process.env.JWT_SECRET ?? 'dev-secret');
+  try {
+    const session = await authService.login(req.body);
+    const token = createToken({ sub: session.user.id }, process.env.JWT_SECRET ?? 'dev-secret');
 
-  res.cookie('echolog_token', token, cookieOptions);
-  res.status(200).json(session);
+    res.cookie('echolog_token', token, cookieOptions);
+    res.status(200).json(session);
+  } catch (err) {
+    console.error('[AUTH-LOGIN-ERROR]', err);
+    throw err;
+  }
 };
 
 export const logout = (_req: Request, res: Response) => {

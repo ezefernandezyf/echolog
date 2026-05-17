@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "pnpm --filter @echolog/server run test",
+    "test:e2e": "node e2e/scripts/run-e2e.mjs",
     "test:coverage": "pnpm --filter @echolog/server run test:coverage",
     "dev:server": "pnpm --filter @echolog/server run dev",
     "dev:web": "pnpm --filter @echolog/web run dev",
