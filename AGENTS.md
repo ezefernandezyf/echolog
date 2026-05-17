@@ -104,10 +104,11 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 5.5.6 Add workspace settings navigation link in sidebar → ✅ DONE (sidebar.tsx now has Settings link below workspace name)
 
 ### Phase 6: Testing ✅
-- 6.1 Server tests ✅: auth, comments, votes, workspace CRUD, post filters, isolation (14 tests)
-- 6.2 Web tests ✅: auth bootstrap, vote optimistic rollback, workspace navigation (46 tests)
+- 6.1 Server tests ✅: auth, comments, votes, workspace CRUD, post filters, isolation (29 tests, 11 files)
+- 6.2 Web tests ✅: auth bootstrap, vote optimistic rollback, workspace navigation (46 tests, 5 files)
 - 6.3 E2E tests ✅: Playwright infra (`@echolog/e2e`), ephemeral SQLite per run, auth smoke (login + logout), navigation smoke (workspace→board), basic smoke (/login loads) — 4/4 passing, `pnpm test:e2e` (PR #42)
-- 6.4 Test fix: auth-bootstrap.test.tsx now exercises API error path (valid email, not Zod validation)
+- 6.4 Test fix ✅: auth-bootstrap.test.tsx now exercises API error path (valid email, not Zod validation)
+- 6.5 Vitest 4 compat fix: explicit `expect.extend(matchers)` for `@testing-library/jest-dom` (PR #43)
 
 ### Phase 7: Deploy 🔲
 - 7.1 Neon.tech PostgreSQL database
