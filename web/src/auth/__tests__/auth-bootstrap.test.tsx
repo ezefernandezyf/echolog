@@ -257,7 +257,7 @@ describe('LoginForm', () => {
     const emailInput = screen.getByLabelText('Email');
     const passwordInput = screen.getByLabelText('Password');
 
-    await user.type(emailInput, 'bad@echolog.dev');
+    await user.type(emailInput, 'wrong@example.com');
     await user.type(passwordInput, 'wrong');
 
     const submitButton = screen.getByRole('button', { name: 'Sign in' });

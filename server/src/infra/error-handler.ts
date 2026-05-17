@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { ValidationError } from './validate.js';
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+  console.error('[ERROR-HANDLER]', err instanceof Error ? err.message : String(err), err instanceof Error ? err.stack : '');
   if (err instanceof ValidationError) {
     res.status(err.statusCode).json({
       error: true,
