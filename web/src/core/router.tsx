@@ -8,6 +8,7 @@ import { BoardSettingsPage } from '../boards/components/board-settings-page';
 import { PostDetailPage } from '../boards/components/post-detail-page';
 import { WorkspaceHub } from '../workspaces/components/workspace-hub';
 import { WorkspaceSettingsPage } from '../workspaces/components/workspace-settings-page';
+import { UserSettingsPage } from '../user/settings-page';
 import { LandingPage } from '../shared/components/landing-page';
 
 export function AppRouter() {
@@ -26,6 +27,7 @@ export function AppRouter() {
           <Route path="/w/:workspaceId/settings" element={<WorkspaceSettingsPage />} />
           <Route path="/w/:workspaceId/b/:boardId/settings" element={<BoardSettingsPage />} />
           <Route path="/w/:workspaceId/p/:postId" element={<PostDetailPage />} />
+          <Route path="/settings" element={<UserSettingsPage />} />
         </Route>
       </Route>
 
