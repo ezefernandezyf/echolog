@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Badge } from '../../shared/components/ui/badge';
 import { cn } from '../../shared/lib/cn';
 import { commentApi, postApi, voteApi } from '../../core/api-client';
+import { useAuthStore } from '../../auth/auth-store';
 import type { ApiError } from '../../core/api-client';
 import { CommentSection } from './comment-section';
 import { updatePostsCache, type PostRowData, type PostsCacheEntry } from './vote-helpers';
@@ -36,6 +37,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
   const navigate = useNavigate();
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const queryClient = useQueryClient();
+  const currentUserId = useAuthStore((state) => state.session?.user?.id ?? '');
   const [showComments, setShowComments] = useState(false);
   const postsQueryKey = ['posts', boardId] as const;
 
@@ -241,6 +243,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
           isLoading={commentsQuery.isPending}
           isError={commentsQuery.isError}
           onRetry={() => commentsQuery.refetch()}
+          currentUserId={currentUserId}
         />
       )}
     </article>
