@@ -15,6 +15,7 @@ import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 import { PageTitle } from '../../core/page-title';
 import { useAuthStore } from '../auth-store';
 import { AUTH_QUERY_KEYS } from '../use-session';
+import { AuthCard } from './auth-card';
 
 interface RegisterFormProps {
   onSuccess?: (session: AuthSessionDTO) => void;
@@ -48,7 +49,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   useFocusOnMount('h2');
 
   return (
-    <main id="main-content" className="mx-auto w-full max-w-sm px-4 py-10 sm:py-20">
+    <AuthCard>
       <PageTitle title="Create Account" />
       <form className="space-y-6" onSubmit={handleSubmit((data) => registerMutation.mutate(data))}>
         <div className="space-y-2 text-center sm:text-left">
@@ -156,6 +157,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           </Link>
         </p>
       </form>
-    </main>
+    </AuthCard>
   );
 }
