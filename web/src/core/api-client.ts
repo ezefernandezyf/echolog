@@ -16,6 +16,10 @@ import type {
   PostListFilters,
   PostListResponse,
   UpdateBoardDTO,
+  UpdateEmailDTO,
+  UpdatePasswordDTO,
+  UpdateProfileDTO,
+  UpdateProfileResult,
   UpdateWorkspaceDTO,
   WorkspaceDTO,
   CommentDTO,
@@ -118,6 +122,24 @@ export const authApi = {
   login: createFetcher<AuthSessionDTO, AuthLoginDTO>('POST', '/auth/login'),
   register: createFetcher<AuthSessionDTO, AuthRegisterDTO>('POST', '/auth/register'),
   logout: createVoidFetcher<void>('POST', '/auth/logout'),
+  updateProfile: (data: UpdateProfileDTO) =>
+    fetchJson<UpdateProfileResult, UpdateProfileDTO>({
+      url: '/auth/profile',
+      method: 'PATCH',
+      data,
+    }),
+  updateEmail: (data: UpdateEmailDTO) =>
+    fetchJson<{ user: { id: string; email: string; name: string | null } }, UpdateEmailDTO>({
+      url: '/auth/email',
+      method: 'PUT',
+      data,
+    }),
+  updatePassword: (data: UpdatePasswordDTO) =>
+    fetchJson<{ message: string }, UpdatePasswordDTO>({
+      url: '/auth/password',
+      method: 'PUT',
+      data,
+    }),
 };
 
 export const workspaceApi = {
