@@ -1,7 +1,11 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
 import { slugify } from '../../../shared/lib/slugify.js';
-import type { CreateWorkspaceDTO, UpdateWorkspaceDTO, WorkspaceDTO } from '../../../shared/contracts/index.js';
+import type {
+  CreateWorkspaceDTO,
+  UpdateWorkspaceDTO,
+  WorkspaceDTO,
+} from '../../../shared/contracts/index.js';
 
 export class WorkspacesService {
   async list(userId: string): Promise<WorkspaceDTO[]> {
@@ -47,7 +51,11 @@ export class WorkspacesService {
     };
   }
 
-  async update(workspaceId: string, input: UpdateWorkspaceDTO, userId: string): Promise<WorkspaceDTO> {
+  async update(
+    workspaceId: string,
+    input: UpdateWorkspaceDTO,
+    userId: string,
+  ): Promise<WorkspaceDTO> {
     const membership = await prisma.workspaceMember.findUnique({
       where: { userId_workspaceId: { userId, workspaceId } },
     });

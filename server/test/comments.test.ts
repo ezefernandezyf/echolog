@@ -51,9 +51,7 @@ describe('comments CRUD', () => {
     expect(listRes.body[0].body).toBe('This is a great post!');
 
     // Test: create comment with empty body → 400 (validation)
-    const emptyRes = await agent
-      .post(`/api/posts/${postId}/comments`)
-      .send({ body: '' });
+    const emptyRes = await agent.post(`/api/posts/${postId}/comments`).send({ body: '' });
     expect(emptyRes.status).toBe(400);
   });
 });

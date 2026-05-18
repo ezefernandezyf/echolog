@@ -5,7 +5,8 @@ const emptyStringToUndefined = (value: unknown) =>
 
 const requiredText = (label: string) => z.string().trim().min(1, `${label} is required`);
 
-const optionalText = (schema: z.ZodTypeAny) => z.preprocess(emptyStringToUndefined, schema.nullish());
+const optionalText = (schema: z.ZodTypeAny) =>
+  z.preprocess(emptyStringToUndefined, schema.nullish());
 
 const slugSchema = z
   .string()
@@ -40,18 +41,25 @@ export const updateWorkspaceSchema = z
 
 export const createBoardSchema = z.object({
   name: requiredText('Board name').max(120),
-  description: optionalText(z.string().trim().max(500, 'Description must be at most 500 characters')),
+  description: optionalText(
+    z.string().trim().max(500, 'Description must be at most 500 characters'),
+  ),
 });
 
 export const updateBoardSchema = z
   .object({
     name: optionalText(requiredText('Board name').max(120)),
     slug: optionalText(slugSchema),
-    description: optionalText(z.string().trim().max(500, 'Description must be at most 500 characters')),
+    description: optionalText(
+      z.string().trim().max(500, 'Description must be at most 500 characters'),
+    ),
   })
-  .refine((data) => data.name !== undefined || data.slug !== undefined || data.description !== undefined, {
-    message: 'At least one field must be provided',
-  });
+  .refine(
+    (data) => data.name !== undefined || data.slug !== undefined || data.description !== undefined,
+    {
+      message: 'At least one field must be provided',
+    },
+  );
 
 export const createPostSchema = z.object({
   title: requiredText('Title').max(120),

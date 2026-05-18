@@ -55,10 +55,7 @@ function run(command, args, opts = {}) {
     child.on('error', reject);
     child.on('exit', (code) => {
       if (code === 0) resolvePromise();
-      else
-        reject(
-          new Error(`${command} ${args.join(' ')} exited with code ${code}`),
-        );
+      else reject(new Error(`${command} ${args.join(' ')} exited with code ${code}`));
     });
   });
 }
@@ -86,19 +83,17 @@ async function main() {
   try {
     // Step 1 — Run Prisma migrations on ephemeral DB
     console.error('[e2e] Running Prisma migrations on ephemeral DB...');
-    await run(
-      PNPM,
-      ['--filter', '@echolog/server', 'exec', 'prisma', 'migrate', 'deploy'],
-      { env: dbEnv, cwd: serverDir },
-    );
+    await run(PNPM, ['--filter', '@echolog/server', 'exec', 'prisma', 'migrate', 'deploy'], {
+      env: dbEnv,
+      cwd: serverDir,
+    });
 
     // Step 2 — Seed the ephemeral DB
     console.error('[e2e] Seeding ephemeral DB...');
-    await run(
-      PNPM,
-      ['--filter', '@echolog/server', 'exec', 'tsx', 'prisma/seed.ts'],
-      { env: dbEnv, cwd: serverDir },
-    );
+    await run(PNPM, ['--filter', '@echolog/server', 'exec', 'tsx', 'prisma/seed.ts'], {
+      env: dbEnv,
+      cwd: serverDir,
+    });
 
     // Step 3 — Start backend (Express + tsx watch, port 3000)
     console.error('[e2e] Starting backend on :3000...');

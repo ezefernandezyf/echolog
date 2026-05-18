@@ -85,8 +85,8 @@ export function PostList({
   const [debounced, setDebounced] = useState('');
 
   // Mobile detection for virtualization gate
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' ? window.innerWidth < 768 : false,
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false,
   );
 
   useEffect(() => {

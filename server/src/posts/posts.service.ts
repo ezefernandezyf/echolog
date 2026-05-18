@@ -1,6 +1,11 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
-import type { CreatePostDTO, PostDTO, PostListFilters, PostListResponse } from '../../../shared/contracts/index.js';
+import type {
+  CreatePostDTO,
+  PostDTO,
+  PostListFilters,
+  PostListResponse,
+} from '../../../shared/contracts/index.js';
 
 interface ListPostsOptions {
   boardId: string;
@@ -46,10 +51,7 @@ export class PostsService {
     }
 
     if (opts.search?.trim()) {
-      where.OR = [
-        { title: { contains: opts.search } },
-        { body: { contains: opts.search } },
-      ];
+      where.OR = [{ title: { contains: opts.search } }, { body: { contains: opts.search } }];
     }
 
     // Cursor-based pagination

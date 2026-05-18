@@ -12,7 +12,11 @@ export const createWorkspace = async (req: Request, res: Response) => {
 };
 
 export const updateWorkspace = async (req: Request, res: Response) => {
-  const data = await workspacesService.update(req.params.workspaceId as string, req.body, req.userId!);
+  const data = await workspacesService.update(
+    req.params.workspaceId as string,
+    req.body,
+    req.userId!,
+  );
   res.status(200).json(data);
 };
 

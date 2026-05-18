@@ -39,7 +39,13 @@ function VirtualizedCommentList({ comments }: { comments: CommentDTO[] }) {
   });
 
   return (
-    <div ref={scrollRef} className="max-h-[400px] overflow-y-auto" role="region" aria-live="polite" aria-label="Comments">
+    <div
+      ref={scrollRef}
+      className="max-h-[400px] overflow-y-auto"
+      role="region"
+      aria-live="polite"
+      aria-label="Comments"
+    >
       <div
         style={{
           position: 'relative',
@@ -80,7 +86,13 @@ interface CommentSectionProps {
   onRetry: () => void;
 }
 
-export function CommentSection({ postId, comments, isLoading, isError, onRetry }: CommentSectionProps) {
+export function CommentSection({
+  postId,
+  comments,
+  isLoading,
+  isError,
+  onRetry,
+}: CommentSectionProps) {
   const queryClient = useQueryClient();
 
   const {
