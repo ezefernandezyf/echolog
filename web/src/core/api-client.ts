@@ -195,6 +195,8 @@ export const commentApi = {
       method: 'POST',
       data,
     }),
+  delete: (postId: string, commentId: string) =>
+    fetchJson<void>({ url: `/posts/${postId}/comments/${commentId}`, method: 'DELETE' }),
 };
 
 export { apiClient };

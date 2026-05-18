@@ -5,6 +5,7 @@ import { Badge } from '../../shared/components/ui/badge';
 import { Button } from '../../shared/components/ui/button';
 import { cn } from '../../shared/lib/cn';
 import { postApi, voteApi, commentApi } from '../../core/api-client';
+import { useAuthStore } from '../../auth/auth-store';
 import type { ApiError } from '../../core/api-client';
 import type { PostDTO } from '../../../../shared/contracts/index.js';
 import { CommentSection } from './comment-section';
@@ -26,6 +27,7 @@ export function PostDetailPage() {
   const navigate = useNavigate();
   const { workspaceId, postId } = useParams<{ workspaceId: string; postId: string }>();
   const queryClient = useQueryClient();
+  const currentUserId = useAuthStore((state) => state.session?.user?.id ?? '');
 
   const {
     data: post,
@@ -274,6 +276,7 @@ export function PostDetailPage() {
             isLoading={commentsQuery.isPending}
             isError={commentsQuery.isError}
             onRetry={() => commentsQuery.refetch()}
+            currentUserId={currentUserId}
           />
         </section>
       </div>

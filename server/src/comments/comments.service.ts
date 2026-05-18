@@ -1,4 +1,5 @@
 import { prisma } from '../infra/prisma.js';
+import { HttpError } from '../infra/http.js';
 import type { CommentDTO, CreateCommentDTO } from '../../../shared/contracts/index.js';
 
 export class CommentsService {
@@ -41,6 +42,38 @@ export class CommentsService {
       createdAt: comment.createdAt.toISOString(),
       authorName: comment.author.name,
     };
+  }
+
+  async delete(commentId: string, userId: string): Promise<void> {
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      include: {
+        post: {
+          include: {
+            workspace: {
+              include: {
+                members: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!comment) {
+      throw new HttpError('Comment not found', 404);
+    }
+
+    const isAuthor = comment.authorId === userId;
+    const isWorkspaceOwner = comment.post.workspace.members.some(
+      (m) => m.userId === userId && m.role === 'OWNER',
+    );
+
+    if (!isAuthor && !isWorkspaceOwner) {
+      throw new HttpError('Forbidden', 403);
+    }
+
+    await prisma.comment.delete({ where: { id: commentId } });
   }
 }
 
