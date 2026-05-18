@@ -77,11 +77,11 @@ async function main() {
 
   // Run Playwright tests, forwarding extra CLI args
   const args = process.argv.slice(2);
-  const pw = spawn(
-    'pnpm',
-    ['--filter', '@echolog/e2e', 'exec', 'playwright', 'test', ...args],
-    { cwd: workspaceRoot, stdio: 'inherit', shell: isWin },
-  );
+  const pw = spawn('pnpm', ['--filter', '@echolog/e2e', 'exec', 'playwright', 'test', ...args], {
+    cwd: workspaceRoot,
+    stdio: 'inherit',
+    shell: isWin,
+  });
 
   pw.on('exit', (code) => {
     killTree(server.pid);

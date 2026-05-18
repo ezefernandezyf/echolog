@@ -51,15 +51,11 @@ describe('posts filtering & pagination', () => {
     expect(plannedRes.status).toBe(200);
 
     // Update post 4 → DONE (index 3)
-    const done1Res = await agent
-      .patch(`/api/posts/${posts[3].id}/status`)
-      .send({ status: 'DONE' });
+    const done1Res = await agent.patch(`/api/posts/${posts[3].id}/status`).send({ status: 'DONE' });
     expect(done1Res.status).toBe(200);
 
     // Update post 5 → DONE (index 4)
-    const done2Res = await agent
-      .patch(`/api/posts/${posts[4].id}/status`)
-      .send({ status: 'DONE' });
+    const done2Res = await agent.patch(`/api/posts/${posts[4].id}/status`).send({ status: 'DONE' });
     expect(done2Res.status).toBe(200);
 
     // Test: list all posts → 200, returns all 5
@@ -67,11 +63,18 @@ describe('posts filtering & pagination', () => {
     expect(allRes.status).toBe(200);
     expect(allRes.body.posts).toHaveLength(5);
     expect(allRes.body.nextCursor).toBeNull();
-    expect(allRes.body.posts.find((post: { id: string; isUpvoted?: boolean }) => post.id === posts[0].id)?.isUpvoted).toBe(true);
+    expect(
+      allRes.body.posts.find((post: { id: string; isUpvoted?: boolean }) => post.id === posts[0].id)
+        ?.isUpvoted,
+    ).toBe(true);
 
     const anonRes = await request(app).get(`/api/boards/${boardId}/posts?limit=50`);
     expect(anonRes.status).toBe(200);
-    expect(anonRes.body.posts.find((post: { id: string; isUpvoted?: boolean }) => post.id === posts[0].id)?.isUpvoted).toBe(false);
+    expect(
+      anonRes.body.posts.find(
+        (post: { id: string; isUpvoted?: boolean }) => post.id === posts[0].id,
+      )?.isUpvoted,
+    ).toBe(false);
 
     // Test: filter by status=OPEN → 200, returns 2 posts (all with status OPEN)
     const openRes = await agent.get(`/api/boards/${boardId}/posts?status=OPEN`);

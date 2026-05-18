@@ -12,8 +12,7 @@ export function validate(schema: { parse: (data: unknown) => unknown }) {
       req.body = schema.parse(req.body);
       next();
     } catch (err) {
-      const issues: ValidationIssue[] =
-        (err as { issues?: ValidationIssue[] }).issues ?? [];
+      const issues: ValidationIssue[] = (err as { issues?: ValidationIssue[] }).issues ?? [];
       const message =
         issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ') || 'Validation failed';
       next(new ValidationError(message, 400, issues));

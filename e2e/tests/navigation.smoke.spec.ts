@@ -30,17 +30,13 @@ async function login(page: Page) {
 }
 
 test.describe('Workspace/board navigation smoke', () => {
-  test('login → workspace hub → workspace detail → board via sidebar', async ({
-    page,
-  }) => {
+  test('login → workspace hub → workspace detail → board via sidebar', async ({ page }) => {
     // ── Step 1: Login with seeded demo user ──────────────────────
     await login(page);
 
     // ── Step 2: Assert workspace hub heading ─────────────────────
     // The /w page renders the WorkspaceHub component with h1 "Your Workspaces"
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Your Workspaces' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Your Workspaces' })).toBeVisible();
 
     // ── Step 3: Click the Demo Workspace card ────────────────────
     // The WorkspaceCard renders as a <div role="button"> with aria-label.
@@ -49,9 +45,7 @@ test.describe('Workspace/board navigation smoke', () => {
     // "Demo Workspace, 1 active board". The server's workspace list
     // endpoint does NOT return activeBoardsCount, so captionText()
     // falls back to roleLabel(role) which renders "Owner".
-    await page
-      .getByRole('button', { name: 'Demo Workspace, Owner' })
-      .click();
+    await page.getByRole('button', { name: 'Demo Workspace, Owner' }).click();
 
     // ── Step 4: Assert URL matches /w/<workspaceId> pattern ──────
     // The workspace card navigates to /w/{workspace.id} (UUID or Prisma ID).
@@ -64,19 +58,14 @@ test.describe('Workspace/board navigation smoke', () => {
     // Wait until the "Feature Requests" board button is visible inside
     // the <aside> element.
     await expect(
-      page
-        .locator('aside')
-        .getByRole('button', { name: 'Feature Requests' }),
+      page.locator('aside').getByRole('button', { name: 'Feature Requests' }),
     ).toBeVisible();
 
     // Click the sidebar board button for "Feature Requests".
     // When arriving at /w/<workspaceId>, the first board is auto-selected,
     // so clicking it again is a no-op for URL (onSelectBoard only
     // navigates if the current path differs from /w/<workspaceId>).
-    await page
-      .locator('aside')
-      .getByRole('button', { name: 'Feature Requests' })
-      .click();
+    await page.locator('aside').getByRole('button', { name: 'Feature Requests' }).click();
 
     // ── Step 6: Assert URL stays /w/<workspaceId> ────────────────
     await expect(page).toHaveURL(/\/w\/[a-zA-Z0-9-]+$/);
@@ -84,9 +73,7 @@ test.describe('Workspace/board navigation smoke', () => {
     // Assert the board heading "Feature Requests" is visible.
     // BoardLayout passes selectedBoard.name to PostList which renders
     // it inside an <h1>.
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Feature Requests' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Feature Requests' })).toBeVisible();
 
     // ── Step 7: Assert empty state ───────────────────────────────
     // The seed creates a board with no posts. PostList renders

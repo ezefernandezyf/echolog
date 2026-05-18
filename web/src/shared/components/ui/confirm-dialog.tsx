@@ -54,10 +54,7 @@ export function ConfirmDialog({
           </h2>
         </div>
 
-        <p
-          id="confirm-dialog-desc"
-          className="text-sm leading-6 text-zinc-600 dark:text-zinc-400"
-        >
+        <p id="confirm-dialog-desc" className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">
           {message}
         </p>
 

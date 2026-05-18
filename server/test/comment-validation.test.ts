@@ -37,9 +37,7 @@ describe('comment validation', () => {
     const postId: string = postRes.body.id;
 
     // Test: empty body → 400 with structured issues
-    const emptyRes = await agent
-      .post(`/api/posts/${postId}/comments`)
-      .send({ body: '' });
+    const emptyRes = await agent.post(`/api/posts/${postId}/comments`).send({ body: '' });
     expect(emptyRes.status).toBe(400);
     expect(emptyRes.body.error).toBe(true);
     expect(emptyRes.body.code).toBe(400);
@@ -127,9 +125,7 @@ describe('comment validation', () => {
     const postId: string = postRes.body.id;
 
     // Test: whitespace-only → 400
-    const wsRes2 = await agent
-      .post(`/api/posts/${postId}/comments`)
-      .send({ body: '   ' });
+    const wsRes2 = await agent.post(`/api/posts/${postId}/comments`).send({ body: '   ' });
     expect(wsRes2.status).toBe(400);
     expect(wsRes2.body.details.issues.length).toBeGreaterThan(0);
   });

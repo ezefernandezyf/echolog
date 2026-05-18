@@ -13,14 +13,10 @@ test('login page loads', async ({ page }) => {
   await page.goto('/login');
 
   // Stable heading present on every render
-  await expect(
-    page.getByRole('heading', { level: 2, name: 'Welcome back' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Welcome back' })).toBeVisible();
 
   // Critical form controls exist
   await expect(page.getByLabel('Email')).toBeVisible();
   await expect(page.getByLabel('Password')).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Sign in' }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
 });
