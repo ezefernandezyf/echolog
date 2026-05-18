@@ -60,3 +60,18 @@ export const session = async (req: Request, res: Response) => {
 
   res.status(200).json(sessionData);
 };
+
+export const updateProfile = async (req: Request, res: Response) => {
+  const result = await authService.updateProfile(req.userId!, req.body);
+  res.status(200).json(result);
+};
+
+export const updateEmail = async (req: Request, res: Response) => {
+  const result = await authService.updateEmail(req.userId!, req.body);
+  res.status(200).json(result);
+};
+
+export const updatePassword = async (req: Request, res: Response) => {
+  await authService.updatePassword(req.userId!, req.body);
+  res.status(200).json({ message: 'Password updated successfully' });
+};

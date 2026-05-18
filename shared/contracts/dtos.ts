@@ -107,3 +107,21 @@ export interface PostListResponse {
   posts: PostDTO[];
   nextCursor: string | null;
 }
+
+export interface UpdateProfileDTO {
+  name: string;
+}
+
+export interface UpdateEmailDTO {
+  email: string;
+  currentPassword: string;
+}
+
+export interface UpdatePasswordDTO {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface UpdateProfileResult {
+  user: AuthUserDTO;
+}

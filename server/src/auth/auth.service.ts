@@ -5,6 +5,10 @@ import type {
   AuthLoginDTO,
   AuthRegisterDTO,
   AuthSessionDTO,
+  UpdateEmailDTO,
+  UpdatePasswordDTO,
+  UpdateProfileDTO,
+  UpdateProfileResult,
 } from '../../../shared/contracts/index.js';
 
 const SALT_ROUNDS = 10;
@@ -54,6 +58,54 @@ export class AuthService {
     return {
       user: { id: user.id, email: user.email, name: user.name },
     };
+  }
+
+  async updateProfile(userId: string, input: UpdateProfileDTO): Promise<UpdateProfileResult> {
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: { name: input.name },
+    });
+
+    return {
+      user: { id: updated.id, email: updated.email, name: updated.name },
+    };
+  }
+
+  async updateEmail(userId: string, input: UpdateEmailDTO): Promise<UpdateProfileResult> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new HttpError('User not found', 404);
+
+    const valid = await bcrypt.compare(input.currentPassword, user.passwordHash);
+    if (!valid) throw new HttpError('Current password is incorrect', 401);
+
+    const existing = await prisma.user.findUnique({ where: { email: input.email } });
+    if (existing && existing.id !== userId) throw new HttpError('Email already in use', 409);
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: { email: input.email },
+    });
+
+    return {
+      user: { id: updated.id, email: updated.email, name: updated.name },
+    };
+  }
+
+  async updatePassword(userId: string, input: UpdatePasswordDTO): Promise<{ message: string }> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new HttpError('User not found', 404);
+
+    const valid = await bcrypt.compare(input.currentPassword, user.passwordHash);
+    if (!valid) throw new HttpError('Current password is incorrect', 401);
+
+    const passwordHash = await bcrypt.hash(input.newPassword, SALT_ROUNDS);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    return { message: 'Password updated' };
   }
 }
 
