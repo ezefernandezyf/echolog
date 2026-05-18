@@ -73,3 +73,17 @@ export const updatePostStatusSchema = z.object({
 export const createCommentSchema = z.object({
   body: requiredText('Comment body').max(500, 'Comment must be at most 500 characters'),
 });
+
+export const updateProfileSchema = z.object({
+  name: requiredText('Name').max(120),
+});
+
+export const updateEmailSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  currentPassword: z.string().min(1, 'Current password is required'),
+});
+
+export const updatePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+});
