@@ -117,10 +117,10 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - 7.4 CI/CD pipeline ✅ (GitHub Actions: lint, type-check, test on PR + push to main)
 - 7.5 README with setup, architecture, and deploy instructions
 
-### Phase 8: User Features 🔲
-- [ ] 8.1 Comment deletion — service + controller + router + UI with authorization (own comments + workspace owner)
-- [ ] 8.2 Better login page — split layout with landing preview, or inline form with hero
-- [ ] 8.3 User settings page — change username, email, password with proper validation
+### Phase 8: User Features ✅
+- [x] 8.1 Comment deletion ✅ — service + controller + router + UI with authorization (own comments + workspace owner)
+- [x] 8.2 Better login page ✅ — branded card layout with logo, centered form, dark mode
+- [x] 8.3 User settings page ✅ — `/settings` with profile name, email change, password change (3 endpoints, Zod validation)
 
 ### Phase 9: Growth Features (post-deploy) 🔲
 - [ ] 9.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
