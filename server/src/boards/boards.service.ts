@@ -4,7 +4,14 @@ import { slugify } from '../../../shared/lib/slugify.js';
 import type { BoardDTO, CreateBoardDTO, UpdateBoardDTO } from '../../../shared/contracts/index.js';
 
 export class BoardsService {
-  async list(workspaceId: string): Promise<BoardDTO[]> {
+  async list(workspaceId: string, userId: string): Promise<BoardDTO[]> {
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId } },
+    });
+    if (!membership) {
+      throw new HttpError('Forbidden', 403);
+    }
+
     return prisma.board.findMany({
       where: { workspaceId },
       select: {
@@ -17,7 +24,7 @@ export class BoardsService {
     });
   }
 
-  async create(workspaceId: string, input: CreateBoardDTO): Promise<BoardDTO> {
+  async create(workspaceId: string, input: CreateBoardDTO, userId: string): Promise<BoardDTO> {
     const slug = slugify(input.name);
 
     const existing = await prisma.board.findUnique({
@@ -35,6 +42,13 @@ export class BoardsService {
     const workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } });
     if (!workspace) {
       throw new HttpError('Workspace not found', 404);
+    }
+
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId } },
+    });
+    if (!membership) {
+      throw new HttpError('Forbidden', 403);
     }
 
     return prisma.board.create({
