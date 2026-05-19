@@ -23,6 +23,27 @@ export class CommentsService {
   }
 
   async create(postId: string, input: CreateCommentDTO, userId: string): Promise<CommentDTO> {
+    // Resolve workspaceId and check membership
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { workspaceId: true },
+    });
+    if (!post) {
+      throw new HttpError('Post not found', 404);
+    }
+
+    const membership = await prisma.workspaceMember.findUnique({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId: post.workspaceId,
+        },
+      },
+    });
+    if (!membership) {
+      throw new HttpError('Forbidden', 403);
+    }
+
     const comment = await prisma.comment.create({
       data: {
         postId,
@@ -65,11 +86,11 @@ export class CommentsService {
     }
 
     const isAuthor = comment.authorId === userId;
-    const isWorkspaceOwner = comment.post.workspace.members.some(
-      (m) => m.userId === userId && m.role === 'OWNER',
+    const isWorkspaceOwnerOrAdmin = comment.post.workspace.members.some(
+      (m) => m.userId === userId && (m.role === 'OWNER' || m.role === 'ADMIN'),
     );
 
-    if (!isAuthor && !isWorkspaceOwner) {
+    if (!isAuthor && !isWorkspaceOwnerOrAdmin) {
       throw new HttpError('Forbidden', 403);
     }
 
