@@ -41,6 +41,7 @@ vi.mock('sonner', () => ({
 import { workspaceApi } from '../../core/api-client';
 import { WorkspaceHub } from '../components/workspace-hub';
 import { useUiStore } from '../../core/store/ui-store';
+import { useAuthStore } from '../../auth/auth-store';
 import type { WorkspaceCardData } from '../components/workspace-card';
 
 // ---------------------------------------------------------------------------
@@ -91,6 +92,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockNavigate.mockClear();
   useUiStore.setState({ sidebarOpen: true, activeModal: null, notification: null });
+  useAuthStore.setState({
+    session: { user: { id: 'test-user-id', email: 'test@test.com', name: 'Test User' } },
+    status: 'authenticated' as const,
+  });
 });
 
 afterEach(() => {
