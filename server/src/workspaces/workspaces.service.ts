@@ -22,6 +22,19 @@ export class WorkspacesService {
     }));
   }
 
+  async getById(workspaceId: string, userId: string) {
+    const member = await prisma.workspaceMember.findFirst({
+      where: { workspaceId, userId },
+      include: { workspace: true },
+    });
+
+    if (!member) {
+      throw new HttpError('Workspace not found', 404);
+    }
+
+    return { workspace: member.workspace, role: member.role };
+  }
+
   async create(input: CreateWorkspaceDTO, userId: string): Promise<WorkspaceDTO> {
     const slug = slugify(input.name);
 

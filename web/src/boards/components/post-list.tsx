@@ -33,7 +33,7 @@ const sortTabs: PostSort[] = ['Trending', 'Top', 'New'];
 function VirtualizedPostList({ posts, boardId }: { posts: PostRowData[]; boardId: string }) {
   const virtualizer = useWindowVirtualizer({
     count: posts.length,
-    estimateSize: () => 120,
+    estimateSize: () => 132,
     overscan: 5,
   });
 
@@ -112,7 +112,7 @@ export function PostList({
 
   return (
     <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
-      <header className="border-b border-zinc-200 px-6 py-6 sm:px-8 pr-14 lg:pr-8 dark:border-zinc-800">
+      <header className="border-b border-zinc-200 px-4 py-4 sm:px-6 sm:py-6 pr-14 lg:pr-8 dark:border-zinc-800">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400 dark:text-zinc-500">
@@ -177,7 +177,7 @@ export function PostList({
           ))}
         </div>
 
-        <div className="mt-3">
+        <div className="mt-3 mb-3">
           <input
             type="text"
             value={search}
@@ -190,7 +190,7 @@ export function PostList({
       </header>
 
       <div className="flex-1 bg-zinc-50/40 dark:bg-background/40">
-        <div className="mx-auto w-full max-w-6xl px-0 py-0">
+        <div className="mx-auto w-full max-w-6xl px-0 pt-6 lg:pt-8">
           <div
             className="overflow-hidden border-x border-b border-zinc-200 bg-white shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card"
             role="region"

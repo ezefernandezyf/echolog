@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import { boardRouter } from '../boards/boards.router.js';
 import {
   createWorkspace,
   deleteWorkspace,
+  getWorkspace,
   listWorkspaces,
   updateWorkspace,
 } from './workspaces.controller.js';
@@ -12,6 +14,7 @@ import { createWorkspaceSchema, updateWorkspaceSchema } from '../../../shared/co
 export const workspaceRouter = Router();
 
 workspaceRouter.get('/', requireAuth, listWorkspaces);
+workspaceRouter.get('/:workspaceId', requireAuth, getWorkspace);
 workspaceRouter.post('/', requireAuth, validate(createWorkspaceSchema), createWorkspace);
 workspaceRouter.patch(
   '/:workspaceId',
@@ -20,3 +23,5 @@ workspaceRouter.patch(
   updateWorkspace,
 );
 workspaceRouter.delete('/:workspaceId', requireAuth, deleteWorkspace);
+
+workspaceRouter.use('/:workspaceId/boards', boardRouter);

@@ -171,7 +171,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
 
   return (
     <article className="border-b border-zinc-200 bg-white transition-colors hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-card dark:hover:bg-zinc-800/50">
-      <div className="group grid grid-cols-[auto_1fr_auto] gap-4 px-3 py-3 sm:px-4 sm:py-4">
+      <div className="group grid grid-cols-[auto_1fr_auto] gap-4 px-3 py-4 sm:px-4 sm:py-5">
         <button
           type="button"
           disabled={voteIsPending || voteLockRef.current}

@@ -11,7 +11,7 @@ const optionalText = (schema: z.ZodTypeAny) =>
 const slugSchema = z
   .string()
   .trim()
-  .min(1, 'Slug is required')
+  .min(1, 'Slug cannot be empty')
   .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens')
   .refine((slug) => /[a-z0-9]/.test(slug), 'Slug must include at least one letter or number');
 
@@ -36,7 +36,7 @@ export const updateWorkspaceSchema = z
     slug: optionalText(slugSchema),
   })
   .refine((data) => data.name !== undefined || data.slug !== undefined, {
-    message: 'At least one field (name or slug) must be provided',
+    message: 'Slug is missing',
   });
 
 export const createBoardSchema = z.object({

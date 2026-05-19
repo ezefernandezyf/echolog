@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../shared/components/ui/button';
 import { workspaceApi } from '../../core/api-client';
+import { useAuthStore } from '../../auth/auth-store';
 import { WorkspaceCard, type WorkspaceCardData } from './workspace-card';
 import { useUiStore } from '../../core/store/ui-store';
 import { CreateWorkspaceModal } from './create-workspace-modal';
@@ -17,10 +18,13 @@ interface WorkspaceHubProps {
 
 export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: WorkspaceHubProps) {
   const openModal = useUiStore((state) => state.openModal);
+  const userId = useAuthStore((state) => state.session?.user?.id);
+
   const workspaceQuery = useQuery({
-    queryKey: ['workspaces'],
+    queryKey: ['workspaces', userId],
     queryFn: workspaceApi.list,
     staleTime: 60_000,
+    enabled: !!userId,
   });
 
   useFocusOnMount('h1');

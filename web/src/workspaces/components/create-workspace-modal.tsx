@@ -92,7 +92,7 @@ export function CreateWorkspaceModal() {
           <Button
             type="submit"
             className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
-            disabled={mutation.isPending || !isDirty}
+            disabled={mutation.isPending || !isDirty || !!errors.name}
           >
             {mutation.isPending ? 'Creating...' : 'Create'}
           </Button>
