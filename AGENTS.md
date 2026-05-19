@@ -110,18 +110,22 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - 6.4 Test fix ✅: auth-bootstrap.test.tsx now exercises API error path (valid email, not Zod validation)
 - 6.5 Vitest 4 compat fix: explicit `expect.extend(matchers)` for `@testing-library/jest-dom` (PR #43)
 
-### Phase 7: Deploy 🔲
-- 7.1 Neon.tech PostgreSQL database
-- 7.2 Backend deploy (Render/Railway)
-- 7.3 Frontend deploy (Vercel)
-- 7.4 CI/CD pipeline ✅ (GitHub Actions: lint, type-check, test on PR + push to main)
-- 7.5 README with setup, architecture, and deploy instructions
+### Phase 7: User Features ✅
+- [x] 7.1 Comment deletion ✅ — service + controller + router + UI with authorization (own comments + workspace owner)
+- [x] 7.2 Better login page ✅ — branded card layout with logo, centered form, dark mode
+- [x] 7.3 User settings page ✅ — `/settings` with profile name, email change, password change (3 endpoints, Zod validation)
 
-### Phase 8: User Features ✅
-- [x] 8.1 Comment deletion ✅ — service + controller + router + UI with authorization (own comments + workspace owner)
-- [x] 8.2 Better login page ✅ — branded card layout with logo, centered form, dark mode
-- [x] 8.3 User settings page ✅ — `/settings` with profile name, email change, password change (3 endpoints, Zod validation)
+### Phase 8: Security & Membership 🔲
+- [ ] 8.1 Workspace membership middleware — enforce member-only access on all workspace-scoped API routes
+- [ ] 8.2 Board & post authorization — row-level permission checks for post status changes, board settings
 
-### Phase 9: Growth Features (post-deploy) 🔲
-- [ ] 9.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
-- [ ] 9.2 Public workspace discovery — visibility enum + public feed + popularity ranking + invite/approval system
+### Phase 9: Deploy 🔲
+- [ ] 9.1 Neon.tech PostgreSQL database
+- [ ] 9.2 Backend deploy (Render/Railway)
+- [ ] 9.3 Frontend deploy (Vercel)
+- [x] 9.4 CI/CD pipeline ✅ (GitHub Actions: lint, type-check, test on PR + push to main)
+- [ ] 9.5 README with setup, architecture, and deploy instructions
+
+### Phase 10: Growth Features (post-deploy) 🔲
+- [ ] 10.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
+- [ ] 10.2 Public workspace discovery & invitations — workspace visibility enum + public feed + popularity ranking + invite/approval system
