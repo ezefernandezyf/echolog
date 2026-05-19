@@ -39,6 +39,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const registerMutation = useMutation({
     mutationFn: authApi.register,
     onSuccess: (session) => {
+      queryClient.clear();
       toast.success('Account created');
       setSession(session);
       queryClient.setQueryData(AUTH_QUERY_KEYS.session, session);

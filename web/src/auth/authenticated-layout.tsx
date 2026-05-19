@@ -1,12 +1,14 @@
 'use client';
 
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Sidebar, type SidebarItem } from '../boards/components/sidebar';
 import { useUiStore } from '../core/store/ui-store';
 import { boardApi, workspaceApi } from '../core/api-client';
+import { useAuthStore } from './auth-store';
 import { CreateBoardModal } from '../boards/components/create-board-modal';
+import { CreatePostModal } from '../boards/components/create-post-modal';
 import { cn } from '../shared/lib/cn';
 import { Button } from '../shared/components/ui/button';
 import { ErrorAlert } from '../shared/components/ui/error-alert';
@@ -38,11 +40,13 @@ export function AuthenticatedLayout() {
   const openModal = useUiStore((state) => state.openModal);
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
   const previousWorkspaceIdRef = useRef<string | undefined>(undefined);
+  const userId = useAuthStore((state) => state.session?.user?.id);
 
   const workspacesQuery = useQuery({
-    queryKey: ['workspaces'],
+    queryKey: ['workspaces', userId],
     queryFn: workspaceApi.list,
     staleTime: 60_000,
+    enabled: !!userId,
   });
 
   const boardsQuery = useQuery({
@@ -218,15 +222,16 @@ export function AuthenticatedLayout() {
                 />
               </svg>
             </button>
-            <span className="font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            <Link to="/w" className="font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
               EchoLog
-            </span>
+            </Link>
           </header>
 
           <Outlet />
         </div>
 
         {workspaceId ? <CreateBoardModal workspaceId={workspaceId} /> : null}
+        {selectedBoardId ? <CreatePostModal boardId={selectedBoardId} /> : null}
       </div>
     </AuthenticatedShellContext.Provider>
   );

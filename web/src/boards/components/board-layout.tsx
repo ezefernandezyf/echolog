@@ -11,6 +11,7 @@ import { PostSkeleton } from '../../shared/components/domain-skeletons';
 import { useAuthenticatedShell } from '../../auth/authenticated-layout';
 import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 import { PageTitle } from '../../core/page-title';
+import { useUiStore } from '../../core/store/ui-store';
 
 function mapPostToRow(post: {
   id: string;
@@ -47,6 +48,7 @@ const PAGE_SIZE = 20;
 export function BoardLayout() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const { selectedBoardId, setSelectedBoardId } = useAuthenticatedShell();
+  const openModal = useUiStore((state) => state.openModal);
   const [activeSort, setActiveSort] = useState<PostSort>('Trending');
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
 
@@ -89,7 +91,7 @@ export function BoardLayout() {
   // React Query cache is the single source of truth for vote/status data.
   const posts = useMemo(() => {
     if (!postsQuery.data) return [];
-    return postsQuery.data.pages.flatMap((page) => page.posts).map(mapPostToRow);
+    return postsQuery.data.pages.flatMap((page) => page.posts ?? []).map(mapPostToRow);
   }, [postsQuery.data]);
 
   const hasMore = postsQuery.hasNextPage;
@@ -200,6 +202,7 @@ export function BoardLayout() {
           hasMore={hasMore}
           isLoadingMore={isLoadingMore}
           onLoadMore={handleLoadMore}
+          onCreatePost={() => openModal('create-post')}
           boardId={effectiveBoardId}
         />
       )}

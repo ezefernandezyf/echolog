@@ -2,7 +2,6 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import { authRouter } from '../auth/auth.router.js';
-import { boardRouter } from '../boards/boards.router.js';
 import { commentRouter } from '../comments/comments.router.js';
 import { postRouter } from '../posts/posts.router.js';
 import { voteRouter } from '../votes/votes.router.js';
@@ -27,7 +26,6 @@ export const createApp = () => {
 
   app.use('/api/auth', authRouter);
   app.use('/api/workspaces', workspaceRouter);
-  app.use('/api/workspaces/:workspaceId/boards', boardRouter);
   app.use('/api/boards/:boardId/posts', postRouter);
   app.use('/api/posts/:postId/vote', voteRouter);
   app.use('/api/posts/:postId/comments', commentRouter);

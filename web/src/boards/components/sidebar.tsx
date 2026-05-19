@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '../../shared/lib/cn';
 import { useAuthStore } from '../../auth/auth-store';
 import { authApi } from '../../core/api-client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { ThemeToggle } from '../../shared/components/theme-toggle';
@@ -51,6 +51,7 @@ export function Sidebar({
   const user = useAuthStore((state) => state.session?.user);
   const clearSession = useAuthStore((state) => state.clearSession);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const sidebarOpen = useUiStore((state) => state.sidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const asideRef = useRef<HTMLElement>(null);
@@ -110,6 +111,7 @@ export function Sidebar({
     onSuccess: () => {
       setShowSignOutDialog(false);
       clearSession();
+      queryClient.clear();
       navigate('/login', { replace: true });
     },
   });

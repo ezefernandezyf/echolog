@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AuthSessionDTO } from '../../../shared/contracts/index.js';
 import { authApi, type ApiError } from '../core/api-client';
 import { useAuthStore } from './auth-store';
@@ -9,6 +9,7 @@ const AUTH_QUERY_KEYS = {
 } as const;
 
 export function useSession() {
+  const queryClient = useQueryClient();
   const setSession = useAuthStore((state) => state.setSession);
   const clearSession = useAuthStore((state) => state.clearSession);
 
@@ -27,8 +28,9 @@ export function useSession() {
   useEffect(() => {
     if (sessionQuery.isError) {
       clearSession();
+      queryClient.clear();
     }
-  }, [clearSession, sessionQuery.isError]);
+  }, [clearSession, queryClient, sessionQuery.isError]);
 
   return sessionQuery;
 }

@@ -34,6 +34,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (session) => {
+      queryClient.clear();
       toast.success('Welcome back');
       setSession(session);
       queryClient.setQueryData(AUTH_QUERY_KEYS.session, session);
