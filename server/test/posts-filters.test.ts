@@ -68,13 +68,9 @@ describe('posts filtering & pagination', () => {
         ?.isUpvoted,
     ).toBe(true);
 
+    // Anonymous request → 401 (posts now require auth via membership hardening)
     const anonRes = await request(app).get(`/api/boards/${boardId}/posts?limit=50`);
-    expect(anonRes.status).toBe(200);
-    expect(
-      anonRes.body.posts.find(
-        (post: { id: string; isUpvoted?: boolean }) => post.id === posts[0].id,
-      )?.isUpvoted,
-    ).toBe(false);
+    expect(anonRes.status).toBe(401);
 
     // Test: filter by status=OPEN → 200, returns 2 posts (all with status OPEN)
     const openRes = await agent.get(`/api/boards/${boardId}/posts?status=OPEN`);
