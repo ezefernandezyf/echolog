@@ -29,7 +29,7 @@ export class WorkspacesService {
     });
 
     if (!member) {
-      throw new HttpError(404, 'Workspace not found');
+      throw new HttpError('Workspace not found', 404);
     }
 
     return { workspace: member.workspace, role: member.role };
