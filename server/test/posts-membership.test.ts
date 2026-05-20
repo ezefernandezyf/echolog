@@ -3,6 +3,28 @@ import request from 'supertest';
 import app from '../src/index.js';
 
 describe('posts membership hardening', () => {
+  it('returns 401 when listing posts without auth', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const agent = request.agent(app);
+
+    // Owner creates workspace + board
+    await agent.post('/api/auth/register').send({
+      email: `owner-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Owner',
+    });
+    const wsRes = await agent.post('/api/workspaces').send({ name: 'Post Auth WS' });
+    const workspaceId: string = wsRes.body.id;
+    const boardRes = await agent
+      .post(`/api/workspaces/${workspaceId}/boards`)
+      .send({ name: 'General' });
+    const boardId: string = boardRes.body.id;
+
+    // Anonymous request → 401
+    const anonRes = await request(app).get(`/api/boards/${boardId}/posts`);
+    expect(anonRes.status).toBe(401);
+  });
+
   it('returns 403 when listing posts as non-member', async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
 
@@ -34,6 +56,35 @@ describe('posts membership hardening', () => {
     // Intruder tries to list posts → 403
     const listRes = await intruderAgent.get(`/api/boards/${boardId}/posts`);
     expect(listRes.status).toBe(403);
+  });
+
+  it('returns 200 when listing posts as a workspace member', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const agent = request.agent(app);
+
+    // Register and create workspace (becomes OWNER = member)
+    await agent.post('/api/auth/register').send({
+      email: `member-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Member User',
+    });
+    const wsRes = await agent.post('/api/workspaces').send({ name: 'Post Member List WS' });
+    const workspaceId: string = wsRes.body.id;
+    const boardRes = await agent
+      .post(`/api/workspaces/${workspaceId}/boards`)
+      .send({ name: 'General' });
+    const boardId: string = boardRes.body.id;
+
+    // Create a post so the board has content
+    await agent
+      .post(`/api/boards/${boardId}/posts`)
+      .send({ title: 'Member Post', body: 'Visible to members' });
+
+    // List posts as member → 200
+    const listRes = await agent.get(`/api/boards/${boardId}/posts`);
+    expect(listRes.status).toBe(200);
+    expect(Array.isArray(listRes.body.posts)).toBe(true);
+    expect(listRes.body.posts.length).toBeGreaterThanOrEqual(1);
   });
 
   it('returns 200 when member gets post by id', async () => {

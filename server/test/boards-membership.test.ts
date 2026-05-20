@@ -100,4 +100,25 @@ describe('boards membership hardening', () => {
       .send({ name: 'Hacked Board' });
     expect(createRes.status).toBe(403);
   });
+
+  it('returns 201 when creating board as a workspace member', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const agent = request.agent(app);
+
+    // Register and create workspace (becomes OWNER = member)
+    await agent.post('/api/auth/register').send({
+      email: `member-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Member User',
+    });
+    const wsRes = await agent.post('/api/workspaces').send({ name: 'Create Board Member WS' });
+    const workspaceId: string = wsRes.body.id;
+
+    // Member creates a board → 201
+    const createRes = await agent
+      .post(`/api/workspaces/${workspaceId}/boards`)
+      .send({ name: 'My Board' });
+    expect(createRes.status).toBe(201);
+    expect(createRes.body.name).toBe('My Board');
+  });
 });
