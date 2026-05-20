@@ -23,6 +23,15 @@ export class CommentsService {
   }
 
   async create(postId: string, input: CreateCommentDTO, userId: string): Promise<CommentDTO> {
+    // Verify post exists
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true },
+    });
+    if (!post) {
+      throw new HttpError('Post not found', 404);
+    }
+
     const comment = await prisma.comment.create({
       data: {
         postId,
@@ -47,29 +56,30 @@ export class CommentsService {
   async delete(commentId: string, userId: string): Promise<void> {
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
-      include: {
-        post: {
-          include: {
-            workspace: {
-              include: {
-                members: true,
-              },
-            },
-          },
-        },
-      },
+      select: { authorId: true, post: { select: { workspaceId: true } } },
     });
 
     if (!comment) {
       throw new HttpError('Comment not found', 404);
     }
 
-    const isAuthor = comment.authorId === userId;
-    const isWorkspaceOwner = comment.post.workspace.members.some(
-      (m) => m.userId === userId && m.role === 'OWNER',
-    );
+    // Author can always delete their own comment
+    if (comment.authorId === userId) {
+      await prisma.comment.delete({ where: { id: commentId } });
+      return;
+    }
 
-    if (!isAuthor && !isWorkspaceOwner) {
+    // Otherwise, must be ADMIN or OWNER of the workspace
+    const membership = await prisma.workspaceMember.findUnique({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId: comment.post.workspaceId,
+        },
+      },
+    });
+
+    if (!membership || (membership.role !== 'ADMIN' && membership.role !== 'OWNER')) {
       throw new HttpError('Forbidden', 403);
     }
 

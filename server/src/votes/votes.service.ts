@@ -8,6 +8,15 @@ export interface VoteResult extends VoteDTO {
 
 export class VotesService {
   async addVote(postId: string, userId: string): Promise<VoteResult> {
+    // Verify post exists
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true },
+    });
+    if (!post) {
+      throw new HttpError('Post not found', 404);
+    }
+
     const existing = await prisma.vote.findUnique({
       where: { postId_userId: { postId, userId } },
     });
@@ -22,6 +31,15 @@ export class VotesService {
   }
 
   async removeVote(postId: string, userId: string): Promise<VoteResult> {
+    // Verify post exists
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true },
+    });
+    if (!post) {
+      throw new HttpError('Post not found', 404);
+    }
+
     const existing = await prisma.vote.findUnique({
       where: { postId_userId: { postId, userId } },
     });

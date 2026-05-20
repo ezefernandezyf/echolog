@@ -46,4 +46,42 @@ describe('votes routes', () => {
     const vote2 = await agent.post(`/api/posts/${postId}/vote`);
     expect(vote2.status).toBe(409);
   });
+
+  it('allows a member to remove their vote (200)', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const agent = request.agent(app);
+
+    // Register
+    await agent.post('/api/auth/register').send({
+      email: `voter2-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Voter 2',
+    });
+
+    // Create workspace
+    const wsRes = await agent.post('/api/workspaces').send({ name: 'Vote Remove WS' });
+    const workspaceId: string = wsRes.body.id;
+
+    // Create board
+    const boardRes = await agent
+      .post(`/api/workspaces/${workspaceId}/boards`)
+      .send({ name: 'General' });
+    const boardId: string = boardRes.body.id;
+
+    // Create post
+    const postRes = await agent
+      .post(`/api/boards/${boardId}/posts`)
+      .send({ title: 'Remove vote test', body: 'Testing vote removal' });
+    const postId: string = postRes.body.id;
+
+    // Vote → 200
+    const voteRes = await agent.post(`/api/posts/${postId}/vote`);
+    expect(voteRes.status).toBe(200);
+    expect(voteRes.body.voted).toBe(true);
+
+    // Remove vote → 200
+    const removeRes = await agent.delete(`/api/posts/${postId}/vote`);
+    expect(removeRes.status).toBe(200);
+    expect(removeRes.body.voted).toBe(false);
+  });
 });

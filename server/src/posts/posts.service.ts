@@ -44,6 +44,15 @@ function mapPost(p: {
 
 export class PostsService {
   async list(opts: ListPostsOptions): Promise<PostListResponse> {
+    // Resolve workspaceId via board lookup
+    const board = await prisma.board.findUnique({
+      where: { id: opts.boardId },
+      select: { workspaceId: true },
+    });
+    if (!board) {
+      throw new HttpError('Board not found', 404);
+    }
+
     const where: Record<string, unknown> = { boardId: opts.boardId };
 
     if (opts.status) {
@@ -110,18 +119,6 @@ export class PostsService {
     const board = await prisma.board.findUnique({ where: { id: boardId } });
     if (!board) {
       throw new HttpError('Board not found', 404);
-    }
-
-    const membership = await prisma.workspaceMember.findUnique({
-      where: {
-        userId_workspaceId: {
-          userId,
-          workspaceId: board.workspaceId,
-        },
-      },
-    });
-    if (!membership) {
-      throw new HttpError('Forbidden', 403);
     }
 
     const post = await prisma.post.create({

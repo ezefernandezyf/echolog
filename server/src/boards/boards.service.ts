@@ -4,7 +4,8 @@ import { slugify } from '../../../shared/lib/slugify.js';
 import type { BoardDTO, CreateBoardDTO, UpdateBoardDTO } from '../../../shared/contracts/index.js';
 
 export class BoardsService {
-  async list(workspaceId: string): Promise<BoardDTO[]> {
+  // Membership is enforced by requireAnyMember middleware on the router.
+  async list(workspaceId: string, _userId: string): Promise<BoardDTO[]> {
     return prisma.board.findMany({
       where: { workspaceId },
       select: {
@@ -17,7 +18,8 @@ export class BoardsService {
     });
   }
 
-  async create(workspaceId: string, input: CreateBoardDTO): Promise<BoardDTO> {
+  // Membership is enforced by requireAnyMember middleware on the router.
+  async create(workspaceId: string, input: CreateBoardDTO, _userId: string): Promise<BoardDTO> {
     const slug = slugify(input.name);
 
     const existing = await prisma.board.findUnique({
