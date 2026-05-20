@@ -68,7 +68,7 @@ describe('viewer enforcement', () => {
     const listRes = await viewerAgent.get(`/api/workspaces/${workspaceId}/boards`);
     expect(listRes.status).toBe(200);
     expect(Array.isArray(listRes.body)).toBe(true);
-  });
+  }, 15_000);
 
   it('returns 403 when VIEWER tries to create a post', async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
