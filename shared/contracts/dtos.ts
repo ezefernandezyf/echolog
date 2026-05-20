@@ -155,3 +155,21 @@ export interface CreateInvitationDTO {
 export interface ChangeRoleDTO {
   role: WorkspaceRole;
 }
+
+export type NotificationType = 'INVITE_SENT' | 'ROLE_CHANGED' | 'NEW_COMMENT';
+
+export interface NotificationDTO {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  message: string;
+  read: boolean;
+  link: string | null;
+  actorId: string | null;
+  workspaceId: string | null;
+  createdAt: string;
+}
+
+export interface UnreadCountDTO {
+  count: number;
+}

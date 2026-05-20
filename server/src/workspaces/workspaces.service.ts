@@ -1,7 +1,8 @@
 import crypto from 'node:crypto';
-import type { InvitationStatus, WorkspaceRole } from '@prisma/client';
+import type { InvitationStatus, WorkspaceRole, NotificationType } from '@prisma/client';
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
+import { notificationsService } from '../notifications/notifications.service.js';
 import { slugify } from '../../../shared/lib/slugify.js';
 import type {
   CreateWorkspaceDTO,
@@ -161,6 +162,19 @@ export class WorkspacesService {
       },
       include: { workspace: { select: { name: true } } },
     });
+
+    // Notify the invited user if they exist
+    if (invitedUser) {
+      const inviter = await prisma.user.findUnique({ where: { id: invitedById } });
+      notificationsService.create({
+        userId: invitedUser.id,
+        type: 'INVITE_SENT' as NotificationType,
+        message: `${inviter?.name ?? 'Someone'} invited you to **${invitation.workspace.name}**`,
+        link: `/invite/${invitation.token}`,
+        actorId: invitedById,
+        workspaceId,
+      });
+    }
 
     return {
       id: invitation.id,
@@ -385,6 +399,17 @@ export class WorkspacesService {
       where: { userId_workspaceId: { userId: targetUserId, workspaceId } },
       data: { role: newRole as WorkspaceRole },
       include: { user: { select: { id: true, name: true, email: true } } },
+    });
+
+    // Notify the affected user
+    const workspaceForNotif = await prisma.workspace.findUnique({ where: { id: workspaceId } });
+    notificationsService.create({
+      userId: targetUserId,
+      type: 'ROLE_CHANGED' as NotificationType,
+      message: `Your role in **${workspaceForNotif?.name ?? 'workspace'}** was changed to **${newRole}**`,
+      link: `/w/${workspaceId}`,
+      actorId: actorUserId,
+      workspaceId,
     });
 
     return {

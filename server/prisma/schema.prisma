@@ -40,6 +40,8 @@ model User {
   votes             Vote[]
   comments          Comment[]
   createdInvitations WorkspaceInvitation[]
+  notifications      Notification[]
+  actedNotifications Notification[]   @relation("actorNotifications")
 }
 
 model Workspace {
@@ -51,7 +53,8 @@ model Workspace {
   members   WorkspaceMember[]
   boards    Board[]
   posts     Post[]
-  invitations WorkspaceInvitation[]
+  invitations   WorkspaceInvitation[]
+  notifications Notification[] @relation("workspaceNotifications")
 }
 
 model WorkspaceMember {
@@ -135,6 +138,31 @@ model Vote {
 
   @@id([postId, userId])
   @@index([userId])
+}
+
+enum NotificationType {
+  INVITE_SENT
+  ROLE_CHANGED
+  NEW_COMMENT
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  type        NotificationType
+  message     String
+  read        Boolean          @default(false)
+  link        String?
+  actorId     String?
+  workspaceId String?
+  createdAt   DateTime         @default(now())
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actor       User?            @relation("actorNotifications", fields: [actorId], references: [id])
+  workspace   Workspace?       @relation("workspaceNotifications", fields: [workspaceId], references: [id], onDelete: SetNull)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
 }
 
 model Comment {

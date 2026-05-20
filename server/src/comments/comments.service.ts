@@ -1,5 +1,7 @@
+import type { NotificationType } from '@prisma/client';
 import { prisma } from '../infra/prisma.js';
 import { HttpError } from '../infra/http.js';
+import { notificationsService } from '../notifications/notifications.service.js';
 import type { CommentDTO, CreateCommentDTO } from '../../../shared/contracts/index.js';
 
 export class CommentsService {
@@ -26,7 +28,7 @@ export class CommentsService {
     // Verify post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      select: { id: true },
+      select: { id: true, authorId: true, title: true, workspaceId: true },
     });
     if (!post) {
       throw new HttpError('Post not found', 404);
@@ -42,6 +44,22 @@ export class CommentsService {
         author: { select: { name: true } },
       },
     });
+
+    // Notify post author (unless they're commenting on their own post)
+    if (post.authorId !== userId) {
+      const commenter = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true },
+      });
+      notificationsService.create({
+        userId: post.authorId,
+        type: 'NEW_COMMENT' as NotificationType,
+        message: `${commenter?.name ?? 'Someone'} commented on **${post.title}**`,
+        link: `/posts/${postId}`,
+        actorId: userId,
+        workspaceId: post.workspaceId,
+      });
+    }
 
     return {
       id: comment.id,

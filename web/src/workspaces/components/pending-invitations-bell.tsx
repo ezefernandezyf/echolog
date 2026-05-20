@@ -3,8 +3,7 @@
 import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import { cn } from '../../shared/lib/cn';
-import { invitationsApi } from '../../core/api-client';
+import { invitationsApi, notificationsApi } from '../../core/api-client';
 
 export function PendingInvitationsBell() {
   const [open, setOpen] = useState(false);
@@ -12,9 +11,15 @@ export function PendingInvitationsBell() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: invitations = [], isLoading } = useQuery({
+  const { data: invitations = [] } = useQuery({
     queryKey: ['invitations', 'pending'],
     queryFn: invitationsApi.listMine,
+    refetchInterval: 30_000,
+  });
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications', 'unread'],
+    queryFn: notificationsApi.listUnread,
     refetchInterval: 30_000,
   });
 
@@ -35,14 +40,28 @@ export function PendingInvitationsBell() {
     },
   });
 
-  const count = invitations.length;
+  const markAsReadMutation = useMutation({
+    mutationFn: (id: string) => notificationsApi.markAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+    },
+  });
+
+  const markAllAsReadMutation = useMutation({
+    mutationFn: () => notificationsApi.markAllAsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+    },
+  });
+
+  const totalCount = invitations.length + notifications.length;
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        aria-label={`Notifications${count > 0 ? ` (${count} pending)` : ''}`}
+        aria-label={`Notifications${totalCount > 0 ? ` (${totalCount})` : ''}`}
         className="relative flex size-11 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
       >
         <svg
@@ -61,15 +80,9 @@ export function PendingInvitationsBell() {
           <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
         </svg>
 
-        {count > 0 ? (
+        {totalCount > 0 ? (
           <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold leading-none text-white ring-2 ring-card">
-            {count > 9 ? '9+' : count}
-          </span>
-        ) : null}
-
-        {isLoading ? (
-          <span className="absolute -right-1 -top-1 flex size-3 items-center justify-center">
-            <span className="size-2 animate-pulse rounded-full bg-zinc-400" />
+            {totalCount > 9 ? '9+' : totalCount}
           </span>
         ) : null}
       </button>
@@ -78,18 +91,60 @@ export function PendingInvitationsBell() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
           <div className="absolute bottom-full left-0 z-50 mb-2 w-80 animate-fade-in rounded-2xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-card">
-            <div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+            <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                Pending Invitations
+                Notifications
               </p>
+              {notifications.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => markAllAsReadMutation.mutate()}
+                  className="text-xs text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                >
+                  Mark all as read
+                </button>
+              ) : null}
             </div>
 
-            {invitations.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                No pending invitations
+            {/* System Notifications */}
+            {notifications.length > 0 ? (
+              <div className="max-h-48 space-y-0.5 overflow-y-auto px-2 py-2">
+                {notifications.map((notif) => (
+                  <button
+                    key={notif.id}
+                    type="button"
+                    onClick={() => {
+                      markAsReadMutation.mutate(notif.id);
+                      setOpen(false);
+                      if (notif.link) navigate(notif.link);
+                    }}
+                    className="flex w-full items-start gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
+                  >
+                    <span className="mt-0.5 size-2 shrink-0 rounded-full bg-blue-500" />
+                    <div className="min-w-0">
+                      <p className="text-sm text-zinc-800 dark:text-zinc-200">
+                        {notif.message}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-zinc-400 dark:text-zinc-500">
+                        {new Date(notif.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </button>
+                ))}
               </div>
-            ) : (
-              <div className="max-h-64 space-y-1 overflow-y-auto px-2 py-2">
+            ) : null}
+
+            {/* Separator */}
+            {notifications.length > 0 && invitations.length > 0 ? (
+              <div className="border-t border-zinc-100 dark:border-zinc-800" />
+            ) : null}
+
+            {/* Pending Invitations */}
+            {invitations.length > 0 ? (
+              <div className="max-h-48 space-y-1 overflow-y-auto px-2 py-2">
+                <p className="px-1 pb-1 text-[11px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                  Pending Invitations
+                </p>
                 {invitations.map((inv) => (
                   <div
                     key={inv.id}
@@ -127,15 +182,22 @@ export function PendingInvitationsBell() {
                   </div>
                 ))}
               </div>
-            )}
+            ) : null}
+
+            {/* Empty state */}
+            {totalCount === 0 ? (
+              <div className="px-4 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                No notifications
+              </div>
+            ) : null}
 
             <div className="border-t border-zinc-200 px-4 py-2.5 dark:border-zinc-700">
               <Link
-                to="/invitations"
+                to="/notifications"
                 className="block text-center text-xs text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                 onClick={() => setOpen(false)}
               >
-                View all invitations
+                View all notifications
               </Link>
             </div>
           </div>

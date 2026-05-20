@@ -14,6 +14,7 @@ import type {
   CreateWorkspaceDTO,
   InvitationDTO,
   MemberDTO,
+  NotificationDTO,
   PostDTO,
   PostListFilters,
   PostListResponse,
@@ -248,6 +249,15 @@ export const invitationsApi = {
   decline: (token: string) => fetchJson<void>({ url: `/invitations/${token}/decline`, method: 'POST' }),
   listPending: (workspaceId: string) => fetchJson<InvitationDTO[]>({ url: `/workspaces/${workspaceId}/invitations` }),
   listMine: createVoidFetcher<InvitationDTO[]>('GET', '/invitations/pending'),
+};
+
+export const notificationsApi = {
+  list: createVoidFetcher<NotificationDTO[]>('GET', '/notifications'),
+  listUnread: createVoidFetcher<NotificationDTO[]>('GET', '/notifications/unread'),
+  countUnread: createVoidFetcher<UnreadCountDTO>('GET', '/notifications/count'),
+  markAsRead: (notificationId: string) =>
+    fetchJson<void>({ url: `/notifications/${notificationId}/read`, method: 'PATCH' }),
+  markAllAsRead: createVoidFetcher<void>('PATCH', '/notifications/read-all'),
 };
 
 export { apiClient };
