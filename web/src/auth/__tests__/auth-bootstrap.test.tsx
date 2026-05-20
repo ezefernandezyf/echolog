@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, renderHook, cleanup } from '@testing-library/react';
+import { render, screen, waitFor, renderHook, cleanup, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -229,8 +229,8 @@ describe('LoginForm', () => {
     const emailInput = screen.getByLabelText('Email');
     const passwordInput = screen.getByLabelText('Password');
 
-    await user.type(emailInput, 'alice@echolog.dev');
-    await user.type(passwordInput, 'secret123');
+    fireEvent.change(emailInput, { target: { value: 'alice@echolog.dev' } });
+    fireEvent.change(passwordInput, { target: { value: 'secret123' } });
 
     const submitButton = screen.getByRole('button', { name: 'Sign in' });
     await user.click(submitButton);
@@ -257,8 +257,8 @@ describe('LoginForm', () => {
     const emailInput = screen.getByLabelText('Email');
     const passwordInput = screen.getByLabelText('Password');
 
-    await user.type(emailInput, 'wrong@example.com');
-    await user.type(passwordInput, 'wrong');
+    fireEvent.change(emailInput, { target: { value: 'wrong@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'wrong' } });
 
     const submitButton = screen.getByRole('button', { name: 'Sign in' });
     await user.click(submitButton);
