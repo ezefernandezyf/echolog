@@ -7,6 +7,6 @@ import { createCommentSchema } from '../../../shared/contracts/index.js';
 
 export const commentRouter = Router({ mergeParams: true });
 
-commentRouter.get('/', listComments);
-commentRouter.post('/', requireAuth, requirePostMember(), validate(createCommentSchema), createComment);
+commentRouter.get('/', requireAuth, requirePostMember(), listComments);
+commentRouter.post('/', requireAuth, requirePostMember(['OWNER', 'ADMIN', 'MEMBER']), validate(createCommentSchema), createComment);
 commentRouter.delete('/:commentId', requireAuth, requirePostMember(), deleteComment);

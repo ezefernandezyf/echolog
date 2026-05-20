@@ -142,6 +142,21 @@ export function Sidebar({
         </button>
         {workspaceId ? (
           <Link
+            to={`/w/${workspaceId}/members`}
+            onClick={onNavClick}
+            className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-500 tracking-[-0.01em] transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-800 dark:bg-card dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="size-4 shrink-0"
+            >
+              <path d="M7 8a3 3 0 100-6 3 3 0 000 6zm14 5a6 6 0 00-6-6h-4a6 6 0 00-6 6v2h16v-2z" />
+            </svg>
+            <span className="flex-1">Members</span>
+          </Link>
+          <Link
             to={`/w/${workspaceId}/settings`}
             onClick={onNavClick}
             className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-500 tracking-[-0.01em] transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-800 dark:bg-card dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"

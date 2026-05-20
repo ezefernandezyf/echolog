@@ -115,9 +115,12 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 7.2 Better login page ✅ — branded card layout with logo, centered form, dark mode
 - [x] 7.3 User settings page ✅ — `/settings` with profile name, email change, password change (3 endpoints, Zod validation)
 
-### Phase 8: Security & Membership 🔲
-- [ ] 8.1 Workspace membership middleware — enforce member-only access on all workspace-scoped API routes
-- [ ] 8.2 Board & post authorization — row-level permission checks for post status changes, board settings
+### Phase 8: Workspace Members & Roles 🔲
+- [ ] 8.1 Add VIEWER role + enforce permissions by role (read-only, member, admin, owner)
+- [ ] 8.2 Membership middleware — protect all workspace-scoped endpoints
+- [ ] 8.3 Invitation system — model + endpoints (create, accept, decline)
+- [ ] 8.4 Members UI — list, change role, remove member
+- [ ] 8.5 Invitation UI — invite form + accept page
 
 ### Phase 9: Deploy 🔲
 - [ ] 9.1 Neon.tech PostgreSQL database

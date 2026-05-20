@@ -212,6 +212,23 @@ export function WorkspaceSettingsPage() {
           </form>
         </section>
 
+        {/* Members */}
+        <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-card">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Members</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Manage workspace members, roles, and invitations.
+            </p>
+          </div>
+
+          <Link
+            to={`/w/${workspaceId}/members`}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-zinc-950 px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
+          >
+            Manage Members
+          </Link>
+        </section>
+
         {/* Danger Zone */}
         <section className="space-y-6 rounded-2xl border border-red-200 bg-white p-6 dark:border-red-900 dark:bg-card">
           <div className="space-y-1">

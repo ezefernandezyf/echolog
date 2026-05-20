@@ -10,7 +10,7 @@ export const postRouter = Router({ mergeParams: true });
 
 postRouter.get('/', requireAuth, requireBoardMember(), listPosts);
 postRouter.get('/:postId', requireAuth, requirePostMember(), getPostById);
-postRouter.post('/', requireAuth, requireBoardMember(), validate(createPostSchema), createPost);
+postRouter.post('/', requireAuth, requireBoardMember(['OWNER', 'ADMIN', 'MEMBER']), validate(createPostSchema), createPost);
 postRouter.patch(
   '/:postId/status',
   requireAuth,

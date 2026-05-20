@@ -79,7 +79,7 @@ export class CommentsService {
       },
     });
 
-    if (!membership || (membership.role !== 'ADMIN' && membership.role !== 'OWNER')) {
+    if (!membership || !['ADMIN', 'OWNER'].includes(membership.role)) {
       throw new HttpError('Forbidden', 403);
     }
 
