@@ -23,25 +23,13 @@ export class CommentsService {
   }
 
   async create(postId: string, input: CreateCommentDTO, userId: string): Promise<CommentDTO> {
-    // Resolve workspaceId and check membership
+    // Verify post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      select: { workspaceId: true },
+      select: { id: true },
     });
     if (!post) {
       throw new HttpError('Post not found', 404);
-    }
-
-    const membership = await prisma.workspaceMember.findUnique({
-      where: {
-        userId_workspaceId: {
-          userId,
-          workspaceId: post.workspaceId,
-        },
-      },
-    });
-    if (!membership) {
-      throw new HttpError('Forbidden', 403);
     }
 
     const comment = await prisma.comment.create({
