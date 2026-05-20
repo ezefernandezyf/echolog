@@ -115,20 +115,27 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 7.2 Better login page ✅ — branded card layout with logo, centered form, dark mode
 - [x] 7.3 User settings page ✅ — `/settings` with profile name, email change, password change (3 endpoints, Zod validation)
 
-### Phase 8: Workspace Members & Roles 🔲
-- [ ] 8.1 Add VIEWER role + enforce permissions by role (read-only, member, admin, owner)
-- [ ] 8.2 Membership middleware — protect all workspace-scoped endpoints
-- [ ] 8.3 Invitation system — model + endpoints (create, accept, decline)
-- [ ] 8.4 Members UI — list, change role, remove member
-- [ ] 8.5 Invitation UI — invite form + accept page
+### Phase 8: Workspace Members & Roles ✅
+- [x] 8.1 Add VIEWER role + enforce permissions by role (read-only, member, admin, owner)
+- [x] 8.2 Membership middleware — protect all workspace-scoped endpoints
+- [x] 8.3 Invitation system — model + endpoints (create, accept, decline)
+- [x] 8.4 Members UI — list, change role, remove member
+- [x] 8.5 Invitation UI — invite form + accept page
+- [x] 8.6 Pending invitations bell — endpoint + bell icon with badge + dropdown to accept/decline
 
-### Phase 9: Deploy 🔲
-- [ ] 9.1 Neon.tech PostgreSQL database
-- [ ] 9.2 Backend deploy (Render/Railway)
-- [ ] 9.3 Frontend deploy (Vercel)
-- [x] 9.4 CI/CD pipeline ✅ (GitHub Actions: lint, type-check, test on PR + push to main)
-- [ ] 9.5 README with setup, architecture, and deploy instructions
+### Phase 9: In-App Notifications 🔲
+- [ ] 9.1 Notification model — Prisma schema with type, message, read status, created at, user/workspace relations
+- [ ] 9.2 Create notifications on: invite sent, role changed, comment on post
+- [ ] 9.3 Notification bell with unread badge + dropdown (read/unread states)
+- [ ] 9.4 Mark as read + notification history page
 
-### Phase 10: Growth Features (post-deploy) 🔲
-- [ ] 10.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
-- [ ] 10.2 Public workspace discovery & invitations — workspace visibility enum + public feed + popularity ranking + invite/approval system
+### Phase 10: Deploy 🔲
+- [ ] 10.1 Neon.tech PostgreSQL database
+- [ ] 10.2 Backend deploy (Render/Railway)
+- [ ] 10.3 Frontend deploy (Vercel)
+- [x] 10.4 CI/CD pipeline ✅ (GitHub Actions: lint, type-check, test on PR + push to main)
+- [ ] 10.5 README with setup, architecture, and deploy instructions
+
+### Phase 11: Growth Features (post-deploy) 🔲
+- [ ] 11.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
+- [ ] 11.2 Public workspace discovery & invitations — workspace visibility enum + public feed + popularity ranking + invite/approval system
