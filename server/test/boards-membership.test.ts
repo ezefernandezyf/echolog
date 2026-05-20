@@ -50,6 +50,29 @@ describe('boards membership hardening', () => {
     expect(listRes.status).toBe(403);
   });
 
+  it('returns 200 when listing boards as a workspace member', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const agent = request.agent(app);
+
+    // Register and create workspace (becomes OWNER = member)
+    await agent.post('/api/auth/register').send({
+      email: `member-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Member User',
+    });
+    const wsRes = await agent.post('/api/workspaces').send({ name: 'Member List WS' });
+    const workspaceId: string = wsRes.body.id;
+
+    // Create a board so the workspace has content
+    await agent.post(`/api/workspaces/${workspaceId}/boards`).send({ name: 'General' });
+
+    // List boards as member → 200
+    const listRes = await agent.get(`/api/workspaces/${workspaceId}/boards`);
+    expect(listRes.status).toBe(200);
+    expect(Array.isArray(listRes.body)).toBe(true);
+    expect(listRes.body.length).toBeGreaterThanOrEqual(1);
+  });
+
   it('returns 403 when creating board as non-member', async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
 

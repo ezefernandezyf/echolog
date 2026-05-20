@@ -36,6 +36,34 @@ describe('posts membership hardening', () => {
     expect(listRes.status).toBe(403);
   });
 
+  it('returns 200 when member gets post by id', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+
+    // Owner (member) creates workspace + board + post
+    const agent = request.agent(app);
+    await agent.post('/api/auth/register').send({
+      email: `member-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Member',
+    });
+    const wsRes = await agent.post('/api/workspaces').send({ name: 'Post Member WS' });
+    const workspaceId: string = wsRes.body.id;
+    const boardRes = await agent
+      .post(`/api/workspaces/${workspaceId}/boards`)
+      .send({ name: 'General' });
+    const boardId: string = boardRes.body.id;
+    const postRes = await agent
+      .post(`/api/boards/${boardId}/posts`)
+      .send({ title: 'Member Post', body: 'Visible to members' });
+    const postId: string = postRes.body.id;
+
+    // Member gets post by id → 200
+    const getRes = await agent.get(`/api/posts/${postId}`);
+    expect(getRes.status).toBe(200);
+    expect(getRes.body.id).toBe(postId);
+    expect(getRes.body.title).toBe('Member Post');
+  });
+
   it('returns 403 when getting post by id as non-member', async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
 
