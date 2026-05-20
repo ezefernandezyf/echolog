@@ -66,7 +66,7 @@ export class BoardsService {
     const membership = await prisma.workspaceMember.findUnique({
       where: { userId_workspaceId: { userId, workspaceId: board.workspaceId } },
     });
-    if (!membership || membership.role === 'MEMBER') {
+    if (!membership || !['OWNER', 'ADMIN'].includes(membership.role)) {
       throw new HttpError('Forbidden', 403);
     }
 
@@ -112,7 +112,7 @@ export class BoardsService {
     const membership = await prisma.workspaceMember.findUnique({
       where: { userId_workspaceId: { userId, workspaceId: board.workspaceId } },
     });
-    if (!membership || membership.role === 'MEMBER') {
+    if (!membership || !['OWNER', 'ADMIN'].includes(membership.role)) {
       throw new HttpError('Forbidden', 403);
     }
 
