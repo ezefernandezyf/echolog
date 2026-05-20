@@ -1,4 +1,5 @@
-export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
+export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED';
 
 export interface AuthUserDTO {
   id: string;
@@ -124,4 +125,33 @@ export interface UpdatePasswordDTO {
 
 export interface UpdateProfileResult {
   user: AuthUserDTO;
+}
+
+export interface MemberDTO {
+  userId: string;
+  workspaceId: string;
+  role: WorkspaceRole;
+  name: string | null;
+  email: string;
+  joinedAt: string;
+}
+
+export interface InvitationDTO {
+  id: string;
+  workspaceId: string;
+  workspaceName: string;
+  invitedEmail: string;
+  role: WorkspaceRole;
+  status: InvitationStatus;
+  token: string;
+  expiresAt: string;
+}
+
+export interface CreateInvitationDTO {
+  email: string;
+  role?: WorkspaceRole;
+}
+
+export interface ChangeRoleDTO {
+  role: WorkspaceRole;
 }

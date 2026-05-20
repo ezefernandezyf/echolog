@@ -87,3 +87,12 @@ export const updatePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
   newPassword: z.string().min(8, 'Password must be at least 8 characters'),
 });
+
+export const createInvitationSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  role: z.enum(['ADMIN', 'MEMBER', 'VIEWER']).default('MEMBER'),
+});
+
+export const changeRoleSchema = z.object({
+  role: z.enum(['ADMIN', 'MEMBER', 'VIEWER']),
+});
