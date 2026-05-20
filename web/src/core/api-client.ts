@@ -12,6 +12,8 @@ import type {
   CreateBoardDTO,
   CreatePostDTO,
   CreateWorkspaceDTO,
+  InvitationDTO,
+  MemberDTO,
   PostDTO,
   PostListFilters,
   PostListResponse,
@@ -22,6 +24,7 @@ import type {
   UpdateProfileResult,
   UpdateWorkspaceDTO,
   WorkspaceDTO,
+  WorkspaceRole,
   CommentDTO,
   CreateCommentDTO,
 } from '../../../shared/contracts/index.js';
@@ -219,6 +222,31 @@ export const commentApi = {
     }),
   delete: (postId: string, commentId: string) =>
     fetchJson<void>({ url: `/posts/${postId}/comments/${commentId}`, method: 'DELETE' }),
+};
+
+export const membersApi = {
+  list: (workspaceId: string) => fetchJson<MemberDTO[]>({ url: `/workspaces/${workspaceId}/members` }),
+  changeRole: (workspaceId: string, userId: string, role: WorkspaceRole) =>
+    fetchJson<MemberDTO, { role: WorkspaceRole }>({
+      url: `/workspaces/${workspaceId}/members/${userId}`,
+      method: 'PATCH',
+      data: { role },
+    }),
+  remove: (workspaceId: string, userId: string) =>
+    fetchJson<void>({ url: `/workspaces/${workspaceId}/members/${userId}`, method: 'DELETE' }),
+};
+
+export const invitationsApi = {
+  create: (workspaceId: string, data: { invitedEmail: string; role: WorkspaceRole }) =>
+    fetchJson<InvitationDTO, { invitedEmail: string; role: WorkspaceRole }>({
+      url: `/workspaces/${workspaceId}/invitations`,
+      method: 'POST',
+      data,
+    }),
+  getByToken: (token: string) => fetchJson<InvitationDTO>({ url: `/invitations/${token}` }),
+  accept: (token: string) => fetchJson<MemberDTO>({ url: `/invitations/${token}/accept`, method: 'POST' }),
+  decline: (token: string) => fetchJson<void>({ url: `/invitations/${token}/decline`, method: 'POST' }),
+  listPending: (workspaceId: string) => fetchJson<InvitationDTO[]>({ url: `/workspaces/${workspaceId}/invitations` }),
 };
 
 export { apiClient };
