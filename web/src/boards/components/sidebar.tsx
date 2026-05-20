@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { ThemeToggle } from '../../shared/components/theme-toggle';
+import { PendingInvitationsBell } from '../../workspaces/components/pending-invitations-bell';
 import { useUiStore } from '../../core/store/ui-store';
 
 function getUserInitials(name: string | null, email: string): string {
@@ -222,8 +223,9 @@ export function Sidebar({
       </nav>
 
       <div className="border-t border-zinc-200 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] dark:border-zinc-800">
-        <div className="mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <ThemeToggle />
+          <PendingInvitationsBell />
         </div>
 
         <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">

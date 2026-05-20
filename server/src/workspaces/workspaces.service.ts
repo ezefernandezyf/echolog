@@ -279,6 +279,34 @@ export class WorkspacesService {
     });
   }
 
+  async listPendingInvitations(userId: string): Promise<InvitationDTO[]> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new HttpError('User not found', 404);
+    }
+
+    const invitations = await prisma.workspaceInvitation.findMany({
+      where: {
+        invitedEmail: user.email,
+        status: 'PENDING',
+        expiresAt: { gt: new Date() },
+      },
+      include: { workspace: { select: { name: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return invitations.map((inv) => ({
+      id: inv.id,
+      workspaceId: inv.workspaceId,
+      workspaceName: inv.workspace.name,
+      invitedEmail: inv.invitedEmail,
+      role: inv.role as WorkspaceRole,
+      status: inv.status as InvitationStatus,
+      token: inv.token,
+      expiresAt: inv.expiresAt.toISOString(),
+    }));
+  }
+
   async listWorkspaceInvitations(workspaceId: string): Promise<InvitationDTO[]> {
     const invitations = await prisma.workspaceInvitation.findMany({
       where: { workspaceId },

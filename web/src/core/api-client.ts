@@ -247,6 +247,7 @@ export const invitationsApi = {
   accept: (token: string) => fetchJson<MemberDTO>({ url: `/invitations/${token}/accept`, method: 'POST' }),
   decline: (token: string) => fetchJson<void>({ url: `/invitations/${token}/decline`, method: 'POST' }),
   listPending: (workspaceId: string) => fetchJson<InvitationDTO[]>({ url: `/workspaces/${workspaceId}/invitations` }),
+  listMine: createVoidFetcher<InvitationDTO[]>('GET', '/invitations/pending'),
 };
 
 export { apiClient };
