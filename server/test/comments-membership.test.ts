@@ -174,6 +174,52 @@ describe('comments membership hardening', () => {
     expect(deleteRes.body.success).toBe(true);
   });
 
+  it('returns 201 when member creates a comment', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+
+    // Owner creates workspace
+    const ownerAgent = request.agent(app);
+    await ownerAgent.post('/api/auth/register').send({
+      email: `owner-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Owner',
+    });
+    const wsRes = await ownerAgent.post('/api/workspaces').send({ name: 'Member Comment WS' });
+    const workspaceId: string = wsRes.body.id;
+
+    // Register another user (member) and add them to workspace
+    const memberAgent = request.agent(app);
+    const regRes = await memberAgent.post('/api/auth/register').send({
+      email: `member-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Member',
+    });
+    const memberId: string = regRes.body.user.id;
+
+    // Add member to workspace via prisma
+    await prisma.workspaceMember.create({
+      data: { userId: memberId, workspaceId, role: 'MEMBER' },
+    });
+
+    // Owner creates board + post
+    const boardRes = await ownerAgent
+      .post(`/api/workspaces/${workspaceId}/boards`)
+      .send({ name: 'General' });
+    const boardId: string = boardRes.body.id;
+    const postRes = await ownerAgent
+      .post(`/api/boards/${boardId}/posts`)
+      .send({ title: 'Post', body: 'Testing member comment creation' });
+    const postId: string = postRes.body.id;
+
+    // Member creates a comment → 201
+    const commentRes = await memberAgent
+      .post(`/api/posts/${postId}/comments`)
+      .send({ body: 'Member comment from the people' });
+    expect(commentRes.status).toBe(201);
+    expect(commentRes.body.body).toBe('Member comment from the people');
+    expect(commentRes.body.id).toBeDefined();
+  });
+
   it('returns 403 when non-privileged user tries to delete another user\'s comment', async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
 

@@ -97,6 +97,40 @@ describe('votes membership hardening', () => {
     expect(removeRes.status).toBe(403);
   });
 
+  it('returns 200 when member adds a vote', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const agent = request.agent(app);
+
+    // Register user (becomes OWNER = member)
+    await agent.post('/api/auth/register').send({
+      email: `voter-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Voter',
+    });
+
+    // Create workspace
+    const wsRes = await agent.post('/api/workspaces').send({ name: 'Vote Member Add WS' });
+    const workspaceId: string = wsRes.body.id;
+
+    // Create board
+    const boardRes = await agent
+      .post(`/api/workspaces/${workspaceId}/boards`)
+      .send({ name: 'General' });
+    const boardId: string = boardRes.body.id;
+
+    // Create post
+    const postRes = await agent
+      .post(`/api/boards/${boardId}/posts`)
+      .send({ title: 'Vote Test', body: 'Testing vote add by member' });
+    const postId: string = postRes.body.id;
+
+    // Cast vote as member → 200
+    const voteRes = await agent.post(`/api/posts/${postId}/vote`);
+    expect(voteRes.status).toBe(200);
+    expect(voteRes.body.voted).toBe(true);
+    expect(voteRes.body.voteCount).toBeGreaterThanOrEqual(1);
+  });
+
   it('returns 200 when member removes their vote', async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
     const agent = request.agent(app);
