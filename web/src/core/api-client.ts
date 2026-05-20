@@ -237,8 +237,8 @@ export const membersApi = {
 };
 
 export const invitationsApi = {
-  create: (workspaceId: string, data: { invitedEmail: string; role: WorkspaceRole }) =>
-    fetchJson<InvitationDTO, { invitedEmail: string; role: WorkspaceRole }>({
+  create: (workspaceId: string, data: { email: string; role?: WorkspaceRole }) =>
+    fetchJson<InvitationDTO, { email: string; role?: WorkspaceRole }>({
       url: `/workspaces/${workspaceId}/invitations`,
       method: 'POST',
       data,

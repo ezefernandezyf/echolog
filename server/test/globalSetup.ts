@@ -5,6 +5,7 @@ export async function setup() {
 
   try {
     // Delete in reverse dependency order to respect foreign keys
+    await prisma.workspaceInvitation.deleteMany();
     await prisma.vote.deleteMany();
     await prisma.comment.deleteMany();
     await prisma.post.deleteMany();
