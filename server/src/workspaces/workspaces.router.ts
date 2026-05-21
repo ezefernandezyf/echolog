@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { boardRouter } from '../boards/boards.router.js';
 import {
+  cancelInvitation,
   changeMemberRole,
   createInvitation,
   createWorkspace,
@@ -58,4 +59,10 @@ workspaceRouter.post(
   requireAdminOrOwner,
   validate(createInvitationSchema),
   createInvitation,
+);
+workspaceRouter.delete(
+  '/:workspaceId/invitations/:invitationId',
+  requireAuth,
+  requireAdminOrOwner,
+  cancelInvitation,
 );

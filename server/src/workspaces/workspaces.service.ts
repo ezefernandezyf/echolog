@@ -293,6 +293,25 @@ export class WorkspacesService {
     });
   }
 
+  async cancelInvitation(workspaceId: string, invitationId: string, _userId: string): Promise<void> {
+    const invitation = await prisma.workspaceInvitation.findFirst({
+      where: { id: invitationId, workspaceId },
+    });
+
+    if (!invitation) {
+      throw new HttpError('Invitation not found', 404);
+    }
+
+    if (invitation.status !== 'PENDING') {
+      throw new HttpError('Cannot cancel an invitation that is not pending', 409);
+    }
+
+    await prisma.workspaceInvitation.update({
+      where: { id: invitationId },
+      data: { status: 'CANCELLED' },
+    });
+  }
+
   async listPendingInvitations(userId: string): Promise<InvitationDTO[]> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {

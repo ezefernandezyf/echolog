@@ -15,6 +15,7 @@ import type {
   InvitationDTO,
   MemberDTO,
   NotificationDTO,
+  UnreadCountDTO,
   PostDTO,
   PostListFilters,
   PostListResponse,
@@ -247,6 +248,8 @@ export const invitationsApi = {
   getByToken: (token: string) => fetchJson<InvitationDTO>({ url: `/invitations/${token}` }),
   accept: (token: string) => fetchJson<MemberDTO>({ url: `/invitations/${token}/accept`, method: 'POST' }),
   decline: (token: string) => fetchJson<void>({ url: `/invitations/${token}/decline`, method: 'POST' }),
+  cancel: (workspaceId: string, invitationId: string) =>
+    fetchJson<void>({ url: `/workspaces/${workspaceId}/invitations/${invitationId}`, method: 'DELETE' }),
   listPending: (workspaceId: string) => fetchJson<InvitationDTO[]>({ url: `/workspaces/${workspaceId}/invitations` }),
   listMine: createVoidFetcher<InvitationDTO[]>('GET', '/invitations/pending'),
 };
