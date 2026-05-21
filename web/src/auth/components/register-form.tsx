@@ -5,7 +5,17 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import type { AuthSessionDTO } from '../../../../shared/contracts/index.js';
-import { authRegisterSchema } from '../../../../shared/contracts/index.js';
+import { authRegisterSchema as sharedRegisterSchema } from '../../../../shared/contracts/index.js';
+
+// Extend the shared schema with confirmPassword validation (frontend-only)
+const authRegisterSchema = sharedRegisterSchema
+  .extend({
+    confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 import { authApi } from '../../core/api-client';
 import type { ApiError } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
@@ -129,6 +139,29 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           {errors.password ? (
             <p id="register-password-error" role="alert" className="text-sm text-red-600">
               {errors.password.message}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="register-confirm-password"
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+          >
+            Confirm password
+          </label>
+          <Input
+            id="register-confirm-password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Repeat your password"
+            aria-describedby={errors.confirmPassword ? 'register-confirm-password-error' : undefined}
+            aria-invalid={errors.confirmPassword ? true : undefined}
+            {...register('confirmPassword')}
+          />
+          {errors.confirmPassword ? (
+            <p id="register-confirm-password-error" role="alert" className="text-sm text-red-600">
+              {errors.confirmPassword.message}
             </p>
           ) : null}
         </div>
