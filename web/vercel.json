@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm run build:web",
+  "buildCommand": "pnpm run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
