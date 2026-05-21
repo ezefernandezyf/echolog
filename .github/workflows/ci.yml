@@ -9,8 +9,22 @@ on:
 jobs:
   backend-ci:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: echolog-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: 'file:./dev.db'
+      DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/echolog-test'
       JWT_SECRET: 'ci-test-secret'
       NODE_ENV: test
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
