@@ -136,6 +136,21 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 10.4 CI/CD pipeline ✅ (GitHub Actions: lint, type-check, test on PR + push to main)
 - [ ] 10.5 README with setup, architecture, and deploy instructions
 
-### Phase 11: Growth Features (post-deploy) 🔲
-- [ ] 11.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
-- [ ] 11.2 Public workspace discovery & invitations — workspace visibility enum + public feed + popularity ranking + invite/approval system
+### Phase 11: Architecture Hardening (v1.1) 🔲
+- [ ] 11.1 **Shared Zod schemas** — migrate DTOs from TS interfaces to Zod schemas in `shared/contracts/`, derive types via `z.infer<typeof schema>`, single source of truth for frontend form validation + backend request validation
+- [ ] 11.2 **Split api-client.ts into domain modules** — `api/workspaces.ts`, `api/boards.ts`, `api/auth.ts`, `api/invitations.ts`, `api/notifications.ts` + create React Query data hooks layer (`useCancelInvitation`, `useCreateBoard`, etc.) so components never call the API client directly
+- [ ] 11.3 **Refactor authenticated-layout.tsx** — split into `SidebarContainer` (workspace/board queries + loading/error states), `MobileHeader` (hamburger + branding), and `AuthenticatedLayout` (orchestration only)
+
+### Phase 12: Production Hardening (v1.1) 🔲
+- [ ] 12.1 **Rate limiting** — `express-rate-limit` on auth (login/register brute-force), invitations (spam), votes (abuse); different limits per route
+- [ ] 12.2 **Structured logging** — replace `console.log/error` with `pino`, add request ID middleware for tracing, proper log levels (info/warn/error), error serialization with stack traces
+- [ ] 12.3 **Expand test coverage** — direct service unit tests for `workspaces.service.ts` (create/update/delete/members/invitations), UI component tests for invitations/members/settings flows, error/edge case coverage for all mutations
+
+### Phase 13: Email Service (v1.1) 🔲
+- [ ] 13.1 **Email provider integration** (Resend) — transactional email client with templating, delivery status tracking, graceful failure fallback
+- [ ] 13.2 **Email templates** — invitation email with token link + workspace name, welcome email on registration or first workspace creation
+- [ ] 13.3 **Wire email into invitation flow** — send invitation email when invite is created, notify on role changes, handle delivery failures with user-visible errors
+
+### Phase 14: Growth Features (post-v1.1) 🔲
+- [ ] 14.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
+- [ ] 14.2 Public workspace discovery & invitations — workspace visibility enum + public feed + popularity ranking + invite/approval system
