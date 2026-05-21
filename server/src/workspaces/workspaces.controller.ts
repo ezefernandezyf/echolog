@@ -57,6 +57,15 @@ export const declineInvitation = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
+export const cancelInvitation = async (req: Request, res: Response) => {
+  await workspacesService.cancelInvitation(
+    req.params.workspaceId as string,
+    req.params.invitationId as string,
+    req.userId!,
+  );
+  res.status(204).send();
+};
+
 export const listPendingInvitations = async (req: Request, res: Response) => {
   const data = await workspacesService.listPendingInvitations(req.userId!);
   res.status(200).json(data);
