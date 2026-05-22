@@ -1,0 +1,10 @@
+.git
+.gitignore
+node_modules
+web/
+e2e/
+server/node_modules
+server/dist
+*.md
+.env
+.env.*
