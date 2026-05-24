@@ -151,6 +151,14 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [ ] 13.2 **Email templates** — invitation email with token link + workspace name, welcome email on registration or first workspace creation
 - [ ] 13.3 **Wire email into invitation flow** — send invitation email when invite is created, notify on role changes, handle delivery failures with user-visible errors
 
-### Phase 14: Growth Features (post-v1.1) 🔲
-- [ ] 14.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
-- [ ] 14.2 Public workspace discovery & invitations — workspace visibility enum + public feed + popularity ranking + invite/approval system
+### Phase 14: Public Workspaces & Discovery (v1.1) 🔲
+- [ ] 14.1 **Workspace visibility enum** — `PUBLIC | PRIVATE` field on Workspace model, only owner can change
+- [ ] 14.2 **Public access levels** — owner-configurable: `FULL` (view + vote + comment + create boards), `INTERACT` (view + vote + comment), `READ_ONLY` (view only)
+- [ ] 14.3 **Public workspace lobby** — discoverable public workspace feed (popular/recent), accessible without login
+- [ ] 14.4 **"Continue without account"** — option on landing page that shows public workspace lobby with limited interactions based on access level
+- [ ] 14.5 **Public workspace API** — public endpoints for listing and viewing workspace content without auth, with membership middleware bypass for public workspaces
+
+### Phase 15: Growth Features (post-v1.1) 🔲
+- [ ] 15.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
+- [ ] 15.2 Public workspace popularity ranking — trending/sort by votes, comments, activity
+- [ ] 15.3 Invite/approval system for private workspaces
