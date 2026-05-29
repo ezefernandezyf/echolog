@@ -123,42 +123,53 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 8.5 Invitation UI — invite form + accept page
 - [x] 8.6 Pending invitations bell — endpoint + bell icon with badge + dropdown to accept/decline
 
-### Phase 9: In-App Notifications 🔲
-- [ ] 9.1 Notification model — Prisma schema with type, message, read status, created at, user/workspace relations
-- [ ] 9.2 Create notifications on: invite sent, role changed, comment on post
-- [ ] 9.3 Notification bell with unread badge + dropdown (read/unread states)
-- [ ] 9.4 Mark as read + notification history page
+### Phase 9: In-App Notifications ✅
+- [x] 9.1 Notification model ✅ — Prisma schema with NotificationType enum (INVITE_SENT, ROLE_CHANGED, NEW_COMMENT), user/workspace/actor relations, read status, timestamps
+- [x] 9.2 Create notifications automatically ✅ — wired into invite send, role change, and comment creation service methods
+- [x] 9.3 Notification bell with unread badge ✅ — sidebar bell icon with badge count + dropdown (read/unread states, action buttons)
+- [x] 9.4 Mark as read + notification history page ✅ — `/notifications` page with full history, mark-read button, unread count endpoint
 
-### Phase 10: Deploy 🔲
-- [ ] 10.1 Neon.tech PostgreSQL database
-- [ ] 10.2 Backend deploy (Render/Railway)
-- [ ] 10.3 Frontend deploy (Vercel)
-- [x] 10.4 CI/CD pipeline ✅ (GitHub Actions: lint, type-check, test on PR + push to main)
-- [ ] 10.5 README with setup, architecture, and deploy instructions
+### Phase 10: Deploy ✅
+- [x] 10.1 Neon.tech PostgreSQL database ✅ — production database with connection pooling
+- [x] 10.2 Backend deploy ✅ — Fly.io with Dockerfile, health check, auto-deploy on push to main
+- [x] 10.3 Frontend deploy ✅ — Vercel with API proxy rewrites, custom build command
+- [x] 10.4 CI/CD pipeline ✅ — GitHub Actions: lint, type-check, test on PR + push to main
+- [x] 10.5 README ✅ — comprehensive docs with local dev, deploy, and architecture sections
 
-### Phase 11: Architecture Hardening (v1.1) 🔲
-- [ ] 11.1 **Shared Zod schemas** — migrate DTOs from TS interfaces to Zod schemas in `shared/contracts/`, derive types via `z.infer<typeof schema>`, single source of truth for frontend form validation + backend request validation
-- [ ] 11.2 **Split api-client.ts into domain modules** — `api/workspaces.ts`, `api/boards.ts`, `api/auth.ts`, `api/invitations.ts`, `api/notifications.ts` + create React Query data hooks layer (`useCancelInvitation`, `useCreateBoard`, etc.) so components never call the API client directly
-- [ ] 11.3 **Refactor authenticated-layout.tsx** — split into `SidebarContainer` (workspace/board queries + loading/error states), `MobileHeader` (hamburger + branding), and `AuthenticatedLayout` (orchestration only)
+### Phase 11: Visual Redesign (v1.1) 🔲
+> Applying `portfolio-personality` design system for distinctive visual identity — breaking free from generic SaaS "distributional convergence".
 
-### Phase 12: Production Hardening (v1.1) 🔲
-- [ ] 12.1 **Rate limiting** — `express-rate-limit` on auth (login/register brute-force), invitations (spam), votes (abuse); different limits per route
-- [ ] 12.2 **Structured logging** — replace `console.log/error` with `pino`, add request ID middleware for tracing, proper log levels (info/warn/error), error serialization with stack traces
-- [ ] 12.3 **Expand test coverage** — direct service unit tests for `workspaces.service.ts` (create/update/delete/members/invitations), UI component tests for invitations/members/settings flows, error/edge case coverage for all mutations
+- [ ] 11.1 **Design system foundation** — color tokens (primary, accent, surface, semantic), typography scale (brand + UI fonts), spacing/sizing tokens, shadow/elevation system, border-radius scale, transition durations
+- [ ] 11.2 **Component library redesign** — buttons (primary/secondary/ghost/destructive with hover states), cards (surface elevation, interactive states), inputs (focus rings, validation states), modals (backdrop blur, enter/exit animations), badges (status colors, dot variants), skeletons (shimmer animation)
+- [ ] 11.3 **Layout & navigation redesign** — sidebar (collapsed/expanded states, brand mark, active indicators), mobile header (bottom sheet nav, gesture-friendly), authenticated shell (consistent spacing, breadcrumbs), workspace hub (card grid with hover effects)
+- [ ] 11.4 **Landing & auth pages redesign** — hero section (gradient, illustration, CTA hierarchy), features grid (icon + description cards), login/register (branded card, social proof, dark mode polish)
+- [ ] 11.5 **Micro-interactions & animations** — vote button pulse/confetti, toast enter/exit (spring physics), modal open/close (scale + fade), sidebar expand/collapse (smooth width), page transitions, loading shimmer, card hover lift
+- [ ] 11.6 **WCAG 2.2 AA accessibility upgrade** — focus-visible indicators (2.4.7), target size 24px minimum (2.5.8), consistent help placement (3.2.6), accessible authentication (3.3.7), redundant entry (3.3.7), reduced motion alternatives for all animations
+- [ ] 11.7 **Design system documentation** — component catalog with usage guidelines, token reference, accessibility annotations, responsive behavior docs
 
-### Phase 13: Email Service (v1.1) 🔲
-- [ ] 13.1 **Email provider integration** (Resend) — transactional email client with templating, delivery status tracking, graceful failure fallback
-- [ ] 13.2 **Email templates** — invitation email with token link + workspace name, welcome email on registration or first workspace creation
-- [ ] 13.3 **Wire email into invitation flow** — send invitation email when invite is created, notify on role changes, handle delivery failures with user-visible errors
+### Phase 12: Architecture Hardening (v1.1) 🔲
+- [ ] 12.1 **Shared Zod schemas** — migrate DTOs from TS interfaces to Zod schemas in `shared/contracts/`, derive types via `z.infer<typeof schema>`, single source of truth for frontend form validation + backend request validation
+- [ ] 12.2 **Split api-client.ts into domain modules** — `api/workspaces.ts`, `api/boards.ts`, `api/auth.ts`, `api/invitations.ts`, `api/notifications.ts` + create React Query data hooks layer (`useCancelInvitation`, `useCreateBoard`, etc.) so components never call the API client directly
+- [ ] 12.3 **Refactor authenticated-layout.tsx** — split into `SidebarContainer` (workspace/board queries + loading/error states), `MobileHeader` (hamburger + branding), and `AuthenticatedLayout` (orchestration only)
 
-### Phase 14: Public Workspaces & Discovery (v1.1) 🔲
-- [ ] 14.1 **Workspace visibility enum** — `PUBLIC | PRIVATE` field on Workspace model, only owner can change
-- [ ] 14.2 **Public access levels** — owner-configurable: `FULL` (view + vote + comment + create boards), `INTERACT` (view + vote + comment), `READ_ONLY` (view only)
-- [ ] 14.3 **Public workspace lobby** — discoverable public workspace feed (popular/recent), accessible without login
-- [ ] 14.4 **"Continue without account"** — option on landing page that shows public workspace lobby with limited interactions based on access level
-- [ ] 14.5 **Public workspace API** — public endpoints for listing and viewing workspace content without auth, with membership middleware bypass for public workspaces
+### Phase 13: Production Hardening (v1.1) 🔲
+- [ ] 13.1 **Rate limiting** — `express-rate-limit` on auth (login/register brute-force), invitations (spam), votes (abuse); different limits per route
+- [ ] 13.2 **Structured logging** — replace `console.log/error` with `pino`, add request ID middleware for tracing, proper log levels (info/warn/error), error serialization with stack traces
+- [ ] 13.3 **Expand test coverage** — direct service unit tests for `workspaces.service.ts` (create/update/delete/members/invitations), UI component tests for invitations/members/settings flows, error/edge case coverage for all mutations
 
-### Phase 15: Growth Features (post-v1.1) 🔲
-- [ ] 15.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
-- [ ] 15.2 Public workspace popularity ranking — trending/sort by votes, comments, activity
-- [ ] 15.3 Invite/approval system for private workspaces
+### Phase 14: Email Service (v1.1) 🔲
+- [ ] 14.1 **Email provider integration** (Resend) — transactional email client with templating, delivery status tracking, graceful failure fallback
+- [ ] 14.2 **Email templates** — invitation email with token link + workspace name, welcome email on registration or first workspace creation
+- [ ] 14.3 **Wire email into invitation flow** — send invitation email when invite is created, notify on role changes, handle delivery failures with user-visible errors
+
+### Phase 15: Public Workspaces & Discovery (v1.1) 🔲
+- [ ] 15.1 **Workspace visibility enum** — `PUBLIC | PRIVATE` field on Workspace model, only owner can change
+- [ ] 15.2 **Public access levels** — owner-configurable: `FULL` (view + vote + comment + create boards), `INTERACT` (view + vote + comment), `READ_ONLY` (view only)
+- [ ] 15.3 **Public workspace lobby** — discoverable public workspace feed (popular/recent), accessible without login
+- [ ] 15.4 **"Continue without account"** — option on landing page that shows public workspace lobby with limited interactions based on access level
+- [ ] 15.5 **Public workspace API** — public endpoints for listing and viewing workspace content without auth, with membership middleware bypass for public workspaces
+
+### Phase 16: Growth Features (post-v1.1) 🔲
+- [ ] 16.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
+- [ ] 16.2 Public workspace popularity ranking — trending/sort by votes, comments, activity
+- [ ] 16.3 Invite/approval system for private workspaces
