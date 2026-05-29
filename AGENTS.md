@@ -19,7 +19,7 @@
 - **Database**: Prisma with composite keys for tenant isolation (`@@unique([workspaceId, slug])`)
 
 ## Conventions
-- Conventional Commits: `feat(scope):`, `fix(scope):`, `chore:`, `docs:`, `test(scope):`
+- Conventional Commits: `feat(scope):`, `fix(scope):`, `chore:`, `docs:`, `test(scope):` — **título en inglés, descripción en español**
 - React 19: no useMemo/useCallback (compiler handles it), named imports only
 - TypeScript: strict mode, never `any`, `as const` pattern for string literals
 - Never build after changes, never add "Co-Authored-By" to commits
