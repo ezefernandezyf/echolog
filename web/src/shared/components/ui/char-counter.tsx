@@ -14,7 +14,7 @@ export function CharCounter({ current, max, showAt = 0.75, className }: CharCoun
     ratio >= 1
       ? 'text-destructive'
       : ratio >= 0.9
-        ? 'text-amber-500'
+        ? 'text-warning'
         : 'text-muted-foreground';
 
   return (
