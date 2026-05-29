@@ -58,16 +58,16 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
     <Modal open={open} onClose={closeModal} aria-label="Create Board">
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
             EchoLog
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
             Create Board
           </h2>
         </div>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Board Name</span>
+          <span className="text-sm font-medium text-secondary-foreground">Board Name</span>
           <Input
             id="create-board-name"
             placeholder="Feature Requests"
@@ -78,18 +78,18 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
             {...register('name')}
           />
           {name.trim() ? (
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
+            <p className="text-xs text-muted-foreground">Slug: {slugify(name)}</p>
           ) : null}
           <CharCounter current={name.length} max={120} />
           {errors.name ? (
-            <p id="create-board-name-error" role="alert" className="text-sm text-red-600">
+            <p id="create-board-name-error" role="alert" className="text-sm text-destructive">
               {errors.name.message}
             </p>
           ) : null}
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <span className="text-sm font-medium text-secondary-foreground">
             Description (optional)
           </span>
           <Input
@@ -102,7 +102,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
           />
           <CharCounter current={description?.length ?? 0} max={500} />
           {errors.description ? (
-            <p id="create-board-description-error" role="alert" className="text-sm text-red-600">
+            <p id="create-board-description-error" role="alert" className="text-sm text-destructive">
               {errors.description.message}
             </p>
           ) : null}
@@ -114,7 +114,7 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
           </Button>
           <Button
             type="submit"
-            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
+            className="bg-primary hover:bg-primary/90 active:bg-primary/80"
             disabled={mutation.isPending || !isDirty}
           >
             {mutation.isPending ? 'Creating...' : 'Create Board'}

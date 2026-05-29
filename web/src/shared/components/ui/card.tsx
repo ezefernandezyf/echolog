@@ -10,7 +10,7 @@ export function Card({ ref, className, ...props }: CardProps) {
     <div
       ref={ref}
       className={cn(
-        'rounded-2xl border border-border bg-card text-card-foreground shadow-sm shadow-black/[0.03]',
+        'rounded-2xl border border-border bg-card text-card-foreground shadow-sm shadow-black/[0.03] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md',
         className,
       )}
       {...props}

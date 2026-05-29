@@ -58,9 +58,9 @@ export function InviteMemberForm({ workspaceId }: InviteMemberFormProps) {
       onSubmit={handleSubmit((data) => mutation.mutate(data))}
     >
       <label className="flex-1 space-y-1.5">
-        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Email address
-        </span>
+          <span className="text-sm font-medium text-secondary-foreground">
+            Email address
+          </span>
         <Input
           id="invite-email"
           type="email"
@@ -71,17 +71,17 @@ export function InviteMemberForm({ workspaceId }: InviteMemberFormProps) {
           {...register('email')}
         />
         {errors.email ? (
-          <p id="invite-email-error" role="alert" className="text-sm text-red-600">
+          <p id="invite-email-error" role="alert" className="text-sm text-destructive">
             {errors.email.message}
           </p>
         ) : null}
       </label>
 
       <label className="w-36 space-y-1.5">
-        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Role</span>
+          <span className="text-sm font-medium text-secondary-foreground">Role</span>
         <select
           id="invite-role"
-          className="flex min-h-11 w-full rounded-xl border border-border bg-card px-3 text-base text-foreground shadow-sm shadow-black/[0.02] transition-colors focus-visible:border-zinc-900 dark:focus-visible:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex min-h-11 w-full rounded-xl border border-border bg-card px-3 text-base text-foreground shadow-sm shadow-black/[0.02] transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
           {...register('role')}
         >
           <option value="ADMIN">Admin</option>
@@ -93,7 +93,7 @@ export function InviteMemberForm({ workspaceId }: InviteMemberFormProps) {
       <Button
         type="submit"
         disabled={mutation.isPending || !isDirty}
-        className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80"
       >
         {mutation.isPending ? 'Inviting...' : 'Invite'}
       </Button>

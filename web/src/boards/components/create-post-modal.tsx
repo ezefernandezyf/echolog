@@ -60,20 +60,20 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
     <Modal open={open} onClose={closeModal} className="max-w-2xl" aria-label="Submit new feedback">
       <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
             New Feedback
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
             Submit new feedback
           </h2>
         </div>
 
         {!boardId ? (
-          <p className="text-sm text-red-600">Select a board first to create a post.</p>
+          <p className="text-sm text-destructive">Select a board first to create a post.</p>
         ) : null}
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Title</span>
+          <span className="text-sm font-medium text-secondary-foreground">Title</span>
           <Input
             id="create-post-title"
             placeholder="Add dark mode"
@@ -84,14 +84,14 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
           />
           <CharCounter current={title.length} max={120} />
           {errors.title ? (
-            <p id="create-post-title-error" role="alert" className="text-sm text-red-600">
+            <p id="create-post-title-error" role="alert" className="text-sm text-destructive">
               {errors.title.message}
             </p>
           ) : null}
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Details</span>
+          <span className="text-sm font-medium text-secondary-foreground">Details</span>
           <textarea
             id="create-post-body"
             placeholder="Tell us what you'd like to improve..."
@@ -99,12 +99,12 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
             aria-describedby={errors.body ? 'create-post-body-error' : undefined}
             aria-invalid={errors.body ? true : undefined}
             className={cn(
-              'flex w-full rounded-xl border border-border bg-card px-3 py-2 text-base text-foreground shadow-sm shadow-black/[0.02] transition-colors placeholder:text-muted-foreground focus-visible:border-zinc-900 dark:focus-visible:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
+              'flex w-full rounded-xl border border-border bg-card px-3 py-2 text-base text-foreground shadow-sm shadow-black/[0.02] transition-colors placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
             )}
             {...register('body')}
           />
           {errors.body ? (
-            <p id="create-post-body-error" role="alert" className="text-sm text-red-600">
+            <p id="create-post-body-error" role="alert" className="text-sm text-destructive">
               {errors.body.message}
             </p>
           ) : null}
@@ -116,7 +116,7 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
           </Button>
           <Button
             type="submit"
-            className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
+            className="bg-primary hover:bg-primary/90 active:bg-primary/80"
             disabled={mutation.isPending || !isDirty}
           >
             {mutation.isPending ? 'Creating...' : 'Create Post'}

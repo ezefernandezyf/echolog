@@ -43,18 +43,18 @@ export function ConfirmDialog({
     >
       <div className="space-y-6">
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
             EchoLog
           </p>
           <h2
             id="confirm-dialog-title"
-            className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-100"
+            className="text-2xl font-semibold tracking-tight text-foreground"
           >
             {title}
           </h2>
         </div>
 
-        <p id="confirm-dialog-desc" className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+        <p id="confirm-dialog-desc" className="text-sm leading-6 text-muted-foreground">
           {message}
         </p>
 
@@ -62,9 +62,9 @@ export function ConfirmDialog({
 
         {confirmInput ? (
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <span className="text-sm font-medium text-secondary-foreground">
               Type{' '}
-              <strong className="select-all rounded bg-red-100 px-1 py-0.5 font-mono text-red-700 dark:bg-red-950 dark:text-red-400">
+              <strong className="select-all rounded bg-destructive/10 px-1 py-0.5 font-mono text-destructive">
                 {confirmInput}
               </strong>{' '}
               to confirm
@@ -91,8 +91,8 @@ export function ConfirmDialog({
             disabled={!canConfirm || isLoading}
             className={
               variant === 'danger'
-                ? 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 dark:bg-red-700 dark:hover:bg-red-600 dark:active:bg-red-500'
-                : 'bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400'
+                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80'
             }
           >
             {isLoading ? 'Deleting...' : confirmLabel}

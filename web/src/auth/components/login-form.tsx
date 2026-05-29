@@ -49,10 +49,10 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       <PageTitle title="Sign In" />
       <form className="space-y-6" onSubmit={handleSubmit((data) => loginMutation.mutate(data))}>
         <div className="space-y-2 text-center sm:text-left">
-          <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
             Welcome back
           </h2>
-          <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm leading-6 text-muted-foreground">
             Sign in to keep collecting feedback in one place.
           </p>
         </div>
@@ -60,7 +60,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="login-email"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="text-sm font-medium text-foreground"
           >
             Email
           </label>
@@ -74,7 +74,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             {...register('email')}
           />
           {errors.email ? (
-            <p id="login-email-error" role="alert" className="text-sm text-red-600">
+            <p id="login-email-error" role="alert" className="text-sm text-destructive">
               {errors.email.message}
             </p>
           ) : null}
@@ -83,7 +83,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="login-password"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="text-sm font-medium text-foreground"
           >
             Password
           </label>
@@ -97,14 +97,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             {...register('password')}
           />
           {errors.password ? (
-            <p id="login-password-error" role="alert" className="text-sm text-red-600">
+            <p id="login-password-error" role="alert" className="text-sm text-destructive">
               {errors.password.message}
             </p>
           ) : null}
         </div>
 
         {loginMutation.error ? (
-          <p className="text-sm text-red-600">
+          <p className="text-sm text-destructive">
             {(() => {
               const apiErr = loginMutation.error as Partial<ApiError>;
               if (apiErr.status === undefined) return 'Check your connection and try again';
@@ -118,11 +118,11 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
         </Button>
 
-        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-center text-sm text-muted-foreground">
           No account yet?{' '}
           <Link
             to="/register"
-            className="font-medium text-zinc-900 underline underline-offset-4 transition-colors hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
+            className="font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary"
           >
             Create one
           </Link>

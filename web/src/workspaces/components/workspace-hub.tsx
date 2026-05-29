@@ -36,12 +36,12 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
     >
       <PageTitle title="Workspaces" />
       <section className="space-y-8">
-        <header className="flex flex-col gap-4 border-b border-zinc-200 pb-6 sm:flex-row sm:items-end sm:justify-between dark:border-zinc-800">
+        <header className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
               EchoLog
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               Your Workspaces
             </h1>
           </div>
@@ -62,8 +62,8 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
         {workspaceQuery.isPending ? (
           <WorkspaceSkeletonGrid />
         ) : workspaceQuery.isError ? (
-          <div className="flex min-h-[340px] flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-red-200 bg-red-50/30 px-6 py-16 text-center">
-            <p className="text-sm text-red-600">
+          <div className="flex min-h-[340px] flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-destructive/20 bg-destructive/10 px-6 py-16 text-center">
+          <p className="text-sm text-destructive">
               {workspaceQuery.error?.message ?? 'Failed to load workspaces'}
             </p>
             <Button type="button" variant="outline" onClick={() => workspaceQuery.refetch()}>
@@ -71,22 +71,22 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
             </Button>
           </div>
         ) : !Array.isArray(workspaceQuery.data) || workspaceQuery.data.length === 0 ? (
-          <div className="flex min-h-[340px] items-center justify-center rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-16 text-center shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
+          <div className="flex min-h-[340px] items-center justify-center rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm shadow-black/[0.02]">
             <div className="mx-auto max-w-sm space-y-6">
-              <div className="mx-auto flex size-16 items-center justify-center rounded-3xl bg-zinc-100 ring-1 ring-inset ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700">
+              <div className="mx-auto flex size-16 items-center justify-center rounded-3xl bg-muted ring-1 ring-inset ring-border">
                 <div className="grid size-8 grid-cols-2 gap-1">
-                  <span className="rounded-sm bg-zinc-300 dark:bg-zinc-600" />
-                  <span className="rounded-sm bg-zinc-200 dark:bg-zinc-700" />
-                  <span className="rounded-sm bg-zinc-200 dark:bg-zinc-700" />
-                  <span className="rounded-sm bg-zinc-300 dark:bg-zinc-600" />
+                  <span className="rounded-sm bg-muted" />
+                  <span className="rounded-sm bg-muted" />
+                  <span className="rounded-sm bg-muted" />
+                  <span className="rounded-sm bg-muted" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                <h2 className="text-2xl font-semibold tracking-tight text-foreground">
                   No workspaces yet
                 </h2>
-                <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+                <p className="text-sm leading-6 text-muted-foreground">
                   Create your first workspace to start organizing boards, posts, and feedback in one
                   clean place.
                 </p>

@@ -121,32 +121,32 @@ export function Sidebar({
     <aside
       ref={asideRef}
       className={cn(
-        'flex w-72 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 pt-[env(safe-area-inset-top)] dark:border-zinc-800 dark:bg-background',
+        'flex w-72 shrink-0 flex-col border-r border-border bg-secondary pt-[env(safe-area-inset-top)] transition-[width] duration-300 ease-in-out',
         className,
       )}
     >
-      <div className="border-b border-zinc-200 px-5 py-5 dark:border-zinc-800">
+      <div className="border-b border-border px-5 py-5">
         <button
           type="button"
           onClick={() => navigate('/w')}
-          className="flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-left transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-card dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+          className="flex w-full items-center justify-between rounded-2xl border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary/30 hover:bg-secondary hover:shadow-sm"
         >
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
               Workspace
             </p>
-            <p className="truncate text-sm font-semibold tracking-[-0.01em] text-zinc-950 dark:text-zinc-100">
+            <p className="truncate text-sm font-semibold tracking-[-0.01em] text-foreground">
               {workspaceName}
             </p>
           </div>
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">←</span>
+          <span className="text-xs text-muted-foreground">←</span>
         </button>
         {workspaceId ? (
           <>
             <Link
               to={`/w/${workspaceId}/members`}
               onClick={onNavClick}
-              className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-500 tracking-[-0.01em] transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-800 dark:bg-card dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+              className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground tracking-[-0.01em] transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -161,7 +161,7 @@ export function Sidebar({
             <Link
               to={`/w/${workspaceId}/settings`}
               onClick={onNavClick}
-              className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-500 tracking-[-0.01em] transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-800 dark:bg-card dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+              className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground tracking-[-0.01em] transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -196,15 +196,15 @@ export function Sidebar({
                 }}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium tracking-[-0.01em] transition-colors',
+                  'flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium tracking-[-0.01em] transition-all duration-200',
                   active
-                    ? 'bg-zinc-100 text-zinc-950 dark:bg-zinc-800 dark:text-zinc-100'
-                    : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200',
+                    ? 'border-l-2 border-l-primary bg-muted text-primary font-medium'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                 )}
               >
                 {item.label}
                 {active ? (
-                  <span className="text-xs text-zinc-400 dark:text-zinc-500">•</span>
+                  <span className="text-xs text-muted-foreground">•</span>
                 ) : null}
               </button>
             );
@@ -213,7 +213,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={onCreateBoard}
-              className="flex w-full items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium tracking-[-0.01em] text-zinc-500 transition-colors hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+              className="flex w-full items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium tracking-[-0.01em] text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
             >
               <span className="text-base leading-none">+</span>
               Create Board
@@ -222,29 +222,29 @@ export function Sidebar({
         </div>
       </nav>
 
-      <div className="border-t border-zinc-200 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] dark:border-zinc-800">
+      <div className="border-t border-border px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <div className="mb-4 flex items-center gap-2">
           <ThemeToggle />
           <PendingInvitationsBell />
         </div>
 
-        <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
+        <div className="rounded-2xl border border-border bg-card shadow-sm shadow-black/[0.02] transition-shadow duration-200 hover:shadow-md">
           <div className="flex items-center gap-3 px-4 py-3">
-            <div className="flex size-10 items-center justify-center rounded-full bg-zinc-900 text-xs font-semibold text-white dark:bg-zinc-700">
+            <div className="flex size-10 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
               {initials}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold tracking-[-0.01em] text-zinc-950 dark:text-zinc-100">
+              <p className="truncate text-sm font-semibold tracking-[-0.01em] text-foreground">
                 {userName}
               </p>
-              <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{userEmail}</p>
+              <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
             </div>
           </div>
-          <div className="flex items-center border-t border-zinc-100 dark:border-zinc-800">
+          <div className="flex items-center border-t border-border">
             <Link
               to="/settings"
               onClick={onNavClick}
-              className="flex flex-1 items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-200"
+              className="flex flex-1 items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -260,11 +260,11 @@ export function Sidebar({
               </svg>
               Settings
             </Link>
-            <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
+            <div className="h-5 w-px bg-border" />
             <button
               type="button"
               onClick={() => setShowSignOutDialog(true)}
-              className="flex flex-1 items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-950/20 dark:hover:text-red-400"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -40,18 +40,18 @@ describe('CharCounter', () => {
   });
 
   describe('color classes', () => {
-    it('uses zinc-400 class below 90%', () => {
-      // 1% → zinc-400
+    it('uses muted-foreground class below 90%', () => {
+      // 1% → muted-foreground
       const { container: c } = render(<CharCounter current={1} max={100} showAt={0} />);
-      expect(c.querySelector('p')).toHaveClass('text-zinc-400');
+      expect(c.querySelector('p')).toHaveClass('text-muted-foreground');
 
-      // 50% → zinc-400
+      // 50% → muted-foreground
       const { container: c2 } = render(<CharCounter current={50} max={100} showAt={0} />);
-      expect(c2.querySelector('p')).toHaveClass('text-zinc-400');
+      expect(c2.querySelector('p')).toHaveClass('text-muted-foreground');
 
-      // 80% → zinc-400 (0.8 < 0.9)
+      // 80% → muted-foreground (0.8 < 0.9)
       const { container: c3 } = render(<CharCounter current={80} max={100} showAt={0} />);
-      expect(c3.querySelector('p')).toHaveClass('text-zinc-400');
+      expect(c3.querySelector('p')).toHaveClass('text-muted-foreground');
     });
 
     it('uses amber-500 class at 90% to 99%', () => {
@@ -64,14 +64,14 @@ describe('CharCounter', () => {
       expect(c2.querySelector('p')).toHaveClass('text-amber-500');
     });
 
-    it('uses red-600 class at 100% and above', () => {
-      // 100% → red-600
+    it('uses destructive class at 100% and above', () => {
+      // 100% → destructive
       const { container: c } = render(<CharCounter current={100} max={100} showAt={0} />);
-      expect(c.querySelector('p')).toHaveClass('text-red-600');
+      expect(c.querySelector('p')).toHaveClass('text-destructive');
 
-      // 120% → red-600
+      // 120% → destructive
       const { container: c2 } = render(<CharCounter current={120} max={100} showAt={0} />);
-      expect(c2.querySelector('p')).toHaveClass('text-red-600');
+      expect(c2.querySelector('p')).toHaveClass('text-destructive');
     });
   });
 

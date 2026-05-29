@@ -63,9 +63,9 @@ export function AcceptInvitationPage() {
         className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-4 animate-fade-in"
       >
         <div className="w-full space-y-6">
-          <div className="mx-auto h-10 w-48 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
-          <div className="mx-auto h-4 w-32 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
-          <div className="mx-auto h-11 w-40 animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-700" />
+          <div className="mx-auto h-10 w-48 animate-pulse rounded-md bg-muted" />
+          <div className="mx-auto h-4 w-32 animate-pulse rounded-md bg-muted" />
+          <div className="mx-auto h-11 w-40 animate-pulse rounded-xl bg-muted" />
         </div>
       </main>
     );
@@ -83,14 +83,14 @@ export function AcceptInvitationPage() {
       >
         <PageTitle title="Invitation" />
         <div className="w-full space-y-6 text-center">
-          <div className="rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-12 dark:border-zinc-800 dark:bg-card">
-            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-950/50">
+          <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-12">
+            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-destructive/10">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
                 aria-hidden="true"
-                className="size-6 text-red-600 dark:text-red-400"
+                className="size-6 text-destructive"
               >
                 <path
                   fillRule="evenodd"
@@ -99,13 +99,13 @@ export function AcceptInvitationPage() {
                 />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+            <h1 className="text-xl font-semibold text-foreground">
               Invitation Unavailable
             </h1>
-            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{message}</p>
             <Link
               to="/"
-              className="mt-6 inline-block text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
+              className="mt-6 inline-block text-sm font-medium text-foreground underline"
             >
               Go to home
             </Link>
@@ -126,38 +126,38 @@ export function AcceptInvitationPage() {
       >
         <PageTitle title="Invitation" />
         <div className="w-full space-y-6 text-center">
-          <div className="rounded-3xl border border-zinc-200 bg-white px-6 py-12 dark:border-zinc-800 dark:bg-card">
-            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950/50">
+          <div className="rounded-3xl border border-border bg-card px-6 py-12">
+            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-primary/15">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
                 aria-hidden="true"
-                className="size-6 text-blue-600 dark:text-blue-400"
+                className="size-6 text-primary"
               >
                 <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+            <h1 className="text-xl font-semibold text-foreground">
               You've been invited!
             </h1>
-            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-2 text-sm text-muted-foreground">
               You've been invited to join <strong>{invitation.workspaceName}</strong> as{' '}
               <strong>{ROLE_LABELS[invitation.role] ?? invitation.role}</strong>.
             </p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-muted-foreground">
               Please sign in or create an account to accept this invitation.
             </p>
             <div className="mt-6 flex items-center justify-center gap-3">
               <Link
                 to={`/login?redirect=/invite/${token}`}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-zinc-950 px-6 text-sm font-medium text-white transition-colors hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80"
               >
                 Sign in
               </Link>
               <Link
                 to={`/register?redirect=/invite/${token}`}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-800 dark:active:bg-zinc-700"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 text-sm font-medium text-foreground transition-colors hover:bg-secondary active:bg-muted"
               >
                 Create account
               </Link>
@@ -176,14 +176,14 @@ export function AcceptInvitationPage() {
     >
       <PageTitle title={`Invitation to ${invitation.workspaceName}`} />
       <div className="w-full space-y-6 text-center">
-        <div className="rounded-3xl border border-zinc-200 bg-white px-6 py-12 dark:border-zinc-800 dark:bg-card">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/50">
+        <div className="rounded-3xl border border-border bg-card px-6 py-12">
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-success/15">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
               aria-hidden="true"
-              className="size-6 text-green-600 dark:text-green-400"
+              className="size-6 text-success-foreground"
             >
               <path
                 fillRule="evenodd"
@@ -192,16 +192,16 @@ export function AcceptInvitationPage() {
               />
             </svg>
           </div>
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          <h1 className="text-xl font-semibold text-foreground">
             You're invited!
           </h1>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-2 text-sm text-muted-foreground">
             You've been invited to join{' '}
-            <strong className="text-zinc-900 dark:text-zinc-100">
+            <strong className="text-foreground">
               {invitation.workspaceName}
             </strong>{' '}
             as{' '}
-            <strong className="text-zinc-900 dark:text-zinc-100">
+            <strong className="text-foreground">
               {ROLE_LABELS[invitation.role] ?? invitation.role}
             </strong>.
           </p>
@@ -209,7 +209,7 @@ export function AcceptInvitationPage() {
           <div className="mt-8 flex items-center justify-center gap-3">
             <Button
               type="button"
-              className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80"
               disabled={acceptMutation.isPending}
               onClick={() => acceptMutation.mutate()}
             >

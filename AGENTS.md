@@ -136,16 +136,16 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 10.4 CI/CD pipeline ✅ — GitHub Actions: lint, type-check, test on PR + push to main
 - [x] 10.5 README ✅ — comprehensive docs with local dev, deploy, and architecture sections
 
-### Phase 11: Visual Redesign (v1.1) 🔲
-> Applying `portfolio-personality` design system for distinctive visual identity — breaking free from generic SaaS "distributional convergence".
+### Phase 11: Visual Redesign (v1.1) ✅
+> Applied portfolio-personality design system — Indigo + Coral palette, Clash Display + Satoshi fonts, OKLCH tokens, WCAG 2.2 AA, 40+ files migrated from Zinc defaults.
 
-- [ ] 11.1 **Design system foundation** — color tokens (primary, accent, surface, semantic), typography scale (brand + UI fonts), spacing/sizing tokens, shadow/elevation system, border-radius scale, transition durations
-- [ ] 11.2 **Component library redesign** — buttons (primary/secondary/ghost/destructive with hover states), cards (surface elevation, interactive states), inputs (focus rings, validation states), modals (backdrop blur, enter/exit animations), badges (status colors, dot variants), skeletons (shimmer animation)
-- [ ] 11.3 **Layout & navigation redesign** — sidebar (collapsed/expanded states, brand mark, active indicators), mobile header (bottom sheet nav, gesture-friendly), authenticated shell (consistent spacing, breadcrumbs), workspace hub (card grid with hover effects)
-- [ ] 11.4 **Landing & auth pages redesign** — hero section (gradient, illustration, CTA hierarchy), features grid (icon + description cards), login/register (branded card, social proof, dark mode polish)
-- [ ] 11.5 **Micro-interactions & animations** — vote button pulse/confetti, toast enter/exit (spring physics), modal open/close (scale + fade), sidebar expand/collapse (smooth width), page transitions, loading shimmer, card hover lift
-- [ ] 11.6 **WCAG 2.2 AA accessibility upgrade** — focus-visible indicators (2.4.7), target size 24px minimum (2.5.8), consistent help placement (3.2.6), accessible authentication (3.3.7), redundant entry (3.3.7), reduced motion alternatives for all animations
-- [ ] 11.7 **Design system documentation** — component catalog with usage guidelines, token reference, accessibility annotations, responsive behavior docs
+- [x] 11.1 **Design system foundation** ✅ — OKLCH color tokens (indigo primary, coral accent, warm gray surface), typography scale (Clash Display + Satoshi + Geist Mono), shadow elevation system (xs-2xl), radius scale, cn.ts with clsx+twMerge
+- [x] 11.2 **Component library redesign** ✅ — buttons (press-down scale, primary/90 hover), cards (hover lift + shadow-md), inputs (primary focus ring), modals (backdrop blur + scale-in), badges (semantic variants), skeletons (shimmer animation)
+- [x] 11.3 **Layout & navigation redesign** ✅ — sidebar (primary accent bar on active board, smooth width transition, hover shadows), board/workspace components (52+ Zinc→token replacements, 30+ dark: overrides deleted)
+- [x] 11.4 **Landing & auth pages redesign** ✅ — hero (8xl Clash Display, indigo→coral gradient text, accent CTA with hover lift), features grid (stagger animation, icon containers, card hover effects), tagline rewrite
+- [x] 11.5 **Micro-interactions & animations** ✅ — vote button pulse, skeleton shimmer, card hover lift, modal backdrop blur, sidebar width transition, toaster spring physics, feature grid stagger, all reduced-motion aware
+- [x] 11.6 **WCAG 2.2 AA accessibility upgrade** ✅ — 2.4.7 Focus Appearance (PASS), 2.5.8 Target Size (PASS, 2 fixes), 3.3.7 Accessible Authentication (PASS), 3.3.8 Redundant Entry (PASS), 3.2.6 Consistent Help (N/A)
+- [x] 11.7 **Design system documentation** ✅ — DESIGN-TOKENS.md with complete token reference, typography scale, color palette, shadow system, animation utilities, anti-patterns
 
 ### Phase 12: Architecture Hardening (v1.1) 🔲
 - [ ] 12.1 **Shared Zod schemas** — migrate DTOs from TS interfaces to Zod schemas in `shared/contracts/`, derive types via `z.infer<typeof schema>`, single source of truth for frontend form validation + backend request validation
