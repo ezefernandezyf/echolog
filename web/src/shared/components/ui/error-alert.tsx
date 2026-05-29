@@ -13,17 +13,17 @@ export function ErrorAlert({ message, onRetry, retryLabel = 'Retry', className }
     <div
       role="alert"
       className={cn(
-        'flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-red-200 bg-red-50/30 px-6 py-10 text-center dark:border-red-800/30 dark:bg-red-950/10',
+        'flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-destructive/30 bg-destructive/5 px-6 py-10 text-center',
         className,
       )}
     >
-      <div className="flex size-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-950/50">
+      <div className="flex size-10 items-center justify-center rounded-full bg-destructive/10">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"
-          className="size-5 text-red-600 dark:text-red-400"
+          className="size-5 text-destructive"
         >
           <path
             fillRule="evenodd"
@@ -32,7 +32,7 @@ export function ErrorAlert({ message, onRetry, retryLabel = 'Retry', className }
           />
         </svg>
       </div>
-      <p className="text-sm text-red-600 dark:text-red-400">{message}</p>
+      <p className="text-sm text-destructive">{message}</p>
       {onRetry ? (
         <Button type="button" variant="outline" onClick={onRetry}>
           {retryLabel}

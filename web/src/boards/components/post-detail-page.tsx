@@ -15,12 +15,12 @@ import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 import { PageTitle } from '../../core/page-title';
 
 const statusStyles: Record<string, string> = {
-  OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400',
+  OPEN: 'border-border bg-secondary text-muted-foreground',
   PLANNED:
-    'border-zinc-200 bg-zinc-100 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
+    'border-border bg-muted text-secondary-foreground',
   IN_PROGRESS:
-    'border-zinc-200 bg-white text-zinc-700 dark:border-zinc-700 dark:bg-card dark:text-zinc-300',
-  DONE: 'border-zinc-200 bg-zinc-900 text-white dark:border-zinc-600 dark:bg-zinc-300 dark:text-zinc-900',
+    'border-border bg-card text-secondary-foreground',
+  DONE: 'border-border bg-primary text-primary-foreground',
 };
 
 export function PostDetailPage() {
@@ -155,8 +155,8 @@ export function PostDetailPage() {
         id="main-content"
         className="flex min-h-screen items-center justify-center bg-background px-4"
       >
-        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border border-dashed border-red-200 bg-red-50/30 px-6 py-16 text-center dark:border-red-800/30 dark:bg-red-950/10">
-          <p className="text-sm text-red-600 dark:text-red-400">
+        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border border-dashed border-destructive/20 bg-destructive/10 px-6 py-16 text-center">
+          <p className="text-sm text-destructive">
             {(error as Partial<ApiError>)?.message ?? 'Failed to load post'}
           </p>
           <Button variant="outline" onClick={() => navigate(`/w/${workspaceId}`)}>
@@ -173,7 +173,7 @@ export function PostDetailPage() {
         id="main-content"
         className="flex min-h-screen items-center justify-center bg-background px-4"
       >
-        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-16 text-center shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
+        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm shadow-black/[0.02]">
           <p className="text-sm text-muted-foreground">
             Post not found. It may have been removed or the link is incorrect.
           </p>
@@ -215,8 +215,8 @@ export function PostDetailPage() {
                 'flex h-14 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-all duration-150 active:scale-95 min-w-[44px] min-h-[44px]',
                 voteIsPending && 'animate-pulse',
                 post.isUpvoted
-                  ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
-                  : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-200',
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground',
               )}
             >
               <span className="text-sm leading-none">▲</span>
@@ -247,7 +247,7 @@ export function PostDetailPage() {
                     {post.authorName}
                   </span>
                 )}
-                <span className="text-zinc-300 dark:text-zinc-700">·</span>
+                <span className="text-muted-foreground/50">·</span>
                 <span>
                   {post.commentCount} comment{post.commentCount !== 1 ? 's' : ''}
                 </span>

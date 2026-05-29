@@ -10,11 +10,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-primary-foreground shadow-sm shadow-black/5 hover:bg-zinc-800 active:bg-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400',
+    'bg-primary text-primary-foreground shadow-sm shadow-black/5 hover:bg-primary/90 active:bg-primary/80',
   outline:
-    'border border-border bg-card text-foreground hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-800 dark:active:bg-zinc-700',
+    'border border-border bg-card text-foreground hover:bg-secondary active:bg-muted',
   ghost:
-    'bg-transparent text-foreground hover:bg-zinc-100 active:bg-zinc-200 dark:hover:bg-zinc-800 dark:active:bg-zinc-700',
+    'bg-transparent text-foreground hover:bg-muted active:bg-secondary',
 };
 
 export function Button({
@@ -29,7 +29,7 @@ export function Button({
       ref={ref}
       type={type}
       className={cn(
-        'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium tracking-[-0.01em] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50',
+        'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium tracking-[-0.01em] transition-all duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50',
         variantClasses[variant],
         className,
       )}

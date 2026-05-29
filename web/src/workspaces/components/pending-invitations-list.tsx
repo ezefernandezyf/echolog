@@ -46,15 +46,15 @@ export function PendingInvitationsList({
   if (isLoading) {
     return (
       <div className="space-y-3">
-        <div className="h-12 animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-700" />
-        <div className="h-12 animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-700" />
+        <div className="h-12 animate-pulse rounded-xl bg-muted" />
+        <div className="h-12 animate-pulse rounded-xl bg-muted" />
       </div>
     );
   }
 
   if (invitations.length === 0) {
     return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="text-sm text-muted-foreground">
         No pending invitations.
       </p>
     );
@@ -65,13 +65,13 @@ export function PendingInvitationsList({
       {invitations.map((invitation) => (
         <div
           key={invitation.id}
-          className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-card"
+          className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3"
         >
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <p className="truncate text-sm font-medium text-foreground">
               {invitation.invitedEmail}
             </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-muted-foreground">
               Role: {ROLE_LABELS[invitation.role] ?? invitation.role}
               {' · '}
               Status: {STATUS_LABELS[invitation.status] ?? invitation.status}
@@ -82,7 +82,7 @@ export function PendingInvitationsList({
             <Button
               type="button"
               variant="ghost"
-              className="ml-3 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+              className="ml-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
               disabled={cancelMutation.isPending}
               onClick={() => cancelMutation.mutate(invitation.id)}
             >

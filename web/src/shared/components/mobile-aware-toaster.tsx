@@ -16,6 +16,8 @@ export function MobileAwareToaster(props: ToasterProps) {
     <Toaster
       position={isMobile ? 'bottom-center' : 'bottom-right'}
       expand={isMobile}
+      duration={3000}
+      richColors
       style={isMobile ? { paddingBottom: 'env(safe-area-inset-bottom, 0px)' } : undefined}
       {...props}
     />

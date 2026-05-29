@@ -64,10 +64,10 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       <PageTitle title="Create Account" />
       <form className="space-y-6" onSubmit={handleSubmit((data) => registerMutation.mutate(data))}>
         <div className="space-y-2 text-center sm:text-left">
-          <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
             Create account
           </h2>
-          <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm leading-6 text-muted-foreground">
             Start a clean feedback workflow for your team.
           </p>
         </div>
@@ -75,7 +75,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="register-name"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="text-sm font-medium text-foreground"
           >
             Name
           </label>
@@ -91,7 +91,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           />
           <CharCounter current={name.length} max={120} />
           {errors.name ? (
-            <p id="register-name-error" role="alert" className="text-sm text-red-600">
+            <p id="register-name-error" role="alert" className="text-sm text-destructive">
               {errors.name.message}
             </p>
           ) : null}
@@ -100,7 +100,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="register-email"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="text-sm font-medium text-foreground"
           >
             Email
           </label>
@@ -114,7 +114,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             {...register('email')}
           />
           {errors.email ? (
-            <p id="register-email-error" role="alert" className="text-sm text-red-600">
+            <p id="register-email-error" role="alert" className="text-sm text-destructive">
               {errors.email.message}
             </p>
           ) : null}
@@ -123,7 +123,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="register-password"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="text-sm font-medium text-foreground"
           >
             Password
           </label>
@@ -137,7 +137,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             {...register('password')}
           />
           {errors.password ? (
-            <p id="register-password-error" role="alert" className="text-sm text-red-600">
+            <p id="register-password-error" role="alert" className="text-sm text-destructive">
               {errors.password.message}
             </p>
           ) : null}
@@ -146,7 +146,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="register-confirm-password"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-300"
+            className="text-sm font-medium text-foreground"
           >
             Confirm password
           </label>
@@ -160,14 +160,14 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             {...register('confirmPassword')}
           />
           {errors.confirmPassword ? (
-            <p id="register-confirm-password-error" role="alert" className="text-sm text-red-600">
+            <p id="register-confirm-password-error" role="alert" className="text-sm text-destructive">
               {errors.confirmPassword.message}
             </p>
           ) : null}
         </div>
 
         {registerMutation.error ? (
-          <p className="text-sm text-red-600">
+          <p className="text-sm text-destructive">
             {(() => {
               const apiErr = registerMutation.error as Partial<ApiError>;
               if (apiErr.status === undefined) return 'Check your connection and try again';
@@ -181,11 +181,11 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           {registerMutation.isPending ? 'Creating account...' : 'Create account'}
         </Button>
 
-        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{' '}
           <Link
             to="/login"
-            className="font-medium text-zinc-900 underline underline-offset-4 transition-colors hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
+            className="font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary"
           >
             Sign in
           </Link>

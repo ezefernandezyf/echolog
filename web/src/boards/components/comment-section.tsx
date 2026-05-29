@@ -32,12 +32,12 @@ function CommentItem({ comment, currentUserId, onDelete, isDeleting }: CommentIt
 
   return (
     <div className="flex gap-3 text-sm" role="listitem">
-      <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-[10px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+      <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-medium text-muted-foreground">
         {(comment.authorName ?? comment.authorId).slice(0, 2).toUpperCase()}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-zinc-700 dark:text-zinc-300">{comment.body}</p>
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+        <p className="text-secondary-foreground">{comment.body}</p>
+        <p className="text-xs text-muted-foreground">
           {new Date(comment.createdAt).toLocaleDateString()}
         </p>
       </div>
@@ -47,7 +47,7 @@ function CommentItem({ comment, currentUserId, onDelete, isDeleting }: CommentIt
             type="button"
             onClick={() => setShowDelete(true)}
             aria-label={`Delete comment by ${comment.authorName ?? comment.authorId}`}
-            className="ml-auto mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:text-zinc-500 dark:hover:bg-red-950 dark:hover:text-red-400"
+            className="ml-auto mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -222,14 +222,14 @@ export function CommentSection({
 
   if (isLoading) {
     return (
-      <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900/40">
+      <div className="border-t border-border bg-secondary/50 px-5 py-4 sm:px-6">
         <div className="space-y-3 py-2" aria-hidden="true">
           {Array.from({ length: 2 }, (_, i) => (
             <div key={i} className="flex gap-3">
-              <div className="mt-0.5 size-6 shrink-0 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-700" />
+              <div className="mt-0.5 size-6 shrink-0 animate-pulse rounded-full bg-muted" />
               <div className="flex-1 space-y-1.5">
-                <div className="h-3.5 w-full animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
-                <div className="h-3 w-16 animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-700" />
+                <div className="h-3.5 w-full animate-pulse rounded-md bg-muted" />
+                <div className="h-3 w-16 animate-pulse rounded-md bg-muted" />
               </div>
             </div>
           ))}
@@ -240,7 +240,7 @@ export function CommentSection({
 
   if (isError) {
     return (
-      <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900/40">
+      <div className="border-t border-border bg-secondary/50 px-5 py-4 sm:px-6">
         <ErrorAlert
           message="Failed to load comments"
           onRetry={onRetry}
@@ -252,7 +252,7 @@ export function CommentSection({
   }
 
   return (
-    <div className="border-t border-zinc-100 bg-zinc-50/50 px-5 py-4 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900/40">
+    <div className="border-t border-border bg-secondary/50 px-5 py-4 sm:px-6">
       {comments.length > 0 ? (
         comments.length > 10 ? (
           <VirtualizedCommentList
@@ -275,8 +275,8 @@ export function CommentSection({
           </div>
         )
       ) : (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zinc-200 px-6 py-10 text-center dark:border-zinc-800">
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border px-6 py-10 text-center">
+          <p className="text-sm font-medium text-muted-foreground">
             No comments yet. Be the first to share your thoughts.
           </p>
         </div>
@@ -295,12 +295,12 @@ export function CommentSection({
             maxLength={500}
             aria-describedby={errors.body ? 'comment-body-input-error' : undefined}
             aria-invalid={errors.body ? true : undefined}
-            className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-base outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-card dark:text-foreground dark:placeholder:text-zinc-500 dark:focus:border-zinc-500"
+            className="w-full rounded-lg border border-border px-3 py-1.5 text-base outline-none transition-colors focus:border-primary/30"
             {...register('body')}
           />
           <CharCounter current={body.length} max={500} />
           {errors.body ? (
-            <p id="comment-body-input-error" role="alert" className="text-sm text-red-600">
+            <p id="comment-body-input-error" role="alert" className="text-sm text-destructive">
               {errors.body.message}
             </p>
           ) : null}

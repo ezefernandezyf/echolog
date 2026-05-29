@@ -6,7 +6,7 @@ import { notificationsApi } from '../../core/api-client';
 
 function NotificationIcon({ type }: { type: string }) {
   return (
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
+    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
       {type === 'INVITE_SENT' ? (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-4 text-blue-500">
           <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
@@ -55,11 +55,11 @@ export function NotificationsPage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          <h1 className="text-xl font-semibold text-foreground">
             Notifications
           </h1>
           {unread > 0 ? (
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               {unread} unread
             </p>
           ) : null}
@@ -68,7 +68,7 @@ export function NotificationsPage() {
           <button
             type="button"
             onClick={() => markAllAsReadMutation.mutate()}
-            className="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-muted"
           >
             Mark all as read
           </button>
@@ -78,12 +78,12 @@ export function NotificationsPage() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />
+            <div key={i} className="h-20 animate-pulse rounded-2xl bg-muted" />
           ))}
         </div>
       ) : notifications.length === 0 ? (
         <div className="mt-16 text-center">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">No notifications yet</p>
+          <p className="text-sm text-muted-foreground">No notifications yet</p>
         </div>
       ) : (
         <div className="space-y-1">
@@ -92,16 +92,16 @@ export function NotificationsPage() {
               key={notif.id}
               className={`flex items-start gap-3 rounded-2xl px-4 py-3.5 transition-colors ${
                 notif.read
-                  ? 'bg-white dark:bg-card'
-                  : 'bg-blue-50/50 dark:bg-blue-950/10'
+                  ? 'bg-card'
+                  : 'bg-blue-50/50'
               }`}
             >
               <NotificationIcon type={notif.type} />
               <div className="min-w-0 flex-1">
-                <p className={`text-sm ${notif.read ? 'text-zinc-600 dark:text-zinc-400' : 'font-medium text-zinc-900 dark:text-zinc-100'}`}>
+                <p className={`text-sm ${notif.read ? 'text-secondary-foreground' : 'font-medium text-foreground'}`}>
                   {notif.message}
                 </p>
-                <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {new Date(notif.createdAt).toLocaleString()}
                 </p>
               </div>
@@ -112,7 +112,7 @@ export function NotificationsPage() {
                     onClick={() => {
                       if (!notif.read) markAsReadMutation.mutate(notif.id);
                     }}
-                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-muted"
                   >
                     View
                   </Link>
@@ -121,7 +121,7 @@ export function NotificationsPage() {
                   <button
                     type="button"
                     onClick={() => markAsReadMutation.mutate(notif.id)}
-                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-secondary-foreground"
                   >
                     Dismiss
                   </button>

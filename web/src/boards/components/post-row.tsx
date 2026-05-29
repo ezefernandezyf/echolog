@@ -25,12 +25,12 @@ function nextStatus(current: string): string {
 }
 
 const statusStyles: Record<string, string> = {
-  OPEN: 'border-zinc-200 bg-zinc-50 text-zinc-500 cursor-pointer hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700',
+  OPEN: 'border-border bg-secondary text-muted-foreground cursor-pointer hover:bg-muted',
   PLANNED:
-    'border-zinc-200 bg-zinc-100 text-zinc-600 cursor-pointer hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
+    'border-border bg-muted text-secondary-foreground cursor-pointer hover:bg-secondary',
   IN_PROGRESS:
-    'border-zinc-200 bg-white text-zinc-700 cursor-pointer hover:bg-zinc-100 dark:border-zinc-700 dark:bg-card dark:text-zinc-300 dark:hover:bg-zinc-800',
-  DONE: 'border-zinc-200 bg-zinc-900 text-white cursor-pointer hover:bg-zinc-800 dark:border-zinc-600 dark:bg-zinc-300 dark:text-zinc-900 dark:hover:bg-zinc-400',
+    'border-border bg-card text-secondary-foreground cursor-pointer hover:bg-muted',
+  DONE: 'border-border bg-primary text-primary-foreground cursor-pointer hover:bg-primary/90',
 };
 
 export function PostRow({ post, boardId }: PostRowProps) {
@@ -39,6 +39,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
   const queryClient = useQueryClient();
   const currentUserId = useAuthStore((state) => state.session?.user?.id ?? '');
   const [showComments, setShowComments] = useState(false);
+  const [justVoted, setJustVoted] = useState(false);
   const postsQueryKey = ['posts', boardId] as const;
 
   // Prevents mutations from overlapping past onSettled (race condition guard)
@@ -170,19 +171,28 @@ export function PostRow({ post, boardId }: PostRowProps) {
     .join('');
 
   return (
-    <article className="border-b border-zinc-200 bg-white transition-colors hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-card dark:hover:bg-zinc-800/50">
+    <article className="border-b border-border bg-card transition-colors hover:bg-secondary/80">
       <div className="group grid grid-cols-[auto_1fr_auto] gap-4 px-3 py-4 sm:px-4 sm:py-5">
         <button
           type="button"
           disabled={voteIsPending || voteLockRef.current}
-          onClick={() => (post.isUpvoted ? removeVoteMutation.mutate() : addVoteMutation.mutate())}
+          onClick={() => {
+            setJustVoted(true);
+            setTimeout(() => setJustVoted(false), 300);
+            if (post.isUpvoted) {
+              removeVoteMutation.mutate();
+            } else {
+              addVoteMutation.mutate();
+            }
+          }}
           aria-label={`${post.isUpvoted ? 'Remove vote from' : 'Upvote'} ${post.title}`}
           className={cn(
             'flex h-14 w-12 flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-medium tracking-[0.12em] transition-all duration-150 active:scale-95 min-w-[44px] min-h-[44px]',
             voteIsPending && 'animate-pulse',
+            justVoted && 'animate-vote-pulse',
             post.isUpvoted
-              ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
-              : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-200',
+              ? 'border-primary bg-primary text-primary-foreground'
+              : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground',
           )}
         >
           <span className="text-sm leading-none">▲</span>
@@ -194,7 +204,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
             <button
               type="button"
               onClick={() => navigate(`/w/${workspaceId}/p/${post.id}`)}
-              className="truncate text-base font-semibold tracking-[-0.02em] text-zinc-950 hover:underline group-hover:text-zinc-900 dark:text-zinc-100 dark:group-hover:text-zinc-300"
+              className="truncate text-base font-semibold tracking-[-0.02em] text-foreground hover:underline group-hover:text-foreground"
             >
               {post.title}
             </button>
@@ -213,7 +223,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
               </Badge>
             </button>
           </div>
-          <p className="max-w-3xl text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+          <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
             {post.description}
           </p>
         </div>
@@ -222,14 +232,14 @@ export function PostRow({ post, boardId }: PostRowProps) {
           <button
             type="button"
             onClick={() => setShowComments(!showComments)}
-            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-600 shadow-sm shadow-zinc-900/[0.02] hover:bg-zinc-50 max-sm:min-h-[44px] dark:border-zinc-700 dark:bg-card dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-secondary-foreground shadow-sm shadow-black/[0.02] hover:bg-secondary max-sm:min-h-[44px]"
           >
-            <span className="text-zinc-400 dark:text-zinc-500">◎</span>
+            <span className="text-muted-foreground">◎</span>
             {post.comments} comment{post.comments !== 1 ? 's' : ''}
           </button>
 
-          <div className="flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
-            <span className="flex size-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="flex size-8 items-center justify-center rounded-full border border-border bg-muted font-medium text-muted-foreground">
               {initials || 'EL'}
             </span>
           </div>

@@ -81,7 +81,7 @@ export function Modal({ open, onClose, children, className, ...props }: ModalPro
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 animate-fade-in max-sm:items-end max-sm:px-0 max-sm:pb-0"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 py-6 animate-fade-in max-sm:items-end max-sm:px-0 max-sm:pb-0"
       onMouseDown={onClose}
       role="presentation"
     >
@@ -93,7 +93,7 @@ export function Modal({ open, onClose, children, className, ...props }: ModalPro
         aria-keyshortcuts="Escape"
         onMouseDown={(event) => event.stopPropagation()}
         className={cn(
-          'relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-2xl shadow-black/20 transition-colors animate-scale-in max-sm:max-w-none max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:pb-[calc(1.5rem+env(safe-area-inset-bottom))]',
+          'relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-2xl shadow-black/20 transition-all duration-200 animate-scale-in max-sm:max-w-none max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:pb-[calc(1.5rem+env(safe-area-inset-bottom))]',
           className,
         )}
       >

@@ -126,21 +126,21 @@ export function UserSettingsPage() {
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
           <Link
             to="/w"
-            className="text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+            className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Workspaces
           </Link>
-          <span className="text-zinc-300 dark:text-zinc-600">/</span>
-          <span className="text-zinc-900 dark:text-zinc-100" aria-current="page">
+          <span className="text-muted-foreground/50">/</span>
+          <span className="text-foreground" aria-current="page">
             Settings
           </span>
         </nav>
 
         {/* Section 1: Profile */}
-        <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <section className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Display Name</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-lg font-semibold text-foreground">Display Name</h2>
+            <p className="text-sm text-muted-foreground">
               This is the name shown across the app.
             </p>
           </div>
@@ -150,7 +150,7 @@ export function UserSettingsPage() {
             onSubmit={handleProfileSubmit((data) => profileMutation.mutate(data))}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Name</span>
+              <span className="text-sm font-medium text-secondary-foreground">Name</span>
               <Input
                 id="profile-name"
                 placeholder="Your name"
@@ -162,7 +162,7 @@ export function UserSettingsPage() {
               />
               <CharCounter current={profileName.length} max={120} />
               {profileErrors.name ? (
-                <p id="profile-name-error" role="alert" className="text-sm text-red-600">
+                <p id="profile-name-error" role="alert" className="text-sm text-destructive">
                   {profileErrors.name.message}
                 </p>
               ) : null}
@@ -177,10 +177,10 @@ export function UserSettingsPage() {
         </section>
 
         {/* Section 2: Email */}
-        <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <section className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Email</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-lg font-semibold text-foreground">Email</h2>
+            <p className="text-sm text-muted-foreground">
               Change the email address you use to sign in.
             </p>
           </div>
@@ -190,7 +190,7 @@ export function UserSettingsPage() {
             onSubmit={handleEmailSubmit((data) => emailMutation.mutate(data))}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <span className="text-sm font-medium text-secondary-foreground">
                 New Email
               </span>
               <Input
@@ -203,14 +203,14 @@ export function UserSettingsPage() {
                 {...registerEmail('email')}
               />
               {emailErrors.email ? (
-                <p id="settings-email-error" role="alert" className="text-sm text-red-600">
+                <p id="settings-email-error" role="alert" className="text-sm text-destructive">
                   {emailErrors.email.message}
                 </p>
               ) : null}
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <span className="text-sm font-medium text-secondary-foreground">
                 Current Password
               </span>
               <Input
@@ -225,7 +225,7 @@ export function UserSettingsPage() {
                 {...registerEmail('currentPassword')}
               />
               {emailErrors.currentPassword ? (
-                <p id="settings-email-password-error" role="alert" className="text-sm text-red-600">
+                <p id="settings-email-password-error" role="alert" className="text-sm text-destructive">
                   {emailErrors.currentPassword.message}
                 </p>
               ) : null}
@@ -240,10 +240,10 @@ export function UserSettingsPage() {
         </section>
 
         {/* Section 3: Password */}
-        <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <section className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Password</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-lg font-semibold text-foreground">Password</h2>
+            <p className="text-sm text-muted-foreground">
               Choose a strong password with at least 8 characters.
             </p>
           </div>
@@ -253,7 +253,7 @@ export function UserSettingsPage() {
             onSubmit={handlePasswordSubmit((data) => passwordMutation.mutate(data))}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <span className="text-sm font-medium text-secondary-foreground">
                 Current Password
               </span>
               <Input
@@ -271,7 +271,7 @@ export function UserSettingsPage() {
                 <p
                   id="settings-password-current-error"
                   role="alert"
-                  className="text-sm text-red-600"
+                  className="text-sm text-destructive"
                 >
                   {passwordErrors.currentPassword.message}
                 </p>
@@ -279,7 +279,7 @@ export function UserSettingsPage() {
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <span className="text-sm font-medium text-secondary-foreground">
                 New Password
               </span>
               <Input
@@ -294,7 +294,7 @@ export function UserSettingsPage() {
                 {...registerPassword('newPassword')}
               />
               {passwordErrors.newPassword ? (
-                <p id="settings-password-new-error" role="alert" className="text-sm text-red-600">
+                <p id="settings-password-new-error" role="alert" className="text-sm text-destructive">
                   {passwordErrors.newPassword.message}
                 </p>
               ) : null}

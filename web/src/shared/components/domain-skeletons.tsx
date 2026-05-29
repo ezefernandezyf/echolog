@@ -7,7 +7,7 @@ import { cn } from '../lib/cn';
 export function PostSkeleton() {
   return (
     <article
-      className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-card"
+      className="border-b border-border bg-card"
       aria-hidden="true"
     >
       <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-5 py-5 sm:px-6">
@@ -71,7 +71,7 @@ export function WorkspaceSkeleton() {
           <Skeleton width="45%" height={14} rounded="md" />
         </div>
       </div>
-      <div className="mt-auto flex items-center justify-between border-t border-zinc-100 pt-4 dark:border-zinc-800">
+      <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
         <Skeleton width={80} height={12} rounded="md" />
         <Skeleton width={72} height={20} rounded="full" />
       </div>

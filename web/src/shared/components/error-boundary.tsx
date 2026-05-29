@@ -31,16 +31,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <main className="flex min-h-screen items-center justify-center bg-zinc-50 p-6 dark:bg-background">
-          <div className="max-w-md space-y-4 rounded-2xl border border-red-200 bg-white p-8 text-center shadow-lg dark:border-red-900 dark:bg-card">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-950">
+        <main className="flex min-h-screen items-center justify-center bg-secondary p-6">
+          <div className="max-w-md space-y-4 rounded-2xl border border-destructive/20 bg-card p-8 text-center shadow-lg">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-destructive/10">
               <span className="text-2xl">⚠</span>
             </div>
             <div className="space-y-2">
-              <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              <h1 className="text-lg font-semibold text-foreground">
                 Something went wrong
               </h1>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 {this.state.error.message || 'An unexpected error occurred'}
               </p>
             </div>
@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 this.setState({ error: null });
                 window.location.reload();
               }}
-              className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+              className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Reload page
             </button>

@@ -82,10 +82,10 @@ export function BoardSettingsPage() {
     return (
       <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
         <div className="space-y-6">
-          <div className="h-8 w-48 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
+          <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
           <div className="space-y-4">
-            <div className="h-10 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-700" />
-            <div className="h-10 w-full animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-700" />
+            <div className="h-10 w-full animate-pulse rounded-xl bg-muted" />
+            <div className="h-10 w-full animate-pulse rounded-xl bg-muted" />
           </div>
         </div>
       </main>
@@ -95,11 +95,11 @@ export function BoardSettingsPage() {
   if (!board) {
     return (
       <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
-        <div className="rounded-3xl border border-dashed border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-card">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Board not found</p>
+        <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
+          <p className="text-sm text-muted-foreground">Board not found</p>
           <Link
             to={`/w/${workspaceId}`}
-            className="mt-4 inline-block text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
+            className="mt-4 inline-block text-sm font-medium text-foreground underline"
           >
             Back to board
           </Link>
@@ -116,28 +116,28 @@ export function BoardSettingsPage() {
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
           <Link
             to="/w"
-            className="text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+            className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Workspaces
           </Link>
-          <span className="text-zinc-300 dark:text-zinc-600">/</span>
+          <span className="text-muted-foreground/50">/</span>
           <Link
             to={`/w/${workspaceId}`}
-            className="text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+            className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Board
           </Link>
-          <span className="text-zinc-300 dark:text-zinc-600">/</span>
-          <span className="text-zinc-900 dark:text-zinc-100" aria-current="page">
+          <span className="text-muted-foreground/50">/</span>
+          <span className="text-foreground" aria-current="page">
             Settings
           </span>
         </nav>
 
         {/* General Settings */}
-        <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-card">
+        <section className="space-y-6 rounded-2xl border border-border bg-card p-6">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">General</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-lg font-semibold text-foreground">General</h2>
+            <p className="text-sm text-muted-foreground">
               Update your board name, slug, and description.
             </p>
           </div>
@@ -155,7 +155,7 @@ export function BoardSettingsPage() {
             })}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <span className="text-sm font-medium text-secondary-foreground">
                 Board Name
               </span>
               <Input
@@ -168,18 +168,18 @@ export function BoardSettingsPage() {
                 {...register('name')}
               />
               {name.trim() ? (
-                <p className="text-xs text-zinc-400 dark:text-zinc-500">Slug: {slugify(name)}</p>
+                <p className="text-xs text-muted-foreground">Slug: {slugify(name)}</p>
               ) : null}
               <CharCounter current={name.length} max={120} />
               {errors.name ? (
-                <p id="board-settings-name-error" role="alert" className="text-sm text-red-600">
+                <p id="board-settings-name-error" role="alert" className="text-sm text-destructive">
                   {errors.name.message}
                 </p>
               ) : null}
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Slug</span>
+              <span className="text-sm font-medium text-secondary-foreground">Slug</span>
               <Input
                 id="board-settings-slug"
                 placeholder="feature-requests"
@@ -189,18 +189,18 @@ export function BoardSettingsPage() {
                 aria-invalid={errors.slug ? true : undefined}
                 {...register('slug')}
               />
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Used in URLs: /w/acme/feature-requests
               </p>
               {errors.slug ? (
-                <p id="board-settings-slug-error" role="alert" className="text-sm text-red-600">
+                <p id="board-settings-slug-error" role="alert" className="text-sm text-destructive">
                   {errors.slug.message}
                 </p>
               ) : null}
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <span className="text-sm font-medium text-secondary-foreground">
                 Description
               </span>
               <Input
@@ -218,7 +218,7 @@ export function BoardSettingsPage() {
                 <p
                   id="board-settings-description-error"
                   role="alert"
-                  className="text-sm text-red-600"
+                  className="text-sm text-destructive"
                 >
                   {errors.description.message}
                 </p>
@@ -226,7 +226,7 @@ export function BoardSettingsPage() {
             </label>
 
             {updateMutation.error ? (
-              <p className="text-sm text-red-600">
+              <p className="text-sm text-destructive">
                 {updateMutation.error instanceof Error
                   ? updateMutation.error.message
                   : 'Failed to update board'}
@@ -237,7 +237,7 @@ export function BoardSettingsPage() {
               <Button
                 type="submit"
                 disabled={updateMutation.isPending || !isDirty}
-                className="bg-zinc-950 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 dark:active:bg-zinc-400"
+                className="bg-primary hover:bg-primary/90 active:bg-primary/80"
               >
                 {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
@@ -246,10 +246,10 @@ export function BoardSettingsPage() {
         </section>
 
         {/* Danger Zone */}
-        <section className="space-y-6 rounded-2xl border border-red-200 bg-white p-6 dark:border-red-900 dark:bg-card">
+        <section className="space-y-6 rounded-2xl border border-destructive/20 bg-card p-6">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-red-700 dark:text-red-400">Danger Zone</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-lg font-semibold text-destructive">Danger Zone</h2>
+            <p className="text-sm text-muted-foreground">
               Permanently delete this board and all its posts, comments, and votes. This action
               cannot be undone.
             </p>
@@ -258,7 +258,7 @@ export function BoardSettingsPage() {
           <Button
             type="button"
             onClick={() => setShowDeleteDialog(true)}
-            className="bg-red-600 text-white hover:bg-red-700 active:bg-red-800 dark:bg-red-700 dark:hover:bg-red-600 dark:active:bg-red-500"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80"
           >
             Delete Board
           </Button>

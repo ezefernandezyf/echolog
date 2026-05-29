@@ -114,31 +114,31 @@ export function BoardLayout() {
   return (
     <main
       id="main-content"
-      className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden bg-zinc-50 text-zinc-950 dark:bg-background dark:text-foreground"
+      className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden bg-secondary text-foreground"
     >
       <PageTitle title={selectedBoard?.name ?? ''} />
       {!workspaceId ? (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-zinc-400 dark:text-zinc-500">
+          <p className="text-sm text-muted-foreground">
             Select a workspace from the sidebar.
           </p>
         </div>
       ) : boardsQuery.isPending ? (
-        <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
-          <header className="border-b border-zinc-200 px-6 py-6 sm:px-8 dark:border-zinc-800">
+        <section className="flex min-h-screen flex-1 flex-col bg-card">
+          <header className="border-b border-border px-6 py-6 sm:px-8">
             <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400 dark:text-zinc-500">
+              <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
                 EchoLog Board
               </p>
-              <div className="h-8 w-48 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
             </div>
             <div className="mt-4">
-              <div className="h-10 w-full max-w-md animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-10 w-full max-w-md animate-pulse rounded-xl bg-muted" />
             </div>
           </header>
-          <div className="flex-1 bg-zinc-50/40 dark:bg-background/40">
+          <div className="flex-1 bg-secondary/40">
             <div className="mx-auto w-full max-w-6xl">
-              <div className="overflow-hidden border-x border-b border-zinc-200 bg-white shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
+              <div className="overflow-hidden border-x border-b border-border bg-card shadow-sm shadow-black/[0.02]">
                 {Array.from({ length: 3 }, (_, i) => (
                   <PostSkeleton key={i} />
                 ))}
@@ -148,35 +148,35 @@ export function BoardLayout() {
         </section>
       ) : boardsQuery.isError ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3">
-          <p className="text-sm text-red-600 dark:text-red-400">Failed to load boards</p>
+          <p className="text-sm text-destructive">Failed to load boards</p>
           <Button type="button" variant="outline" onClick={() => boardsQuery.refetch()}>
             Retry
           </Button>
         </div>
       ) : !effectiveBoardId ? (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-zinc-400 dark:text-zinc-500">
+          <p className="text-sm text-muted-foreground">
             {boardsQuery.data && boardsQuery.data.length === 0
               ? 'No boards in this workspace. Create one to get started.'
               : 'Select a board from the sidebar.'}
           </p>
         </div>
       ) : !postsQuery.data && postsQuery.isPending ? (
-        <section className="flex min-h-screen flex-1 flex-col bg-white dark:bg-card">
-          <header className="border-b border-zinc-200 px-6 py-6 sm:px-8 dark:border-zinc-800">
+        <section className="flex min-h-screen flex-1 flex-col bg-card">
+          <header className="border-b border-border px-6 py-6 sm:px-8">
             <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400 dark:text-zinc-500">
+              <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
                 EchoLog Board
               </p>
-              <div className="h-8 w-48 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
             </div>
             <div className="mt-4">
-              <div className="h-10 w-full max-w-md animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-10 w-full max-w-md animate-pulse rounded-xl bg-muted" />
             </div>
           </header>
-          <div className="flex-1 bg-zinc-50/40 dark:bg-background/40">
+          <div className="flex-1 bg-secondary/40">
             <div className="mx-auto w-full max-w-6xl">
-              <div className="overflow-hidden border-x border-b border-zinc-200 bg-white shadow-sm shadow-zinc-900/[0.02] dark:border-zinc-800 dark:bg-card">
+              <div className="overflow-hidden border-x border-b border-border bg-card shadow-sm shadow-black/[0.02]">
                 {Array.from({ length: 3 }, (_, i) => (
                   <PostSkeleton key={i} />
                 ))}
@@ -186,7 +186,7 @@ export function BoardLayout() {
         </section>
       ) : postsQuery.isError ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3">
-          <p className="text-sm text-red-600 dark:text-red-400">Failed to load posts</p>
+          <p className="text-sm text-destructive">Failed to load posts</p>
           <Button type="button" variant="outline" onClick={() => postsQuery.refetch()}>
             Retry
           </Button>
