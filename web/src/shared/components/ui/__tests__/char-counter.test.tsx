@@ -54,14 +54,14 @@ describe('CharCounter', () => {
       expect(c3.querySelector('p')).toHaveClass('text-muted-foreground');
     });
 
-    it('uses amber-500 class at 90% to 99%', () => {
-      // 90% → amber-500
+    it('uses warning class at 90% to 99%', () => {
+      // 90% → warning
       const { container: c } = render(<CharCounter current={90} max={100} showAt={0} />);
-      expect(c.querySelector('p')).toHaveClass('text-amber-500');
+      expect(c.querySelector('p')).toHaveClass('text-warning');
 
-      // 95% → amber-500
+      // 95% → warning
       const { container: c2 } = render(<CharCounter current={95} max={100} showAt={0} />);
-      expect(c2.querySelector('p')).toHaveClass('text-amber-500');
+      expect(c2.querySelector('p')).toHaveClass('text-warning');
     });
 
     it('uses destructive class at 100% and above', () => {
