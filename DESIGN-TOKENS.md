@@ -75,6 +75,8 @@ All colors use **OKLCH** for perceptual uniformity. Tokens live in `@theme` bloc
 | `text-success-foreground`     | `--color-success-foreground`     | `oklch(0.98 0 0)` | Text on success backgrounds |
 | `text-warning`                | `--color-warning`                | `oklch(0.7 0.15 85)` | Cautions               |
 | `text-warning-foreground`     | `--color-warning-foreground`     | `oklch(0.15 0.02 85)` | Text on warning backgrounds |
+| `text-info`                   | `--color-info`                   | `oklch(0.55 0.17 245)` | Informational states, unread indicators |
+| `text-info-foreground`        | `--color-info-foreground`        | `oklch(0.98 0 0)` | Text on info backgrounds |
 
 ### Dark Mode
 

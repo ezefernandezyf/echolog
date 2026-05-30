@@ -18,6 +18,8 @@ export function MobileAwareToaster(props: ToasterProps) {
       expand={isMobile}
       duration={3000}
       richColors
+      gap={8}
+      visibleToasts={3}
       style={isMobile ? { paddingBottom: 'env(safe-area-inset-bottom, 0px)' } : undefined}
       {...props}
     />
