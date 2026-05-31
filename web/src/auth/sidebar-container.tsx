@@ -151,7 +151,9 @@ export function SidebarContainer({
       ) : null}
 
       {/* Normal state: Sidebar with workspace or board items */}
-      {!boardsQuery.isPending && !boardsQuery.isError && !workspacesQuery.isError ? (
+      {/* Only block on boards query state when inside a workspace */}
+      {!workspacesQuery.isError &&
+      (!workspaceId || (!boardsQuery.isPending && !boardsQuery.isError)) ? (
         <Sidebar
           workspaceName={workspaceName}
           workspaceId={workspaceId ?? ''}
