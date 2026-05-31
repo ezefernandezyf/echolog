@@ -1,11 +1,11 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ValidationError } from './validate.js';
+import { logger } from './logger.js';
 
-export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
-  console.error(
-    '[ERROR-HANDLER]',
-    err instanceof Error ? err.message : String(err),
-    err instanceof Error ? err.stack : '',
+export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
+  logger.error(
+    { err, requestId: req.requestId, method: req.method, url: req.url },
+    'Unhandled error',
   );
   if (err instanceof ValidationError) {
     res.status(err.statusCode).json({

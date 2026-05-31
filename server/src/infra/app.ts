@@ -9,6 +9,8 @@ import { postRouter } from '../posts/posts.router.js';
 import { voteRouter } from '../votes/votes.router.js';
 import { workspaceRouter } from '../workspaces/workspaces.router.js';
 import { errorHandler } from './error-handler.js';
+import { requestId } from './request-id.js';
+import { authLimiter, invitationLimiter, voteLimiter } from './rate-limiter.js';
 
 export const createApp = () => {
   const app = express();
@@ -21,17 +23,18 @@ export const createApp = () => {
     }),
   );
   app.use(express.json());
+  app.use(requestId);
 
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });
   });
 
-  app.use('/api/auth', authRouter);
+  app.use('/api/auth', authLimiter, authRouter);
   app.use('/api/workspaces', workspaceRouter);
-  app.use('/api/invitations', invitationsRouter);
+  app.use('/api/invitations', invitationLimiter, invitationsRouter);
   app.use('/api/notifications', notificationsRouter);
   app.use('/api/boards/:boardId/posts', postRouter);
-  app.use('/api/posts/:postId/vote', voteRouter);
+  app.use('/api/posts/:postId/vote', voteLimiter, voteRouter);
   app.use('/api/posts/:postId/comments', commentRouter);
   app.use('/api/posts', postRouter);
 
