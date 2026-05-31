@@ -293,7 +293,11 @@ export class WorkspacesService {
     });
   }
 
-  async cancelInvitation(workspaceId: string, invitationId: string, _userId: string): Promise<void> {
+  async cancelInvitation(
+    workspaceId: string,
+    invitationId: string,
+    _userId: string,
+  ): Promise<void> {
     const invitation = await prisma.workspaceInvitation.findFirst({
       where: { id: invitationId, workspaceId },
     });
@@ -402,10 +406,7 @@ export class WorkspacesService {
     }
 
     // Check last ADMIN demotion
-    if (
-      targetMember.role === 'ADMIN' &&
-      newRole !== 'ADMIN'
-    ) {
+    if (targetMember.role === 'ADMIN' && newRole !== 'ADMIN') {
       const adminCount = await prisma.workspaceMember.count({
         where: { workspaceId, role: 'ADMIN' },
       });

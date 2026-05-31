@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+
 const emptyStringToUndefined = (value: unknown) =>
   typeof value === 'string' && value.trim().length === 0 ? undefined : value;
 
@@ -15,6 +17,238 @@ const slugSchema = z
   .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens')
   .refine((slug) => /[a-z0-9]/.test(slug), 'Slug must include at least one letter or number');
 
+// ── Enums ──────────────────────────────────────────────────────────────────
+
+export const WorkspaceRoleSchema = z.enum(['OWNER', 'ADMIN', 'MEMBER', 'VIEWER']);
+export type WorkspaceRole = z.infer<typeof WorkspaceRoleSchema>;
+
+export const InvitationStatusSchema = z.enum(['PENDING', 'ACCEPTED', 'EXPIRED', 'CANCELLED']);
+export type InvitationStatus = z.infer<typeof InvitationStatusSchema>;
+
+export const PostStatusSchema = z.enum(['OPEN', 'PLANNED', 'IN_PROGRESS', 'DONE']);
+export type PostStatus = z.infer<typeof PostStatusSchema>;
+
+export const NotificationTypeSchema = z.enum(['INVITE_SENT', 'ROLE_CHANGED', 'NEW_COMMENT']);
+export type NotificationType = z.infer<typeof NotificationTypeSchema>;
+
+// ── Auth DTO Schemas ───────────────────────────────────────────────────────
+
+export const AuthUserSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  name: z.string().nullable(),
+});
+export type AuthUserDTO = z.infer<typeof AuthUserSchema>;
+
+export const AuthSessionSchema = z.object({
+  user: AuthUserSchema,
+});
+export type AuthSessionDTO = z.infer<typeof AuthSessionSchema>;
+
+export const AuthRegisterDTOSchema = z.object({
+  email: z.string(),
+  password: z.string(),
+  name: z.string(),
+});
+export type AuthRegisterDTO = z.infer<typeof AuthRegisterDTOSchema>;
+
+export const AuthLoginDTOSchema = z.object({
+  email: z.string(),
+  password: z.string(),
+});
+export type AuthLoginDTO = z.infer<typeof AuthLoginDTOSchema>;
+
+export const UpdateProfileResultSchema = z.object({
+  user: AuthUserSchema,
+});
+export type UpdateProfileResult = z.infer<typeof UpdateProfileResultSchema>;
+
+export const UpdateProfileDTOSchema = z.object({
+  name: z.string(),
+});
+export type UpdateProfileDTO = z.infer<typeof UpdateProfileDTOSchema>;
+
+export const UpdateEmailDTOSchema = z.object({
+  email: z.string(),
+  currentPassword: z.string(),
+});
+export type UpdateEmailDTO = z.infer<typeof UpdateEmailDTOSchema>;
+
+export const UpdatePasswordDTOSchema = z.object({
+  currentPassword: z.string(),
+  newPassword: z.string(),
+});
+export type UpdatePasswordDTO = z.infer<typeof UpdatePasswordDTOSchema>;
+
+// ── Workspace DTO Schemas ──────────────────────────────────────────────────
+
+export const WorkspaceSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  role: WorkspaceRoleSchema,
+});
+export type WorkspaceDTO = z.infer<typeof WorkspaceSchema>;
+
+export const CreateWorkspaceDTOSchema = z.object({
+  name: z.string(),
+});
+export type CreateWorkspaceDTO = z.infer<typeof CreateWorkspaceDTOSchema>;
+
+export const UpdateWorkspaceDTOSchema = z.object({
+  name: z.string().optional(),
+  slug: z.string().optional(),
+});
+export type UpdateWorkspaceDTO = z.infer<typeof UpdateWorkspaceDTOSchema>;
+
+// ── Board DTO Schemas ──────────────────────────────────────────────────────
+
+export const BoardSchema = z.object({
+  id: z.string(),
+  workspaceId: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullable(),
+});
+export type BoardDTO = z.infer<typeof BoardSchema>;
+
+export const CreateBoardDTOSchema = z.object({
+  name: z.string(),
+  description: z.string().nullable().optional(),
+});
+export type CreateBoardDTO = z.infer<typeof CreateBoardDTOSchema>;
+
+export const UpdateBoardDTOSchema = z.object({
+  name: z.string().optional(),
+  slug: z.string().optional(),
+  description: z.string().nullable().optional(),
+});
+export type UpdateBoardDTO = z.infer<typeof UpdateBoardDTOSchema>;
+
+// ── Post DTO Schemas ───────────────────────────────────────────────────────
+
+export const PostSchema = z.object({
+  id: z.string(),
+  workspaceId: z.string(),
+  boardId: z.string(),
+  authorId: z.string(),
+  title: z.string(),
+  body: z.string(),
+  status: z.string(),
+  voteCount: z.number(),
+  commentCount: z.number(),
+  authorName: z.string().nullable().optional(),
+  isUpvoted: z.boolean().optional(),
+});
+export type PostDTO = z.infer<typeof PostSchema>;
+
+export const CreatePostDTOSchema = z.object({
+  title: z.string(),
+  body: z.string(),
+});
+export type CreatePostDTO = z.infer<typeof CreatePostDTOSchema>;
+
+export const PostListFiltersSchema = z.object({
+  status: z.string().optional(),
+  search: z.string().optional(),
+  sort: z.enum(['trending', 'top', 'new']).optional(),
+  cursor: z.string().optional(),
+  limit: z.number().optional(),
+});
+export type PostListFilters = z.infer<typeof PostListFiltersSchema>;
+
+export const PostListResponseSchema = z.object({
+  posts: z.array(PostSchema),
+  nextCursor: z.string().nullable(),
+});
+export type PostListResponse = z.infer<typeof PostListResponseSchema>;
+
+// ── Vote DTO Schemas ───────────────────────────────────────────────────────
+
+export const VoteSchema = z.object({
+  postId: z.string(),
+  userId: z.string(),
+  voteCount: z.number(),
+  voted: z.boolean(),
+});
+export type VoteDTO = z.infer<typeof VoteSchema>;
+
+// ── Comment DTO Schemas ────────────────────────────────────────────────────
+
+export const CommentSchema = z.object({
+  id: z.string(),
+  postId: z.string(),
+  authorId: z.string(),
+  body: z.string(),
+  createdAt: z.string(),
+  authorName: z.string().nullable().optional(),
+});
+export type CommentDTO = z.infer<typeof CommentSchema>;
+
+export const CreateCommentDTOSchema = z.object({
+  body: z.string(),
+});
+export type CreateCommentDTO = z.infer<typeof CreateCommentDTOSchema>;
+
+// ── Member DTO Schemas ─────────────────────────────────────────────────────
+
+export const MemberSchema = z.object({
+  userId: z.string(),
+  workspaceId: z.string(),
+  role: WorkspaceRoleSchema,
+  name: z.string().nullable(),
+  email: z.string(),
+  joinedAt: z.string(),
+});
+export type MemberDTO = z.infer<typeof MemberSchema>;
+
+export const ChangeRoleDTOSchema = z.object({
+  role: WorkspaceRoleSchema,
+});
+export type ChangeRoleDTO = z.infer<typeof ChangeRoleDTOSchema>;
+
+// ── Invitation DTO Schemas ─────────────────────────────────────────────────
+
+export const InvitationSchema = z.object({
+  id: z.string(),
+  workspaceId: z.string(),
+  workspaceName: z.string(),
+  invitedEmail: z.string(),
+  role: WorkspaceRoleSchema,
+  status: InvitationStatusSchema,
+  token: z.string(),
+  expiresAt: z.string(),
+});
+export type InvitationDTO = z.infer<typeof InvitationSchema>;
+
+export const CreateInvitationDTOSchema = z.object({
+  email: z.string(),
+  role: WorkspaceRoleSchema.optional(),
+});
+export type CreateInvitationDTO = z.infer<typeof CreateInvitationDTOSchema>;
+
+// ── Notification DTO Schemas ───────────────────────────────────────────────
+
+export const NotificationSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  type: NotificationTypeSchema,
+  message: z.string(),
+  read: z.boolean(),
+  link: z.string().nullable(),
+  actorId: z.string().nullable(),
+  workspaceId: z.string().nullable(),
+  createdAt: z.string(),
+});
+export type NotificationDTO = z.infer<typeof NotificationSchema>;
+
+export const UnreadCountSchema = z.object({
+  count: z.number(),
+});
+export type UnreadCountDTO = z.infer<typeof UnreadCountSchema>;
+
+// ── Auth Validation Schemas ────────────────────────────────────────────────
+
 export const authRegisterSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
@@ -25,6 +259,8 @@ export const authLoginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
 });
+
+// ── Workspace Validation Schemas ───────────────────────────────────────────
 
 export const createWorkspaceSchema = z.object({
   name: requiredText('Workspace name').max(120),
@@ -38,6 +274,8 @@ export const updateWorkspaceSchema = z
   .refine((data) => data.name !== undefined || data.slug !== undefined, {
     message: 'Slug is missing',
   });
+
+// ── Board Validation Schemas ───────────────────────────────────────────────
 
 export const createBoardSchema = z.object({
   name: requiredText('Board name').max(120),
@@ -61,18 +299,24 @@ export const updateBoardSchema = z
     },
   );
 
+// ── Post Validation Schemas ────────────────────────────────────────────────
+
 export const createPostSchema = z.object({
   title: requiredText('Title').max(120),
   body: requiredText('Body'),
 });
 
 export const updatePostStatusSchema = z.object({
-  status: z.enum(['OPEN', 'PLANNED', 'IN_PROGRESS', 'DONE']),
+  status: PostStatusSchema,
 });
+
+// ── Comment Validation Schemas ─────────────────────────────────────────────
 
 export const createCommentSchema = z.object({
   body: requiredText('Comment body').max(500, 'Comment must be at most 500 characters'),
 });
+
+// ── User Settings Validation Schemas ───────────────────────────────────────
 
 export const updateProfileSchema = z.object({
   name: requiredText('Name').max(120),
@@ -87,6 +331,8 @@ export const updatePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
   newPassword: z.string().min(8, 'Password must be at least 8 characters'),
 });
+
+// ── Invitation Validation Schemas ──────────────────────────────────────────
 
 export const createInvitationSchema = z.object({
   email: z.string().email('Please enter a valid email address'),

@@ -8,6 +8,12 @@ import { createBoardSchema, updateBoardSchema } from '../../../shared/contracts/
 export const boardRouter = Router({ mergeParams: true });
 
 boardRouter.get('/', requireAuth, requireAnyMember, listBoards);
-boardRouter.post('/', requireAuth, requireWorkspaceMember(['OWNER', 'ADMIN', 'MEMBER']), validate(createBoardSchema), createBoard);
+boardRouter.post(
+  '/',
+  requireAuth,
+  requireWorkspaceMember(['OWNER', 'ADMIN', 'MEMBER']),
+  validate(createBoardSchema),
+  createBoard,
+);
 boardRouter.patch('/:boardId', requireAuth, validate(updateBoardSchema), updateBoard);
 boardRouter.delete('/:boardId', requireAuth, deleteBoard);

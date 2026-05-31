@@ -48,7 +48,12 @@ workspaceRouter.patch(
   validate(changeRoleSchema),
   changeMemberRole,
 );
-workspaceRouter.delete('/:workspaceId/members/:userId', requireAuth, requireAdminOrOwner, removeMember);
+workspaceRouter.delete(
+  '/:workspaceId/members/:userId',
+  requireAuth,
+  requireAdminOrOwner,
+  removeMember,
+);
 
 // ── Invitation Routes (workspace-scoped) ──────────────────────────────
 
