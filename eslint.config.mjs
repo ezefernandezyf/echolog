@@ -67,5 +67,13 @@ export default tseslint.config(
     },
   },
 
+  // E2E scripts (Node.js .mjs — no TypeScript, just globals)
+  {
+    files: ['e2e/**/*.mjs'],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+  },
+
   prettier,
 );

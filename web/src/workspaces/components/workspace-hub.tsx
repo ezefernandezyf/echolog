@@ -1,8 +1,7 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../shared/components/ui/button';
-import { workspaceApi } from '../../core/api-client';
+import { useWorkspaces } from '../../hooks/use-workspaces';
 import { useAuthStore } from '../../auth/auth-store';
 import { WorkspaceCard, type WorkspaceCardData } from './workspace-card';
 import { useUiStore } from '../../core/store/ui-store';
@@ -20,12 +19,7 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
   const openModal = useUiStore((state) => state.openModal);
   const userId = useAuthStore((state) => state.session?.user?.id);
 
-  const workspaceQuery = useQuery({
-    queryKey: ['workspaces', userId],
-    queryFn: workspaceApi.list,
-    staleTime: 60_000,
-    enabled: !!userId,
-  });
+  const workspaceQuery = useWorkspaces(userId);
 
   useFocusOnMount('h1');
 
@@ -63,7 +57,7 @@ export function WorkspaceHub({ onCreateWorkspace, onSelectWorkspace }: Workspace
           <WorkspaceSkeletonGrid />
         ) : workspaceQuery.isError ? (
           <div className="flex min-h-[340px] flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-destructive/20 bg-destructive/10 px-6 py-16 text-center">
-          <p className="text-sm text-destructive">
+            <p className="text-sm text-destructive">
               {workspaceQuery.error?.message ?? 'Failed to load workspaces'}
             </p>
             <Button type="button" variant="outline" onClick={() => workspaceQuery.refetch()}>

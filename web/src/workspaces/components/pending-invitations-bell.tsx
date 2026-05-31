@@ -1,58 +1,23 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import { invitationsApi, notificationsApi } from '../../core/api-client';
+import { usePendingInvitations } from '../../hooks/use-invitations';
+import { useUnreadNotifications } from '../../hooks/use-notifications';
+import { useAcceptInvitation, useDeclineInvitation } from '../../hooks/use-invitations';
+import { useMarkRead, useMarkAllRead } from '../../hooks/use-notifications';
 
 export function PendingInvitationsBell() {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { data: invitations = [] } = usePendingInvitations();
+  const { data: notifications = [] } = useUnreadNotifications();
 
-  const { data: invitations = [] } = useQuery({
-    queryKey: ['invitations', 'pending'],
-    queryFn: invitationsApi.listMine,
-    refetchInterval: 30_000,
-  });
-
-  const { data: notifications = [] } = useQuery({
-    queryKey: ['notifications', 'unread'],
-    queryFn: notificationsApi.listUnread,
-    refetchInterval: 30_000,
-  });
-
-  const acceptMutation = useMutation({
-    mutationFn: (token: string) => invitationsApi.accept(token),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['invitations', 'pending'] });
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      setOpen(false);
-      navigate(`/w/${data.workspaceId}`);
-    },
-  });
-
-  const declineMutation = useMutation({
-    mutationFn: (token: string) => invitationsApi.decline(token),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['invitations', 'pending'] });
-    },
-  });
-
-  const markAsReadMutation = useMutation({
-    mutationFn: (id: string) => notificationsApi.markAsRead(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
-    },
-  });
-
-  const markAllAsReadMutation = useMutation({
-    mutationFn: () => notificationsApi.markAllAsRead(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
-    },
-  });
+  const acceptInvitationMutation = useAcceptInvitation();
+  const declineInvitationMutation = useDeclineInvitation();
+  const markAsReadMutation = useMarkRead();
+  const markAllAsReadMutation = useMarkAllRead();
 
   const totalCount = invitations.length + notifications.length;
 
@@ -92,9 +57,7 @@ export function PendingInvitationsBell() {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
           <div className="absolute bottom-full left-0 z-50 mb-2 w-80 animate-fade-in rounded-2xl border border-border bg-card shadow-lg">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <p className="text-sm font-semibold text-foreground">
-                Notifications
-              </p>
+              <p className="text-sm font-semibold text-foreground">Notifications</p>
               {notifications.length > 0 ? (
                 <button
                   type="button"
@@ -122,9 +85,7 @@ export function PendingInvitationsBell() {
                   >
                     <span className="mt-0.5 size-2 shrink-0 rounded-full bg-info" />
                     <div className="min-w-0">
-                      <p className="text-sm text-foreground">
-                        {notif.message}
-                      </p>
+                      <p className="text-sm text-foreground">{notif.message}</p>
                       <p className="mt-0.5 text-[11px] text-muted-foreground">
                         {new Date(notif.createdAt).toLocaleDateString()}
                       </p>
@@ -151,9 +112,7 @@ export function PendingInvitationsBell() {
                     className="rounded-xl border border-border bg-secondary px-3 py-2.5"
                   >
                     <div className="mb-1.5">
-                      <p className="text-sm font-medium text-foreground">
-                        {inv.workspaceName}
-                      </p>
+                      <p className="text-sm font-medium text-foreground">{inv.workspaceName}</p>
                       <p className="text-xs text-muted-foreground">
                         Invited as{' '}
                         <span className="font-medium uppercase tracking-wide text-secondary-foreground">
@@ -164,16 +123,23 @@ export function PendingInvitationsBell() {
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        onClick={() => acceptMutation.mutate(inv.token)}
-                        disabled={acceptMutation.isPending}
+                        onClick={() =>
+                          acceptInvitationMutation.mutate(inv.token, {
+                            onSuccess: (data) => {
+                              setOpen(false);
+                              navigate(`/w/${data.workspaceId}`);
+                            },
+                          })
+                        }
+                        disabled={acceptInvitationMutation.isPending}
                         className="flex-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
                       >
-                        {acceptMutation.isPending ? 'Accepting…' : 'Accept'}
+                        {acceptInvitationMutation.isPending ? 'Accepting…' : 'Accept'}
                       </button>
                       <button
                         type="button"
-                        onClick={() => declineMutation.mutate(inv.token)}
-                        disabled={declineMutation.isPending}
+                        onClick={() => declineInvitationMutation.mutate(inv.token)}
+                        disabled={declineInvitationMutation.isPending}
                         className="flex-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-muted disabled:opacity-50"
                       >
                         Decline

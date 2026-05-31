@@ -118,9 +118,7 @@ export function PostList({
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
               EchoLog Board
             </p>
-            <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
-              {title}
-            </h1>
+            <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">{title}</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

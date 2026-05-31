@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { membersApi, invitationsApi } from '../../core/api-client';
+import { useParams, Link } from 'react-router-dom';
+import { useMembers, useChangeRole, useRemoveMember } from '../../hooks/use-members';
+import { useInvitations } from '../../hooks/use-invitations';
 import { useAuthStore } from '../../auth/auth-store';
 import { Button } from '../../shared/components/ui/button';
 import { Badge } from '../../shared/components/ui/badge';
@@ -33,24 +32,14 @@ const ADMIN_ROLES: WorkspaceRole[] = ['ADMIN', 'MEMBER', 'VIEWER'];
 
 export function MembersPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const currentUserId = useAuthStore((state) => state.session?.user?.id);
   const [removeTarget, setRemoveTarget] = useState<MemberDTO | null>(null);
 
   // Fetch member list
-  const membersQuery = useQuery({
-    queryKey: ['members', workspaceId],
-    queryFn: () => membersApi.list(workspaceId!),
-    enabled: !!workspaceId,
-  });
+  const membersQuery = useMembers(workspaceId);
 
   // Fetch pending invitations
-  const invitationsQuery = useQuery({
-    queryKey: ['invitations', workspaceId],
-    queryFn: () => invitationsApi.listPending(workspaceId!),
-    enabled: !!workspaceId,
-  });
+  const invitationsQuery = useInvitations(workspaceId);
 
   // Determine current user's role
   const currentMember = Array.isArray(membersQuery.data)
@@ -60,35 +49,10 @@ export function MembersPage() {
   const isOwner = currentMember?.role === 'OWNER';
 
   // Change role mutation
-  const changeRoleMutation = useMutation({
-    mutationFn: ({
-      targetUserId,
-      newRole,
-    }: {
-      targetUserId: string;
-      newRole: WorkspaceRole;
-    }) => membersApi.changeRole(workspaceId!, targetUserId, newRole),
-    onSuccess: () => {
-      toast.success('Role updated');
-      queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to update role');
-    },
-  });
+  const changeRoleMutation = useChangeRole();
 
   // Remove member mutation
-  const removeMutation = useMutation({
-    mutationFn: (targetUserId: string) => membersApi.remove(workspaceId!, targetUserId),
-    onSuccess: () => {
-      toast.success('Member removed');
-      queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
-      setRemoveTarget(null);
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to remove member');
-    },
-  });
+  const removeMemberMutation = useRemoveMember();
 
   if (membersQuery.isPending) {
     return (
@@ -98,10 +62,7 @@ export function MembersPage() {
           <div className="h-8 w-32 animate-pulse rounded-md bg-muted" />
           <div className="space-y-3">
             {Array.from({ length: 3 }, (_, i) => (
-              <div
-                key={i}
-                className="h-16 animate-pulse rounded-xl bg-muted"
-              />
+              <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />
             ))}
           </div>
         </div>
@@ -112,10 +73,7 @@ export function MembersPage() {
   if (membersQuery.isError) {
     return (
       <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
-        <ErrorAlert
-          message="Failed to load members"
-          onRetry={() => membersQuery.refetch()}
-        />
+        <ErrorAlert message="Failed to load members" onRetry={() => membersQuery.refetch()} />
       </main>
     );
   }
@@ -125,13 +83,8 @@ export function MembersPage() {
       <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
         <PageTitle title="Members" />
         <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="text-sm text-muted-foreground">
-            You are not a member of this workspace.
-          </p>
-          <Link
-            to="/w"
-            className="mt-4 inline-block text-sm font-medium text-foreground underline"
-          >
+          <p className="text-sm text-muted-foreground">You are not a member of this workspace.</p>
+          <Link to="/w" className="mt-4 inline-block text-sm font-medium text-foreground underline">
             Back to workspaces
           </Link>
         </div>
@@ -146,10 +99,7 @@ export function MembersPage() {
       <div className="space-y-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
-          <Link
-            to="/w"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Link to="/w" className="text-muted-foreground transition-colors hover:text-foreground">
             Workspaces
           </Link>
           <span className="text-muted-foreground/50">/</span>
@@ -162,9 +112,7 @@ export function MembersPage() {
         {isAdmin ? (
           <section className="space-y-4 rounded-2xl border border-border bg-card p-6">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-foreground">
-                Invite Member
-              </h2>
+              <h2 className="text-lg font-semibold text-foreground">Invite Member</h2>
               <p className="text-sm text-muted-foreground">
                 Send an invitation link to join this workspace.
               </p>
@@ -177,16 +125,18 @@ export function MembersPage() {
         {isAdmin ? (
           <section className="space-y-4 rounded-2xl border border-border bg-card p-6">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-foreground">
-                Pending Invitations
-              </h2>
+              <h2 className="text-lg font-semibold text-foreground">Pending Invitations</h2>
               <p className="text-sm text-muted-foreground">
                 Invitations that have been sent but not yet accepted.
               </p>
             </div>
             <PendingInvitationsList
               workspaceId={workspaceId!}
-              invitations={Array.isArray(invitationsQuery.data) ? invitationsQuery.data.filter((inv) => inv.status === 'PENDING') : []}
+              invitations={
+                Array.isArray(invitationsQuery.data)
+                  ? invitationsQuery.data.filter((inv) => inv.status === 'PENDING')
+                  : []
+              }
               isLoading={invitationsQuery.isPending}
             />
           </section>
@@ -220,9 +170,7 @@ export function MembersPage() {
                       {member.name ?? member.email}
                     </p>
                     {member.name ? (
-                      <p className="truncate text-xs text-muted-foreground">
-                        {member.email}
-                      </p>
+                      <p className="truncate text-xs text-muted-foreground">{member.email}</p>
                     ) : null}
                   </div>
 
@@ -241,6 +189,7 @@ export function MembersPage() {
                         disabled={changeRoleMutation.isPending}
                         onChange={(e) =>
                           changeRoleMutation.mutate({
+                            workspaceId: workspaceId!,
                             targetUserId: member.userId,
                             newRole: e.target.value as WorkspaceRole,
                           })
@@ -288,14 +237,15 @@ export function MembersPage() {
         onClose={() => setRemoveTarget(null)}
         onConfirm={() => {
           if (removeTarget) {
-            removeMutation.mutate(removeTarget.userId);
+            removeMemberMutation.mutate(
+              { workspaceId: workspaceId!, userId: removeTarget.userId },
+              {
+                onSuccess: () => setRemoveTarget(null),
+              },
+            );
           }
         }}
-        title={
-          removeTarget?.userId === currentUserId
-            ? 'Leave workspace'
-            : 'Remove member'
-        }
+        title={removeTarget?.userId === currentUserId ? 'Leave workspace' : 'Remove member'}
         message={
           removeTarget?.userId === currentUserId
             ? 'Are you sure you want to leave this workspace? You may lose access to boards and posts.'
@@ -303,7 +253,7 @@ export function MembersPage() {
         }
         confirmLabel={removeTarget?.userId === currentUserId ? 'Leave' : 'Remove'}
         variant="danger"
-        isLoading={removeMutation.isPending}
+        isLoading={removeMemberMutation.isPending}
       />
     </main>
   );

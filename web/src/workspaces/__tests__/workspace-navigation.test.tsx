@@ -7,20 +7,33 @@ import { MemoryRouter } from 'react-router-dom';
 // ---------------------------------------------------------------------------
 // Mock the API client — vi.mock is hoisted, so use vi.fn() inside the factory
 // ---------------------------------------------------------------------------
-vi.mock('../../core/api-client', () => ({
-  authApi: { me: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn() },
+vi.mock('../../api/workspaces', () => ({
   workspaceApi: {
     list: vi.fn(),
     create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
   },
-  boardApi: { list: vi.fn(), create: vi.fn() },
-  postApi: { list: vi.fn(), create: vi.fn(), updateStatus: vi.fn() },
+}));
+
+vi.mock('../../api/auth', () => ({
+  authApi: { me: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn() },
+}));
+
+vi.mock('../../api/boards', () => ({
+  boardApi: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
+}));
+
+vi.mock('../../api/posts', () => ({
+  postApi: { list: vi.fn(), create: vi.fn(), updateStatus: vi.fn(), getById: vi.fn() },
+}));
+
+vi.mock('../../api/votes', () => ({
   voteApi: { addVote: vi.fn(), removeVote: vi.fn() },
-  commentApi: { list: vi.fn(), create: vi.fn() },
-  apiClient: {},
-  fetchJson: vi.fn(),
-  createFetcher: vi.fn(),
-  createVoidFetcher: vi.fn(),
+}));
+
+vi.mock('../../api/comments', () => ({
+  commentApi: { list: vi.fn(), create: vi.fn(), delete: vi.fn() },
 }));
 
 const mockNavigate = vi.fn();
@@ -38,7 +51,7 @@ vi.mock('sonner', () => ({
 }));
 
 // Import the mocked modules
-import { workspaceApi } from '../../core/api-client';
+import { workspaceApi } from '../../api/workspaces';
 import { WorkspaceHub } from '../components/workspace-hub';
 import { useUiStore } from '../../core/store/ui-store';
 import { useAuthStore } from '../../auth/auth-store';

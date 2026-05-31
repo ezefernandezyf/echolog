@@ -7,21 +7,21 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // ---------------------------------------------------------------------------
 // Mock the API client — vi.mock is hoisted, so use vi.fn() inside the factory
 // ---------------------------------------------------------------------------
-vi.mock('../../core/api-client', () => ({
-  authApi: { me: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn() },
-  workspaceApi: { list: vi.fn(), create: vi.fn() },
-  boardApi: { list: vi.fn(), create: vi.fn() },
+vi.mock('../../api/votes', () => ({
+  voteApi: { addVote: vi.fn(), removeVote: vi.fn() },
+}));
+
+vi.mock('../../api/posts', () => ({
   postApi: {
     list: vi.fn(),
     create: vi.fn(),
     updateStatus: vi.fn(),
+    getById: vi.fn(),
   },
-  voteApi: { addVote: vi.fn(), removeVote: vi.fn() },
-  commentApi: { list: vi.fn(), create: vi.fn() },
-  apiClient: {},
-  fetchJson: vi.fn(),
-  createFetcher: vi.fn(),
-  createVoidFetcher: vi.fn(),
+}));
+
+vi.mock('../../api/comments', () => ({
+  commentApi: { list: vi.fn(), create: vi.fn(), delete: vi.fn() },
 }));
 
 vi.mock('sonner', () => ({
@@ -29,7 +29,7 @@ vi.mock('sonner', () => ({
 }));
 
 // Import the mocked module AFTER the mock declaration
-import { voteApi } from '../../core/api-client';
+import { voteApi } from '../../api/votes';
 import { PostRow, type PostRowData } from '../components/post-row';
 import type { PostListResponse } from '../../../../shared/contracts/index.js';
 

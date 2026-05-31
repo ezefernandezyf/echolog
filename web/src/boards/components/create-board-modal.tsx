@@ -2,8 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { z } from 'zod';
 import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
@@ -11,8 +9,9 @@ import { Input } from '../../shared/components/ui/input';
 import { Modal } from '../../shared/components/ui/modal';
 import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
+import { toast } from 'sonner';
 import { slugify } from '../../../../shared/lib/slugify';
-import { boardApi } from '../../core/api-client';
+import { useCreateBoard } from '../../hooks/use-boards';
 import { createBoardSchema } from '../../../../shared/contracts/index.js';
 
 interface CreateBoardModalProps {
@@ -20,7 +19,6 @@ interface CreateBoardModalProps {
 }
 
 export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
-  const queryClient = useQueryClient();
   const open = useUiStore((state) => state.activeModal === 'create-board');
   const closeModal = useUiStore((state) => state.closeModal);
 
@@ -38,32 +36,35 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
   const name = watch('name', '') as string;
   const description = watch('description', '') as string;
 
-  const mutation = useMutation({
-    mutationFn: (data: z.output<typeof createBoardSchema>) => boardApi.create(workspaceId, data),
-    onSuccess: () => {
-      toast.success('Board created');
-      queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
-      reset();
-      closeModal();
-    },
-    onError: (error) => {
-      const fallback = mapServerErrors(error, setError);
-      if (fallback) {
-        toast.error(fallback);
-      }
-    },
-  });
+  const createBoardMutation = useCreateBoard();
 
   return (
     <Modal open={open} onClose={closeModal} aria-label="Create Board">
-      <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
+      <form
+        className="space-y-6"
+        onSubmit={handleSubmit((data) => {
+          createBoardMutation.mutate(
+            { workspaceId, data },
+            {
+              onSuccess: () => {
+                reset();
+                closeModal();
+              },
+              onError: (error) => {
+                const fallback = mapServerErrors(error, setError);
+                if (fallback) {
+                  toast.error(fallback);
+                }
+              },
+            },
+          );
+        })}
+      >
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
             EchoLog
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-            Create Board
-          </h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Create Board</h2>
         </div>
 
         <label className="block space-y-2">
@@ -102,22 +103,31 @@ export function CreateBoardModal({ workspaceId }: CreateBoardModalProps) {
           />
           <CharCounter current={description?.length ?? 0} max={500} />
           {errors.description ? (
-            <p id="create-board-description-error" role="alert" className="text-sm text-destructive">
+            <p
+              id="create-board-description-error"
+              role="alert"
+              className="text-sm text-destructive"
+            >
               {errors.description.message}
             </p>
           ) : null}
         </label>
 
         <div className="flex items-center justify-end gap-3 pt-2">
-          <Button type="button" variant="ghost" onClick={closeModal} disabled={mutation.isPending}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={closeModal}
+            disabled={createBoardMutation.isPending}
+          >
             Cancel
           </Button>
           <Button
             type="submit"
             className="bg-primary hover:bg-primary/90 active:bg-primary/80"
-            disabled={mutation.isPending || !isDirty}
+            disabled={createBoardMutation.isPending || !isDirty}
           >
-            {mutation.isPending ? 'Creating...' : 'Create Board'}
+            {createBoardMutation.isPending ? 'Creating...' : 'Create Board'}
           </Button>
         </div>
       </form>

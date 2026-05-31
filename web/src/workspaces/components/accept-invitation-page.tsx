@@ -1,14 +1,14 @@
 'use client';
 
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { useAuthStore } from '../../auth/auth-store';
 import { Button } from '../../shared/components/ui/button';
-import { ErrorAlert } from '../../shared/components/ui/error-alert';
 import { PageTitle } from '../../core/page-title';
-import { invitationsApi } from '../../core/api-client';
-import type { WorkspaceRole } from '../../../../shared/contracts/index.js';
+import {
+  useInvitation,
+  useAcceptInvitation,
+  useDeclineInvitation,
+} from '../../hooks/use-invitations';
 
 const ROLE_LABELS: Record<string, string> = {
   OWNER: 'Owner',
@@ -24,36 +24,13 @@ export function AcceptInvitationPage() {
   const isAuthenticated = !!session;
 
   // Fetch invitation details
-  const invitationQuery = useQuery({
-    queryKey: ['invitation', token],
-    queryFn: () => invitationsApi.getByToken(token!),
-    enabled: !!token,
-    retry: false,
-  });
+  const invitationQuery = useInvitation(token);
 
   // Accept mutation
-  const acceptMutation = useMutation({
-    mutationFn: () => invitationsApi.accept(token!),
-    onSuccess: (data) => {
-      toast.success('You have joined the workspace!');
-      navigate(`/w/${data.workspaceId}`, { replace: true });
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to accept invitation');
-    },
-  });
+  const acceptMutation = useAcceptInvitation();
 
   // Decline mutation
-  const declineMutation = useMutation({
-    mutationFn: () => invitationsApi.decline(token!),
-    onSuccess: () => {
-      toast.success('Invitation declined');
-      navigate('/', { replace: true });
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to decline invitation');
-    },
-  });
+  const declineMutation = useDeclineInvitation();
 
   // Loading state
   if (invitationQuery.isPending) {
@@ -99,9 +76,7 @@ export function AcceptInvitationPage() {
                 />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-foreground">
-              Invitation Unavailable
-            </h1>
+            <h1 className="text-xl font-semibold text-foreground">Invitation Unavailable</h1>
             <p className="mt-2 text-sm text-muted-foreground">{message}</p>
             <Link
               to="/"
@@ -138,9 +113,7 @@ export function AcceptInvitationPage() {
                 <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-foreground">
-              You've been invited!
-            </h1>
+            <h1 className="text-xl font-semibold text-foreground">You've been invited!</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               You've been invited to join <strong>{invitation.workspaceName}</strong> as{' '}
               <strong>{ROLE_LABELS[invitation.role] ?? invitation.role}</strong>.
@@ -192,18 +165,14 @@ export function AcceptInvitationPage() {
               />
             </svg>
           </div>
-          <h1 className="text-xl font-semibold text-foreground">
-            You're invited!
-          </h1>
+          <h1 className="text-xl font-semibold text-foreground">You're invited!</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             You've been invited to join{' '}
-            <strong className="text-foreground">
-              {invitation.workspaceName}
-            </strong>{' '}
-            as{' '}
+            <strong className="text-foreground">{invitation.workspaceName}</strong> as{' '}
             <strong className="text-foreground">
               {ROLE_LABELS[invitation.role] ?? invitation.role}
-            </strong>.
+            </strong>
+            .
           </p>
 
           <div className="mt-8 flex items-center justify-center gap-3">
@@ -211,7 +180,11 @@ export function AcceptInvitationPage() {
               type="button"
               className="bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80"
               disabled={acceptMutation.isPending}
-              onClick={() => acceptMutation.mutate()}
+              onClick={() =>
+                acceptMutation.mutate(token!, {
+                  onSuccess: (data) => navigate(`/w/${data.workspaceId}`, { replace: true }),
+                })
+              }
             >
               {acceptMutation.isPending ? 'Accepting...' : 'Accept'}
             </Button>
@@ -219,7 +192,11 @@ export function AcceptInvitationPage() {
               type="button"
               variant="outline"
               disabled={declineMutation.isPending}
-              onClick={() => declineMutation.mutate()}
+              onClick={() =>
+                declineMutation.mutate(token!, {
+                  onSuccess: () => navigate('/', { replace: true }),
+                })
+              }
             >
               {declineMutation.isPending ? 'Declining...' : 'Decline'}
             </Button>

@@ -48,8 +48,8 @@ export function LandingPage() {
             </span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Give every team their own space. Collect feedback, vote on
-            ideas, ship what matters — without the noise.
+            Give every team their own space. Collect feedback, vote on ideas, ship what matters —
+            without the noise.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Button

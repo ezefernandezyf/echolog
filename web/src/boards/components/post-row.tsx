@@ -4,9 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Badge } from '../../shared/components/ui/badge';
 import { cn } from '../../shared/lib/cn';
-import { commentApi, postApi, voteApi } from '../../core/api-client';
+import { postApi } from '../../api/posts';
+import { voteApi } from '../../api/votes';
+import { commentApi } from '../../api/comments';
+import type { ApiError } from '../../api/client';
 import { useAuthStore } from '../../auth/auth-store';
-import type { ApiError } from '../../core/api-client';
 import { CommentSection } from './comment-section';
 import { updatePostsCache, type PostRowData, type PostsCacheEntry } from './vote-helpers';
 
@@ -26,10 +28,8 @@ function nextStatus(current: string): string {
 
 const statusStyles: Record<string, string> = {
   OPEN: 'border-border bg-secondary text-muted-foreground cursor-pointer hover:bg-muted',
-  PLANNED:
-    'border-border bg-muted text-secondary-foreground cursor-pointer hover:bg-secondary',
-  IN_PROGRESS:
-    'border-border bg-card text-secondary-foreground cursor-pointer hover:bg-muted',
+  PLANNED: 'border-border bg-muted text-secondary-foreground cursor-pointer hover:bg-secondary',
+  IN_PROGRESS: 'border-border bg-card text-secondary-foreground cursor-pointer hover:bg-muted',
   DONE: 'border-border bg-primary text-primary-foreground cursor-pointer hover:bg-primary/90',
 };
 
@@ -223,9 +223,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
               </Badge>
             </button>
           </div>
-          <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-            {post.description}
-          </p>
+          <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{post.description}</p>
         </div>
 
         <div className="flex flex-col items-end justify-between gap-3 pt-0.5 text-right">

@@ -1,9 +1,7 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { Button } from '../../shared/components/ui/button';
-import { invitationsApi } from '../../core/api-client';
+import { useCancelInvitation } from '../../hooks/use-invitations';
 import type { InvitationDTO } from '../../../../shared/contracts/index.js';
 
 const ROLE_LABELS: Record<string, string> = {
@@ -30,18 +28,7 @@ export function PendingInvitationsList({
   invitations,
   isLoading,
 }: PendingInvitationsListProps) {
-  const queryClient = useQueryClient();
-
-  const cancelMutation = useMutation({
-    mutationFn: (invitationId: string) => invitationsApi.cancel(workspaceId, invitationId),
-    onSuccess: () => {
-      toast.success('Invitation cancelled');
-      queryClient.invalidateQueries({ queryKey: ['invitations', workspaceId] });
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to cancel invitation');
-    },
-  });
+  const cancelInvitationMutation = useCancelInvitation();
 
   if (isLoading) {
     return (
@@ -53,11 +40,7 @@ export function PendingInvitationsList({
   }
 
   if (invitations.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No pending invitations.
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">No pending invitations.</p>;
   }
 
   return (
@@ -83,10 +66,12 @@ export function PendingInvitationsList({
               type="button"
               variant="ghost"
               className="ml-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
-              disabled={cancelMutation.isPending}
-              onClick={() => cancelMutation.mutate(invitation.id)}
+              disabled={cancelInvitationMutation.isPending}
+              onClick={() =>
+                cancelInvitationMutation.mutate({ workspaceId, invitationId: invitation.id })
+              }
             >
-              {cancelMutation.isPending ? '...' : 'Cancel'}
+              {cancelInvitationMutation.isPending ? '...' : 'Cancel'}
             </Button>
           ) : null}
         </div>

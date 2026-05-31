@@ -50,9 +50,17 @@ async function main() {
   }
 
   const w1Boards = [
-    { name: 'Feature Requests', slug: 'feature-requests', description: 'Suggest and vote on new features' },
-    { name: 'Bug Reports', slug: 'bug-reports', description: 'Report issues you\'ve found' },
-    { name: 'General Discussion', slug: 'general-discussion', description: 'Open chat about the product' },
+    {
+      name: 'Feature Requests',
+      slug: 'feature-requests',
+      description: 'Suggest and vote on new features',
+    },
+    { name: 'Bug Reports', slug: 'bug-reports', description: "Report issues you've found" },
+    {
+      name: 'General Discussion',
+      slug: 'general-discussion',
+      description: 'Open chat about the product',
+    },
   ];
 
   for (const b of w1Boards) {
@@ -124,36 +132,166 @@ async function main() {
 
   // ── Posts ───────────────────────────────────────────────────────────
 
-  const statuses = ['OPEN', 'PLANNED', 'IN_PROGRESS', 'DONE'] as const;
-
   const postsData = [
     // Workspace 1 posts
-    { boardSlug: 'feature-requests', wsId: w1.id, title: 'Dark mode support', body: 'It would be great to have a dark mode for late-night productivity sessions.', status: 'DONE' },
-    { boardSlug: 'feature-requests', wsId: w1.id, title: 'Export data to CSV', body: 'Allow users to export their feedback data to CSV for analysis.', status: 'PLANNED' },
-    { boardSlug: 'feature-requests', wsId: w1.id, title: 'Team collaboration spaces', body: 'Add the ability to create team-specific spaces within a workspace.', status: 'OPEN' },
-    { boardSlug: 'feature-requests', wsId: w1.id, title: 'API integration with Slack', body: 'Send notifications to Slack when new feedback is submitted.', status: 'IN_PROGRESS' },
-    { boardSlug: 'bug-reports', wsId: w1.id, title: 'Notification bell shows wrong count', body: 'The badge count on the notification bell sometimes shows stale numbers until page refresh.', status: 'OPEN' },
-    { boardSlug: 'bug-reports', wsId: w1.id, title: 'Markdown rendering in comments', body: 'Code blocks inside comments are not rendering properly on mobile.', status: 'IN_PROGRESS' },
-    { boardSlug: 'bug-reports', wsId: w1.id, title: 'Session timeout too aggressive', body: 'Getting logged out after only 10 minutes of inactivity.', status: 'PLANNED' },
-    { boardSlug: 'general-discussion', wsId: w1.id, title: 'What features do you use most?', body: 'Curious to hear which parts of the product people find most valuable.', status: 'OPEN' },
-    { boardSlug: 'general-discussion', wsId: w1.id, title: 'Q1 2026 roadmap discussion', body: 'Let\'s discuss what we should prioritize for the next quarter.', status: 'OPEN' },
+    {
+      boardSlug: 'feature-requests',
+      wsId: w1.id,
+      title: 'Dark mode support',
+      body: 'It would be great to have a dark mode for late-night productivity sessions.',
+      status: 'DONE',
+    },
+    {
+      boardSlug: 'feature-requests',
+      wsId: w1.id,
+      title: 'Export data to CSV',
+      body: 'Allow users to export their feedback data to CSV for analysis.',
+      status: 'PLANNED',
+    },
+    {
+      boardSlug: 'feature-requests',
+      wsId: w1.id,
+      title: 'Team collaboration spaces',
+      body: 'Add the ability to create team-specific spaces within a workspace.',
+      status: 'OPEN',
+    },
+    {
+      boardSlug: 'feature-requests',
+      wsId: w1.id,
+      title: 'API integration with Slack',
+      body: 'Send notifications to Slack when new feedback is submitted.',
+      status: 'IN_PROGRESS',
+    },
+    {
+      boardSlug: 'bug-reports',
+      wsId: w1.id,
+      title: 'Notification bell shows wrong count',
+      body: 'The badge count on the notification bell sometimes shows stale numbers until page refresh.',
+      status: 'OPEN',
+    },
+    {
+      boardSlug: 'bug-reports',
+      wsId: w1.id,
+      title: 'Markdown rendering in comments',
+      body: 'Code blocks inside comments are not rendering properly on mobile.',
+      status: 'IN_PROGRESS',
+    },
+    {
+      boardSlug: 'bug-reports',
+      wsId: w1.id,
+      title: 'Session timeout too aggressive',
+      body: 'Getting logged out after only 10 minutes of inactivity.',
+      status: 'PLANNED',
+    },
+    {
+      boardSlug: 'general-discussion',
+      wsId: w1.id,
+      title: 'What features do you use most?',
+      body: 'Curious to hear which parts of the product people find most valuable.',
+      status: 'OPEN',
+    },
+    {
+      boardSlug: 'general-discussion',
+      wsId: w1.id,
+      title: 'Q1 2026 roadmap discussion',
+      body: "Let's discuss what we should prioritize for the next quarter.",
+      status: 'OPEN',
+    },
 
     // Workspace 2 posts
-    { boardSlug: 'components', wsId: w2.id, title: 'New DataTable component', body: 'We need a sortable, filterable data table component for the admin panel.', status: 'PLANNED' },
-    { boardSlug: 'components', wsId: w2.id, title: 'Toast notification redesign', body: 'Current toasts are too subtle. They should be more noticeable for errors.', status: 'IN_PROGRESS' },
-    { boardSlug: 'components', wsId: w2.id, title: 'Bottom sheet component', body: 'A reusable bottom sheet for mobile views would be really useful.', status: 'OPEN' },
-    { boardSlug: 'components', wsId: w2.id, title: 'Date picker with range support', body: 'Need a date range picker for the analytics dashboard.', status: 'OPEN' },
-    { boardSlug: 'tokens-themes', wsId: w2.id, title: 'Add tertiary color palette', body: 'Our current color system needs a tertiary palette for accents and highlights.', status: 'DONE' },
-    { boardSlug: 'tokens-themes', wsId: w2.id, title: 'Spacing scale review', body: 'The current spacing scale has gaps between 8px and 16px that we should fill.', status: 'IN_PROGRESS' },
+    {
+      boardSlug: 'components',
+      wsId: w2.id,
+      title: 'New DataTable component',
+      body: 'We need a sortable, filterable data table component for the admin panel.',
+      status: 'PLANNED',
+    },
+    {
+      boardSlug: 'components',
+      wsId: w2.id,
+      title: 'Toast notification redesign',
+      body: 'Current toasts are too subtle. They should be more noticeable for errors.',
+      status: 'IN_PROGRESS',
+    },
+    {
+      boardSlug: 'components',
+      wsId: w2.id,
+      title: 'Bottom sheet component',
+      body: 'A reusable bottom sheet for mobile views would be really useful.',
+      status: 'OPEN',
+    },
+    {
+      boardSlug: 'components',
+      wsId: w2.id,
+      title: 'Date picker with range support',
+      body: 'Need a date range picker for the analytics dashboard.',
+      status: 'OPEN',
+    },
+    {
+      boardSlug: 'tokens-themes',
+      wsId: w2.id,
+      title: 'Add tertiary color palette',
+      body: 'Our current color system needs a tertiary palette for accents and highlights.',
+      status: 'DONE',
+    },
+    {
+      boardSlug: 'tokens-themes',
+      wsId: w2.id,
+      title: 'Spacing scale review',
+      body: 'The current spacing scale has gaps between 8px and 16px that we should fill.',
+      status: 'IN_PROGRESS',
+    },
 
     // Workspace 3 posts
-    { boardSlug: 'ios', wsId: w3.id, title: 'FaceID login support', body: 'It would be way more convenient to log in with FaceID instead of typing credentials.', status: 'PLANNED' },
-    { boardSlug: 'ios', wsId: w3.id, title: 'Widget for home screen', body: 'An iOS widget showing recent feedback activity would be awesome.', status: 'OPEN' },
-    { boardSlug: 'android', wsId: w3.id, title: 'Material You theming', body: 'Support Material You dynamic colors on Android 12+.', status: 'OPEN' },
-    { boardSlug: 'android', wsId: w3.id, title: 'Notification channels support', body: 'Let users configure different notification sounds per channel.', status: 'PLANNED' },
-    { boardSlug: 'cross-platform', wsId: w3.id, title: 'Offline mode', body: 'Allow browsing and voting on feedback even without internet connection.', status: 'OPEN' },
-    { boardSlug: 'cross-platform', wsId: w3.id, title: 'Push notifications are delayed', body: 'Push notifications arrive 5-10 minutes after the event. Needs investigation.', status: 'IN_PROGRESS' },
-    { boardSlug: 'cross-platform', wsId: w3.id, title: 'Sync bookmarks across devices', body: 'Bookmarked posts should sync between my phone and laptop.', status: 'OPEN' },
+    {
+      boardSlug: 'ios',
+      wsId: w3.id,
+      title: 'FaceID login support',
+      body: 'It would be way more convenient to log in with FaceID instead of typing credentials.',
+      status: 'PLANNED',
+    },
+    {
+      boardSlug: 'ios',
+      wsId: w3.id,
+      title: 'Widget for home screen',
+      body: 'An iOS widget showing recent feedback activity would be awesome.',
+      status: 'OPEN',
+    },
+    {
+      boardSlug: 'android',
+      wsId: w3.id,
+      title: 'Material You theming',
+      body: 'Support Material You dynamic colors on Android 12+.',
+      status: 'OPEN',
+    },
+    {
+      boardSlug: 'android',
+      wsId: w3.id,
+      title: 'Notification channels support',
+      body: 'Let users configure different notification sounds per channel.',
+      status: 'PLANNED',
+    },
+    {
+      boardSlug: 'cross-platform',
+      wsId: w3.id,
+      title: 'Offline mode',
+      body: 'Allow browsing and voting on feedback even without internet connection.',
+      status: 'OPEN',
+    },
+    {
+      boardSlug: 'cross-platform',
+      wsId: w3.id,
+      title: 'Push notifications are delayed',
+      body: 'Push notifications arrive 5-10 minutes after the event. Needs investigation.',
+      status: 'IN_PROGRESS',
+    },
+    {
+      boardSlug: 'cross-platform',
+      wsId: w3.id,
+      title: 'Sync bookmarks across devices',
+      body: 'Bookmarked posts should sync between my phone and laptop.',
+      status: 'OPEN',
+    },
   ];
 
   const createdPosts: Array<{ id: string; boardSlug: string; wsId: string }> = [];
@@ -181,7 +319,7 @@ async function main() {
 
   const commentTexts = [
     'This is a great idea! I would definitely use this.',
-    'We\'ve been asking for this for a while. Hope it gets prioritized.',
+    "We've been asking for this for a while. Hope it gets prioritized.",
     'I have a slightly different take — I think we should approach this differently.',
     '++1 This would be a game changer for our team.',
     'Any updates on when this might be implemented?',
