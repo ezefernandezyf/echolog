@@ -12,6 +12,7 @@ import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { slugify } from '../../../../shared/lib/slugify';
+import { useAuthStore } from '../../auth/auth-store';
 import { useWorkspaces } from '../../hooks/use-workspaces';
 import { useUpdateWorkspace, useDeleteWorkspace } from '../../hooks/use-workspaces';
 import type { UpdateWorkspaceDTO } from '../../../../shared/contracts/index.js';
@@ -23,8 +24,10 @@ export function WorkspaceSettingsPage() {
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  const userId = useAuthStore((state) => state.session?.user?.id);
+
   // Get workspace from the query cache
-  const workspaceQuery = useWorkspaces();
+  const workspaceQuery = useWorkspaces(userId);
 
   const workspace = Array.isArray(workspaceQuery.data)
     ? workspaceQuery.data.find((w) => w.id === workspaceId)

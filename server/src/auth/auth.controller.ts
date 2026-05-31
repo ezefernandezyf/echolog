@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { createToken, verifyToken } from '../infra/http.js';
 import { parseCookies } from '../infra/request.js';
+import { logger } from '../infra/logger.js';
 import { authService } from './auth.service.js';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -28,7 +29,7 @@ export const login = async (req: Request, res: Response) => {
     res.cookie('echolog_token', token, cookieOptions);
     res.status(200).json(session);
   } catch (err) {
-    console.error('[AUTH-LOGIN-ERROR]', err);
+    logger.warn({ err, requestId: req.requestId }, 'Login failed');
     throw err;
   }
 };

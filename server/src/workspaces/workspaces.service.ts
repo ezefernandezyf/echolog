@@ -455,11 +455,12 @@ export class WorkspacesService {
       throw new HttpError('Member not found', 404);
     }
 
-    if (targetMember.role === 'OWNER') {
+    // Cannot remove the owner unless it's self-removal (handled below)
+    if (targetMember.role === 'OWNER' && targetUserId !== actorUserId) {
       throw new HttpError('Cannot remove the workspace owner', 403);
     }
 
-    // Cannot remove self if OWNER
+    // Cannot remove self if OWNER — transfer ownership first
     if (targetUserId === actorUserId) {
       const actorMember = await prisma.workspaceMember.findUnique({
         where: { userId_workspaceId: { userId: actorUserId, workspaceId } },
