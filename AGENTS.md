@@ -147,15 +147,19 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 11.6 **WCAG 2.2 AA accessibility upgrade** ✅ — 2.4.7 Focus Appearance (PASS), 2.5.8 Target Size (PASS, 2 fixes), 3.3.7 Accessible Authentication (PASS), 3.3.8 Redundant Entry (PASS), 3.2.6 Consistent Help (N/A)
 - [x] 11.7 **Design system documentation** ✅ — DESIGN-TOKENS.md with complete token reference, typography scale, color palette, shadow system, animation utilities, anti-patterns
 
-### Phase 12: Architecture Hardening (v1.1) 🔲
-- [ ] 12.1 **Shared Zod schemas** — migrate DTOs from TS interfaces to Zod schemas in `shared/contracts/`, derive types via `z.infer<typeof schema>`, single source of truth for frontend form validation + backend request validation
-- [ ] 12.2 **Split api-client.ts into domain modules** — `api/workspaces.ts`, `api/boards.ts`, `api/auth.ts`, `api/invitations.ts`, `api/notifications.ts` + create React Query data hooks layer (`useCancelInvitation`, `useCreateBoard`, etc.) so components never call the API client directly
-- [ ] 12.3 **Refactor authenticated-layout.tsx** — split into `SidebarContainer` (workspace/board queries + loading/error states), `MobileHeader` (hamburger + branding), and `AuthenticatedLayout` (orchestration only)
+### Phase 12: Architecture Hardening (v1.1) ✅
+> Full SDD cycle: explore → propose → spec → design → tasks → apply → verify → archive. 139 tests, 0 lint errors.
 
-### Phase 13: Production Hardening (v1.1) 🔲
-- [ ] 13.1 **Rate limiting** — `express-rate-limit` on auth (login/register brute-force), invitations (spam), votes (abuse); different limits per route
-- [ ] 13.2 **Structured logging** — replace `console.log/error` with `pino`, add request ID middleware for tracing, proper log levels (info/warn/error), error serialization with stack traces
-- [ ] 13.3 **Expand test coverage** — direct service unit tests for `workspaces.service.ts` (create/update/delete/members/invitations), UI component tests for invitations/members/settings flows, error/edge case coverage for all mutations
+- [x] 12.1 **Shared Zod schemas** — migrated all 175 TS interfaces to 34 Zod schemas with `z.infer<typeof schema>` in `shared/contracts/`, deleted `dtos.ts`, single source of truth for frontend + backend
+- [x] 12.2 **Split api-client.ts into domain modules** — 9 domain API modules under `web/src/api/`, 10 React Query hooks under `web/src/hooks/` with centralized query key factory, 22+ components migrated, `api-client.ts` deleted
+- [x] 12.3 **Refactor authenticated-layout.tsx** — split into `SidebarContainer` (fetches workspaces/boards internally + loading/error/empty states), `MobileHeader` (hamburger + branding + theme toggle), and `AuthenticatedLayout` (pure composition, 227→70 lines)
+
+### Phase 13: Production Hardening (v1.1) ✅
+> TDD: 3 ciclos (RED→GREEN→REFACTOR). 226 tests, 0 lint errors, 0 console.* en server/src/. Encontrados y corregidos 2 bugs pre-existentes.
+
+- [x] 13.1 **Rate limiting** — `express-rate-limit` en auth (5/15min), invitations (20/15min), votes (30/1min). Skip en test env. Respuesta 429 con `Retry-After` header.
+- [x] 13.2 **Structured logging** — `pino` con redact de datos sensibles, `request-id` middleware con `X-Request-Id`, cero `console.*` en server/src/
+- [x] 13.3 **Expand test coverage** — 80 tests nuevos (42 unit tests de `workspaces.service.ts` + 38 UI tests de members/invitations/settings). Total: 226 tests.
 
 ### Phase 14: Email Service (v1.1) 🔲
 - [ ] 14.1 **Email provider integration** (Resend) — transactional email client with templating, delivery status tracking, graceful failure fallback
