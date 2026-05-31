@@ -1,8 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
 import { z } from 'zod';
 import type { AuthSessionDTO } from '../../../../shared/contracts/index.js';
 import { authRegisterSchema as sharedRegisterSchema } from '../../../../shared/contracts/index.js';
@@ -16,15 +14,13 @@ const authRegisterSchema = sharedRegisterSchema
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
-import { authApi } from '../../core/api-client';
-import type { ApiError } from '../../core/api-client';
+import { useRegister } from '../../hooks/use-auth';
+import type { ApiError } from '../../api/client';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { CharCounter } from '../../shared/components/ui/char-counter';
 import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 import { PageTitle } from '../../core/page-title';
-import { useAuthStore } from '../auth-store';
-import { AUTH_QUERY_KEYS } from '../use-session';
 import { AuthCard } from './auth-card';
 
 interface RegisterFormProps {
@@ -32,9 +28,6 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
-  const queryClient = useQueryClient();
-  const setSession = useAuthStore((state) => state.setSession);
-
   const {
     register,
     handleSubmit,
@@ -46,37 +39,28 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
   const name = watch('name', '');
 
-  const registerMutation = useMutation({
-    mutationFn: authApi.register,
-    onSuccess: (session) => {
-      queryClient.clear();
-      toast.success('Account created');
-      setSession(session);
-      queryClient.setQueryData(AUTH_QUERY_KEYS.session, session);
-      onSuccess?.(session);
-    },
-  });
+  const registerMutation = useRegister();
 
   useFocusOnMount('h2');
 
   return (
     <AuthCard>
       <PageTitle title="Create Account" />
-      <form className="space-y-6" onSubmit={handleSubmit((data) => registerMutation.mutate(data))}>
+      <form
+        className="space-y-6"
+        onSubmit={handleSubmit((data) =>
+          registerMutation.mutate(data, { onSuccess: (session) => onSuccess?.(session) }),
+        )}
+      >
         <div className="space-y-2 text-center sm:text-left">
-          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-            Create account
-          </h2>
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground">Create account</h2>
           <p className="text-sm leading-6 text-muted-foreground">
             Start a clean feedback workflow for your team.
           </p>
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="register-name"
-            className="text-sm font-medium text-foreground"
-          >
+          <label htmlFor="register-name" className="text-sm font-medium text-foreground">
             Name
           </label>
           <Input
@@ -98,10 +82,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="register-email"
-            className="text-sm font-medium text-foreground"
-          >
+          <label htmlFor="register-email" className="text-sm font-medium text-foreground">
             Email
           </label>
           <Input
@@ -121,10 +102,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="register-password"
-            className="text-sm font-medium text-foreground"
-          >
+          <label htmlFor="register-password" className="text-sm font-medium text-foreground">
             Password
           </label>
           <Input
@@ -155,12 +133,18 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             type="password"
             autoComplete="new-password"
             placeholder="Repeat your password"
-            aria-describedby={errors.confirmPassword ? 'register-confirm-password-error' : undefined}
+            aria-describedby={
+              errors.confirmPassword ? 'register-confirm-password-error' : undefined
+            }
             aria-invalid={errors.confirmPassword ? true : undefined}
             {...register('confirmPassword')}
           />
           {errors.confirmPassword ? (
-            <p id="register-confirm-password-error" role="alert" className="text-sm text-destructive">
+            <p
+              id="register-confirm-password-error"
+              role="alert"
+              className="text-sm text-destructive"
+            >
               {errors.confirmPassword.message}
             </p>
           ) : null}

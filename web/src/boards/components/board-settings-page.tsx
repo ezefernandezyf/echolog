@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -13,7 +12,7 @@ import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { slugify } from '../../../../shared/lib/slugify';
-import { boardApi } from '../../core/api-client';
+import { useBoards, useUpdateBoard, useDeleteBoard } from '../../hooks/use-boards';
 import type { UpdateBoardDTO } from '../../../../shared/contracts/index.js';
 import { updateBoardSchema } from '../../../../shared/contracts/index.js';
 import { PageTitle } from '../../core/page-title';
@@ -21,14 +20,9 @@ import { PageTitle } from '../../core/page-title';
 export function BoardSettingsPage() {
   const { workspaceId, boardId } = useParams<{ workspaceId: string; boardId: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const boardsQuery = useQuery({
-    queryKey: ['boards', workspaceId],
-    queryFn: () => boardApi.list(workspaceId!),
-    enabled: !!workspaceId,
-  });
+  const boardsQuery = useBoards(workspaceId);
 
   const board = Array.isArray(boardsQuery.data)
     ? boardsQuery.data.find((b) => b.id === boardId)
@@ -51,32 +45,9 @@ export function BoardSettingsPage() {
   const name = watch('name', '') as string;
   const description = watch('description', '') as string;
 
-  const updateMutation = useMutation({
-    mutationFn: (data: UpdateBoardDTO) => boardApi.update(workspaceId!, boardId!, data),
-    onSuccess: (data) => {
-      toast.success('Board updated');
-      queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
-      reset({ name: data.name, slug: data.slug, description: data.description ?? '' });
-    },
-    onError: (error) => {
-      const fallback = mapServerErrors(error, setError);
-      if (fallback) {
-        toast.error(fallback);
-      }
-    },
-  });
+  const updateBoardMutation = useUpdateBoard();
 
-  const deleteMutation = useMutation({
-    mutationFn: () => boardApi.delete(workspaceId!, boardId!),
-    onSuccess: () => {
-      toast.success('Board deleted');
-      queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
-      navigate(`/w/${workspaceId}`, { replace: true });
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to delete board');
-    },
-  });
+  const deleteBoardMutation = useDeleteBoard();
 
   if (boardsQuery.isPending) {
     return (
@@ -114,10 +85,7 @@ export function BoardSettingsPage() {
       <div className="space-y-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
-          <Link
-            to="/w"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Link to="/w" className="text-muted-foreground transition-colors hover:text-foreground">
             Workspaces
           </Link>
           <span className="text-muted-foreground/50">/</span>
@@ -151,13 +119,28 @@ export function BoardSettingsPage() {
               if (data.description !== (board.description ?? ''))
                 changed.description = data.description || null;
               if (Object.keys(changed).length === 0) return;
-              updateMutation.mutate(changed);
+              updateBoardMutation.mutate(
+                { workspaceId: workspaceId!, boardId: boardId!, data: changed },
+                {
+                  onSuccess: (data) => {
+                    reset({
+                      name: data.name,
+                      slug: data.slug,
+                      description: data.description ?? '',
+                    });
+                  },
+                  onError: (error) => {
+                    const fallback = mapServerErrors(error, setError);
+                    if (fallback) {
+                      toast.error(fallback);
+                    }
+                  },
+                },
+              );
             })}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground">
-                Board Name
-              </span>
+              <span className="text-sm font-medium text-secondary-foreground">Board Name</span>
               <Input
                 id="board-settings-name"
                 placeholder="Feature Requests"
@@ -200,9 +183,7 @@ export function BoardSettingsPage() {
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground">
-                Description
-              </span>
+              <span className="text-sm font-medium text-secondary-foreground">Description</span>
               <Input
                 id="board-settings-description"
                 placeholder="Collect and prioritize feature ideas"
@@ -225,10 +206,10 @@ export function BoardSettingsPage() {
               ) : null}
             </label>
 
-            {updateMutation.error ? (
+            {updateBoardMutation.error ? (
               <p className="text-sm text-destructive">
-                {updateMutation.error instanceof Error
-                  ? updateMutation.error.message
+                {updateBoardMutation.error instanceof Error
+                  ? updateBoardMutation.error.message
                   : 'Failed to update board'}
               </p>
             ) : null}
@@ -236,10 +217,10 @@ export function BoardSettingsPage() {
             <div className="flex items-center justify-end gap-3 pt-2">
               <Button
                 type="submit"
-                disabled={updateMutation.isPending || !isDirty}
+                disabled={updateBoardMutation.isPending || !isDirty}
                 className="bg-primary hover:bg-primary/90 active:bg-primary/80"
               >
-                {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+                {updateBoardMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </form>
@@ -268,12 +249,19 @@ export function BoardSettingsPage() {
       <ConfirmDialog
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
-        onConfirm={() => deleteMutation.mutate()}
+        onConfirm={() =>
+          deleteBoardMutation.mutate(
+            { workspaceId: workspaceId!, boardId: boardId! },
+            {
+              onSuccess: () => navigate(`/w/${workspaceId}`, { replace: true }),
+            },
+          )
+        }
         title="Delete Board"
         message={`This will permanently delete the board "${board.name}" and all its posts, comments, and votes. This action cannot be undone.`}
         confirmLabel="Delete Board"
         confirmInput={board.name}
-        isLoading={deleteMutation.isPending}
+        isLoading={deleteBoardMutation.isPending}
       />
     </main>
   );

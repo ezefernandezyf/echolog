@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import type { z } from 'zod';
@@ -10,18 +9,13 @@ import { Button } from '../shared/components/ui/button';
 import { Input } from '../shared/components/ui/input';
 import { CharCounter } from '../shared/components/ui/char-counter';
 import { mapServerErrors } from '../shared/lib/map-server-errors';
-import { authApi } from '../core/api-client';
+import { useUpdateProfile, useUpdateEmail, useUpdatePassword } from '../hooks/use-auth';
 import { useAuthStore } from '../auth/auth-store';
 import { PageTitle } from '../core/page-title';
 import {
   updateProfileSchema,
   updateEmailSchema,
   updatePasswordSchema,
-} from '../../../shared/contracts/index.js';
-import type {
-  UpdateProfileDTO,
-  UpdateEmailDTO,
-  UpdatePasswordDTO,
 } from '../../../shared/contracts/index.js';
 
 export function UserSettingsPage() {
@@ -45,20 +39,7 @@ export function UserSettingsPage() {
 
   const profileName = (watchProfile('name', '') as string) ?? '';
 
-  const profileMutation = useMutation({
-    mutationFn: (data: UpdateProfileDTO) => authApi.updateProfile(data),
-    onSuccess: (data) => {
-      patchUser({ name: data.user.name ?? undefined });
-      resetProfile({ name: data.user.name ?? undefined });
-      toast.success('Display name updated');
-    },
-    onError: (error) => {
-      const fallback = mapServerErrors(error, setProfileError);
-      if (fallback) {
-        toast.error(fallback);
-      }
-    },
-  });
+  const updateProfileMutation = useUpdateProfile();
 
   // --- Email form ---
   const {
@@ -72,20 +53,7 @@ export function UserSettingsPage() {
     values: user?.email ? { email: user.email, currentPassword: '' } : undefined,
   });
 
-  const emailMutation = useMutation({
-    mutationFn: (data: UpdateEmailDTO) => authApi.updateEmail(data),
-    onSuccess: (data) => {
-      patchUser({ email: data.user.email });
-      resetEmail({ email: data.user.email, currentPassword: '' });
-      toast.success('Email updated');
-    },
-    onError: (error) => {
-      const fallback = mapServerErrors(error, setEmailError);
-      if (fallback) {
-        toast.error(fallback);
-      }
-    },
-  });
+  const updateEmailMutation = useUpdateEmail();
 
   // --- Password form ---
   const {
@@ -103,19 +71,7 @@ export function UserSettingsPage() {
     defaultValues: { currentPassword: '', newPassword: '' },
   });
 
-  const passwordMutation = useMutation({
-    mutationFn: (data: UpdatePasswordDTO) => authApi.updatePassword(data),
-    onSuccess: () => {
-      resetPassword();
-      toast.success('Password changed');
-    },
-    onError: (error) => {
-      const fallback = mapServerErrors(error, setPasswordError);
-      if (fallback) {
-        toast.error(fallback);
-      }
-    },
-  });
+  const updatePasswordMutation = useUpdatePassword();
 
   return (
     <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-8 animate-fade-in">
@@ -124,10 +80,7 @@ export function UserSettingsPage() {
       <div className="space-y-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
-          <Link
-            to="/w"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Link to="/w" className="text-muted-foreground transition-colors hover:text-foreground">
             Workspaces
           </Link>
           <span className="text-muted-foreground/50">/</span>
@@ -140,14 +93,25 @@ export function UserSettingsPage() {
         <section className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="space-y-1">
             <h2 className="text-lg font-semibold text-foreground">Display Name</h2>
-            <p className="text-sm text-muted-foreground">
-              This is the name shown across the app.
-            </p>
+            <p className="text-sm text-muted-foreground">This is the name shown across the app.</p>
           </div>
 
           <form
             className="space-y-4"
-            onSubmit={handleProfileSubmit((data) => profileMutation.mutate(data))}
+            onSubmit={handleProfileSubmit((data) =>
+              updateProfileMutation.mutate(data, {
+                onSuccess: (data) => {
+                  patchUser({ name: data.user.name ?? undefined });
+                  resetProfile({ name: data.user.name ?? undefined });
+                },
+                onError: (error) => {
+                  const fallback = mapServerErrors(error, setProfileError);
+                  if (fallback) {
+                    toast.error(fallback);
+                  }
+                },
+              }),
+            )}
           >
             <label className="block space-y-2">
               <span className="text-sm font-medium text-secondary-foreground">Name</span>
@@ -169,8 +133,8 @@ export function UserSettingsPage() {
             </label>
 
             <div className="flex items-center justify-end gap-3 pt-2">
-              <Button type="submit" disabled={profileMutation.isPending || !profileDirty}>
-                {profileMutation.isPending ? 'Saving...' : 'Save'}
+              <Button type="submit" disabled={updateProfileMutation.isPending || !profileDirty}>
+                {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </form>
@@ -187,12 +151,23 @@ export function UserSettingsPage() {
 
           <form
             className="space-y-4"
-            onSubmit={handleEmailSubmit((data) => emailMutation.mutate(data))}
+            onSubmit={handleEmailSubmit((data) =>
+              updateEmailMutation.mutate(data, {
+                onSuccess: (data) => {
+                  patchUser({ email: data.user.email });
+                  resetEmail({ email: data.user.email, currentPassword: '' });
+                },
+                onError: (error) => {
+                  const fallback = mapServerErrors(error, setEmailError);
+                  if (fallback) {
+                    toast.error(fallback);
+                  }
+                },
+              }),
+            )}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground">
-                New Email
-              </span>
+              <span className="text-sm font-medium text-secondary-foreground">New Email</span>
               <Input
                 id="settings-email"
                 type="email"
@@ -225,15 +200,19 @@ export function UserSettingsPage() {
                 {...registerEmail('currentPassword')}
               />
               {emailErrors.currentPassword ? (
-                <p id="settings-email-password-error" role="alert" className="text-sm text-destructive">
+                <p
+                  id="settings-email-password-error"
+                  role="alert"
+                  className="text-sm text-destructive"
+                >
                   {emailErrors.currentPassword.message}
                 </p>
               ) : null}
             </label>
 
             <div className="flex items-center justify-end gap-3 pt-2">
-              <Button type="submit" disabled={emailMutation.isPending || !emailDirty}>
-                {emailMutation.isPending ? 'Saving...' : 'Change Email'}
+              <Button type="submit" disabled={updateEmailMutation.isPending || !emailDirty}>
+                {updateEmailMutation.isPending ? 'Saving...' : 'Change Email'}
               </Button>
             </div>
           </form>
@@ -250,7 +229,19 @@ export function UserSettingsPage() {
 
           <form
             className="space-y-4"
-            onSubmit={handlePasswordSubmit((data) => passwordMutation.mutate(data))}
+            onSubmit={handlePasswordSubmit((data) =>
+              updatePasswordMutation.mutate(data, {
+                onSuccess: () => {
+                  resetPassword();
+                },
+                onError: (error) => {
+                  const fallback = mapServerErrors(error, setPasswordError);
+                  if (fallback) {
+                    toast.error(fallback);
+                  }
+                },
+              }),
+            )}
           >
             <label className="block space-y-2">
               <span className="text-sm font-medium text-secondary-foreground">
@@ -279,9 +270,7 @@ export function UserSettingsPage() {
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground">
-                New Password
-              </span>
+              <span className="text-sm font-medium text-secondary-foreground">New Password</span>
               <Input
                 id="settings-password-new"
                 type="password"
@@ -294,15 +283,19 @@ export function UserSettingsPage() {
                 {...registerPassword('newPassword')}
               />
               {passwordErrors.newPassword ? (
-                <p id="settings-password-new-error" role="alert" className="text-sm text-destructive">
+                <p
+                  id="settings-password-new-error"
+                  role="alert"
+                  className="text-sm text-destructive"
+                >
                   {passwordErrors.newPassword.message}
                 </p>
               ) : null}
             </label>
 
             <div className="flex items-center justify-end gap-3 pt-2">
-              <Button type="submit" disabled={passwordMutation.isPending || !passwordDirty}>
-                {passwordMutation.isPending ? 'Saving...' : 'Change Password'}
+              <Button type="submit" disabled={updatePasswordMutation.isPending || !passwordDirty}>
+                {updatePasswordMutation.isPending ? 'Saving...' : 'Change Password'}
               </Button>
             </div>
           </form>

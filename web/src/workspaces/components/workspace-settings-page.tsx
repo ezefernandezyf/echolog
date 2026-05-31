@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -13,7 +12,8 @@ import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { slugify } from '../../../../shared/lib/slugify';
-import { workspaceApi } from '../../core/api-client';
+import { useWorkspaces } from '../../hooks/use-workspaces';
+import { useUpdateWorkspace, useDeleteWorkspace } from '../../hooks/use-workspaces';
 import type { UpdateWorkspaceDTO } from '../../../../shared/contracts/index.js';
 import { updateWorkspaceSchema } from '../../../../shared/contracts/index.js';
 import { PageTitle } from '../../core/page-title';
@@ -21,15 +21,10 @@ import { PageTitle } from '../../core/page-title';
 export function WorkspaceSettingsPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Get workspace from the query cache
-  const workspaceQuery = useQuery({
-    queryKey: ['workspaces'],
-    queryFn: workspaceApi.list,
-    staleTime: 60_000,
-  });
+  const workspaceQuery = useWorkspaces();
 
   const workspace = Array.isArray(workspaceQuery.data)
     ? workspaceQuery.data.find((w) => w.id === workspaceId)
@@ -53,32 +48,9 @@ export function WorkspaceSettingsPage() {
 
   const name = watch('name', '') as string;
 
-  const updateMutation = useMutation({
-    mutationFn: (data: UpdateWorkspaceDTO) => workspaceApi.update(workspaceId!, data),
-    onSuccess: (data) => {
-      toast.success('Workspace updated');
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      reset({ name: data.name, slug: data.slug });
-    },
-    onError: (error) => {
-      const fallback = mapServerErrors(error, setError);
-      if (fallback) {
-        toast.error(fallback);
-      }
-    },
-  });
+  const updateWorkspaceMutation = useUpdateWorkspace();
 
-  const deleteMutation = useMutation({
-    mutationFn: () => workspaceApi.delete(workspaceId!),
-    onSuccess: () => {
-      toast.success('Workspace deleted');
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      navigate('/w', { replace: true });
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to delete workspace');
-    },
-  });
+  const deleteWorkspaceMutation = useDeleteWorkspace();
 
   if (workspaceQuery.isPending) {
     return (
@@ -99,10 +71,7 @@ export function WorkspaceSettingsPage() {
       <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-10 animate-fade-in">
         <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <p className="text-sm text-muted-foreground">Workspace not found</p>
-          <Link
-            to="/w"
-            className="mt-4 inline-block text-sm font-medium text-foreground underline"
-          >
+          <Link to="/w" className="mt-4 inline-block text-sm font-medium text-foreground underline">
             Back to workspaces
           </Link>
         </div>
@@ -116,10 +85,7 @@ export function WorkspaceSettingsPage() {
       <div className="space-y-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
-          <Link
-            to="/w"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Link to="/w" className="text-muted-foreground transition-colors hover:text-foreground">
             Workspaces
           </Link>
           <span className="text-muted-foreground/50">/</span>
@@ -152,13 +118,24 @@ export function WorkspaceSettingsPage() {
               if (data.name !== workspace.name) changed.name = data.name;
               if (data.slug !== workspace.slug) changed.slug = data.slug;
               if (Object.keys(changed).length === 0) return;
-              updateMutation.mutate(changed);
+              updateWorkspaceMutation.mutate(
+                { workspaceId: workspaceId!, data: changed },
+                {
+                  onSuccess: (data) => {
+                    reset({ name: data.name, slug: data.slug });
+                  },
+                  onError: (error) => {
+                    const fallback = mapServerErrors(error, setError);
+                    if (fallback) {
+                      toast.error(fallback);
+                    }
+                  },
+                },
+              );
             })}
           >
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground">
-                Workspace Name
-              </span>
+              <span className="text-sm font-medium text-secondary-foreground">Workspace Name</span>
               <Input
                 id="workspace-settings-name"
                 placeholder="Northstar Labs"
@@ -173,7 +150,11 @@ export function WorkspaceSettingsPage() {
               ) : null}
               <CharCounter current={name.length} max={120} />
               {errors.name ? (
-                <p id="workspace-settings-name-error" role="alert" className="text-sm text-destructive">
+                <p
+                  id="workspace-settings-name-error"
+                  role="alert"
+                  className="text-sm text-destructive"
+                >
                   {errors.name.message}
                 </p>
               ) : null}
@@ -194,7 +175,11 @@ export function WorkspaceSettingsPage() {
                 Used in URLs: echolog.app/w/{workspace.slug}
               </p>
               {errors.slug ? (
-                <p id="workspace-settings-slug-error" role="alert" className="text-sm text-destructive">
+                <p
+                  id="workspace-settings-slug-error"
+                  role="alert"
+                  className="text-sm text-destructive"
+                >
                   {errors.slug.message}
                 </p>
               ) : null}
@@ -203,10 +188,10 @@ export function WorkspaceSettingsPage() {
             <div className="flex items-center justify-end gap-3 pt-2">
               <Button
                 type="submit"
-                disabled={updateMutation.isPending || !isDirty}
+                disabled={updateWorkspaceMutation.isPending || !isDirty}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80"
               >
-                {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+                {updateWorkspaceMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </form>
@@ -251,12 +236,16 @@ export function WorkspaceSettingsPage() {
       <ConfirmDialog
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
-        onConfirm={() => deleteMutation.mutate()}
+        onConfirm={() =>
+          deleteWorkspaceMutation.mutate(workspaceId!, {
+            onSuccess: () => navigate('/w', { replace: true }),
+          })
+        }
         title="Delete Workspace"
         message={`This will permanently delete the workspace "${workspace.name}" and all its boards, posts, comments, and votes. This action cannot be undone.`}
         confirmLabel="Delete Workspace"
         confirmInput={workspace.name}
-        isLoading={deleteMutation.isPending}
+        isLoading={deleteWorkspaceMutation.isPending}
       />
     </main>
   );

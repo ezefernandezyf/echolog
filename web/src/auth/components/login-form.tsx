@@ -1,18 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
 import type { AuthSessionDTO, AuthLoginDTO } from '../../../../shared/contracts/index.js';
 import { authLoginSchema } from '../../../../shared/contracts/index.js';
-import { authApi } from '../../core/api-client';
-import type { ApiError } from '../../core/api-client';
+import { useLogin } from '../../hooks/use-auth';
+import type { ApiError } from '../../api/client';
 import { Button } from '../../shared/components/ui/button';
 import { Input } from '../../shared/components/ui/input';
 import { useFocusOnMount } from '../../shared/hooks/use-focus-on-mount';
 import { PageTitle } from '../../core/page-title';
-import { useAuthStore } from '../auth-store';
-import { AUTH_QUERY_KEYS } from '../use-session';
 import { AuthCard } from './auth-card';
 
 interface LoginFormProps {
@@ -20,9 +16,6 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
-  const queryClient = useQueryClient();
-  const setSession = useAuthStore((state) => state.setSession);
-
   const {
     register,
     handleSubmit,
@@ -31,37 +24,28 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     resolver: zodResolver(authLoginSchema),
   });
 
-  const loginMutation = useMutation({
-    mutationFn: authApi.login,
-    onSuccess: (session) => {
-      queryClient.clear();
-      toast.success('Welcome back');
-      setSession(session);
-      queryClient.setQueryData(AUTH_QUERY_KEYS.session, session);
-      onSuccess?.(session);
-    },
-  });
+  const loginMutation = useLogin();
 
   useFocusOnMount('h2');
 
   return (
     <AuthCard>
       <PageTitle title="Sign In" />
-      <form className="space-y-6" onSubmit={handleSubmit((data) => loginMutation.mutate(data))}>
+      <form
+        className="space-y-6"
+        onSubmit={handleSubmit((data) =>
+          loginMutation.mutate(data, { onSuccess: (session) => onSuccess?.(session) }),
+        )}
+      >
         <div className="space-y-2 text-center sm:text-left">
-          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-            Welcome back
-          </h2>
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground">Welcome back</h2>
           <p className="text-sm leading-6 text-muted-foreground">
             Sign in to keep collecting feedback in one place.
           </p>
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="login-email"
-            className="text-sm font-medium text-foreground"
-          >
+          <label htmlFor="login-email" className="text-sm font-medium text-foreground">
             Email
           </label>
           <Input
@@ -81,10 +65,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="login-password"
-            className="text-sm font-medium text-foreground"
-          >
+          <label htmlFor="login-password" className="text-sm font-medium text-foreground">
             Password
           </label>
           <Input

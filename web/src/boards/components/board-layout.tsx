@@ -2,10 +2,10 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { PostList, type PostSort } from './post-list';
 import type { PostRowData } from './post-row';
-import { boardApi, postApi } from '../../core/api-client';
+import { useInfinitePosts } from '../../hooks/use-posts';
+import { useBoards } from '../../hooks/use-boards';
 import { Button } from '../../shared/components/ui/button';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
 import { useAuthenticatedShell } from '../../auth/authenticated-layout';
@@ -52,11 +52,7 @@ export function BoardLayout() {
   const [activeSort, setActiveSort] = useState<PostSort>('Trending');
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
 
-  const boardsQuery = useQuery({
-    queryKey: ['boards', workspaceId],
-    queryFn: () => boardApi.list(workspaceId!),
-    enabled: !!workspaceId,
-  });
+  const boardsQuery = useBoards(workspaceId);
 
   // Board selection: auto-select first, but allow manual switch
   useEffect(() => {
@@ -72,19 +68,10 @@ export function BoardLayout() {
 
   useFocusOnMount('h1');
 
-  const postsQuery = useInfiniteQuery({
-    queryKey: ['posts', effectiveBoardId, { status: activeStatus, sort: activeSort }],
-    queryFn: async ({ pageParam }) =>
-      postApi.list(effectiveBoardId!, {
-        status: activeStatus ?? undefined,
-        sort: SORT_TO_API[activeSort],
-        cursor: (pageParam as string | null) ?? undefined,
-        limit: PAGE_SIZE,
-      }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-    placeholderData: (previousData) => previousData,
-    enabled: !!effectiveBoardId,
+  const postsQuery = useInfinitePosts(effectiveBoardId, {
+    status: activeStatus,
+    sort: SORT_TO_API[activeSort],
+    pageSize: PAGE_SIZE,
   });
 
   // Derive posts from all loaded pages — no local accumulated state.
@@ -119,9 +106,7 @@ export function BoardLayout() {
       <PageTitle title={selectedBoard?.name ?? ''} />
       {!workspaceId ? (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-muted-foreground">
-            Select a workspace from the sidebar.
-          </p>
+          <p className="text-sm text-muted-foreground">Select a workspace from the sidebar.</p>
         </div>
       ) : boardsQuery.isPending ? (
         <section className="flex min-h-screen flex-1 flex-col bg-card">

@@ -1,15 +1,14 @@
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { toast } from 'sonner';
-import { commentApi } from '../../core/api-client';
 import { Button } from '../../shared/components/ui/button';
 import { CharCounter } from '../../shared/components/ui/char-counter';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { ErrorAlert } from '../../shared/components/ui/error-alert';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
+import { useCreateComment, useDeleteComment } from '../../hooks/use-comments';
 import type { CommentDTO, CreateCommentDTO } from '../../../../shared/contracts/index.js';
 import { createCommentSchema } from '../../../../shared/contracts/index.js';
 
@@ -162,8 +161,6 @@ export function CommentSection({
   onRetry,
   currentUserId,
 }: CommentSectionProps) {
-  const queryClient = useQueryClient();
-
   const {
     register,
     handleSubmit,
@@ -177,47 +174,29 @@ export function CommentSection({
 
   const body = watch('body', '');
 
-  const commentMutation = useMutation({
-    mutationFn: (data: CreateCommentDTO) => commentApi.create(postId, data),
-    onSuccess: () => {
-      toast.success('Comment added');
-      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
-      reset();
-    },
-    onError: (error) => {
-      const fallback = mapServerErrors(error, setError);
-      if (fallback) {
-        toast.error(fallback);
-      }
-    },
-  });
+  const createCommentMutation = useCreateComment();
 
-  const deleteMutation = useMutation({
-    mutationFn: (commentId: string) => commentApi.delete(postId, commentId),
-    onMutate: async (commentId) => {
-      await queryClient.cancelQueries({ queryKey: ['comments', postId] });
-      const previous = queryClient.getQueryData<CommentDTO[]>(['comments', postId]);
-      queryClient.setQueryData<CommentDTO[]>(['comments', postId], (old) =>
-        old ? old.filter((c) => c.id !== commentId) : [],
-      );
-      return { previous };
-    },
-    onSuccess: () => {
-      toast.success('Comment deleted');
-    },
-    onError: (error, _commentId, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(['comments', postId], context.previous);
-      }
-      toast.error(error instanceof Error ? error.message : 'Failed to delete comment');
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
-    },
-  });
+  const deleteCommentMutation = useDeleteComment();
+
+  const handleCreateComment = (data: CreateCommentDTO) => {
+    createCommentMutation.mutate(
+      { postId, data },
+      {
+        onSuccess: () => {
+          reset();
+        },
+        onError: (error) => {
+          const fallback = mapServerErrors(error, setError);
+          if (fallback) {
+            toast.error(fallback);
+          }
+        },
+      },
+    );
+  };
 
   const handleDelete = (commentId: string) => {
-    deleteMutation.mutate(commentId);
+    deleteCommentMutation.mutate({ postId, commentId });
   };
 
   if (isLoading) {
@@ -259,7 +238,11 @@ export function CommentSection({
             comments={comments}
             currentUserId={currentUserId}
             onDelete={handleDelete}
-            isDeletingId={deleteMutation.isPending ? (deleteMutation.variables as string) : null}
+            isDeletingId={
+              deleteCommentMutation.isPending
+                ? (deleteCommentMutation.variables?.commentId ?? null)
+                : null
+            }
           />
         ) : (
           <div className="space-y-3" role="region" aria-live="polite" aria-label="Comments">
@@ -269,7 +252,10 @@ export function CommentSection({
                 comment={c}
                 currentUserId={currentUserId}
                 onDelete={handleDelete}
-                isDeleting={deleteMutation.isPending && deleteMutation.variables === c.id}
+                isDeleting={
+                  deleteCommentMutation.isPending &&
+                  deleteCommentMutation.variables?.commentId === c.id
+                }
               />
             ))}
           </div>
@@ -283,7 +269,7 @@ export function CommentSection({
       )}
 
       <form
-        onSubmit={handleSubmit((data) => commentMutation.mutate(data))}
+        onSubmit={handleSubmit((data) => handleCreateComment(data))}
         className="mt-3 flex gap-2"
       >
         <div className="flex-1">
@@ -307,10 +293,10 @@ export function CommentSection({
         </div>
         <Button
           type="submit"
-          disabled={commentMutation.isPending || !body.trim()}
+          disabled={createCommentMutation.isPending || !body.trim()}
           className="h-auto px-3 py-1.5 text-xs"
         >
-          {commentMutation.isPending ? '...' : 'Send'}
+          {createCommentMutation.isPending ? '...' : 'Send'}
         </Button>
       </form>
     </div>

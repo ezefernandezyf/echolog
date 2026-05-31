@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useUiStore } from '../../core/store/ui-store';
 import { Button } from '../../shared/components/ui/button';
@@ -11,7 +10,7 @@ import { Modal } from '../../shared/components/ui/modal';
 import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { cn } from '../../shared/lib/cn';
-import { postApi } from '../../core/api-client';
+import { useCreatePost } from '../../hooks/use-posts';
 import type { CreatePostDTO } from '../../../../shared/contracts/index.js';
 import { createPostSchema } from '../../../../shared/contracts/index.js';
 
@@ -20,7 +19,6 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ boardId }: CreatePostModalProps) {
-  const queryClient = useQueryClient();
   const open = useUiStore((state) => state.activeModal === 'create-post');
   const closeModal = useUiStore((state) => state.closeModal);
 
@@ -37,28 +35,31 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
 
   const title = watch('title', '');
 
-  const mutation = useMutation({
-    mutationFn: (data: CreatePostDTO) => {
-      if (!boardId) throw new Error('No board selected');
-      return postApi.create(boardId, data);
-    },
-    onSuccess: () => {
-      toast.success('Post created');
-      queryClient.invalidateQueries({ queryKey: ['posts', boardId] });
-      reset();
-      closeModal();
-    },
-    onError: (error) => {
-      const fallback = mapServerErrors(error, setError);
-      if (fallback) {
-        toast.error(fallback);
-      }
-    },
-  });
+  const createPostMutation = useCreatePost();
 
   return (
     <Modal open={open} onClose={closeModal} className="max-w-2xl" aria-label="Submit new feedback">
-      <form className="space-y-6" onSubmit={handleSubmit((data) => mutation.mutate(data))}>
+      <form
+        className="space-y-6"
+        onSubmit={handleSubmit((data) => {
+          if (!boardId) return;
+          createPostMutation.mutate(
+            { boardId, data },
+            {
+              onSuccess: () => {
+                reset();
+                closeModal();
+              },
+              onError: (error) => {
+                const fallback = mapServerErrors(error, setError);
+                if (fallback) {
+                  toast.error(fallback);
+                }
+              },
+            },
+          );
+        })}
+      >
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
             New Feedback
@@ -111,15 +112,20 @@ export function CreatePostModal({ boardId }: CreatePostModalProps) {
         </label>
 
         <div className="flex items-center justify-end gap-3 pt-2">
-          <Button type="button" variant="ghost" onClick={closeModal} disabled={mutation.isPending}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={closeModal}
+            disabled={createPostMutation.isPending}
+          >
             Cancel
           </Button>
           <Button
             type="submit"
             className="bg-primary hover:bg-primary/90 active:bg-primary/80"
-            disabled={mutation.isPending || !isDirty}
+            disabled={createPostMutation.isPending || !isDirty}
           >
-            {mutation.isPending ? 'Creating...' : 'Create Post'}
+            {createPostMutation.isPending ? 'Creating...' : 'Create Post'}
           </Button>
         </div>
       </form>

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '../../shared/lib/cn';
 import { useAuthStore } from '../../auth/auth-store';
-import { authApi } from '../../core/api-client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLogout } from '../../hooks/use-auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { ThemeToggle } from '../../shared/components/theme-toggle';
@@ -50,9 +49,7 @@ export function Sidebar({
   onNavClick,
 }: SidebarProps) {
   const user = useAuthStore((state) => state.session?.user);
-  const clearSession = useAuthStore((state) => state.clearSession);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const sidebarOpen = useUiStore((state) => state.sidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const asideRef = useRef<HTMLElement>(null);
@@ -107,15 +104,7 @@ export function Sidebar({
     };
   }, [sidebarOpen, closeSidebar]);
 
-  const logoutMutation = useMutation({
-    mutationFn: () => authApi.logout(),
-    onSuccess: () => {
-      setShowSignOutDialog(false);
-      clearSession();
-      queryClient.clear();
-      navigate('/login', { replace: true });
-    },
-  });
+  const logoutMutation = useLogout();
 
   return (
     <aside
@@ -203,9 +192,7 @@ export function Sidebar({
                 )}
               >
                 {item.label}
-                {active ? (
-                  <span className="text-xs text-muted-foreground">•</span>
-                ) : null}
+                {active ? <span className="text-xs text-muted-foreground">•</span> : null}
               </button>
             );
           })}
@@ -291,7 +278,14 @@ export function Sidebar({
         <ConfirmDialog
           open={showSignOutDialog}
           onClose={() => setShowSignOutDialog(false)}
-          onConfirm={() => logoutMutation.mutate()}
+          onConfirm={() =>
+            logoutMutation.mutate(undefined, {
+              onSuccess: () => {
+                setShowSignOutDialog(false);
+                navigate('/login', { replace: true });
+              },
+            })
+          }
           title="Sign out"
           message="Are you sure you want to sign out?"
           confirmLabel="Sign out"

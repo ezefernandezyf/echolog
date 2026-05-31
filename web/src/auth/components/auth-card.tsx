@@ -10,9 +10,7 @@ export function AuthCard({ children }: AuthCardProps) {
     >
       <div className="w-full max-w-sm animate-fade-in">
         <div className="mb-8 text-center">
-          <span className="text-2xl font-bold tracking-tight text-foreground">
-            EchoLog
-          </span>
+          <span className="text-2xl font-bold tracking-tight text-foreground">EchoLog</span>
         </div>
         <div className="rounded-xl border border-border bg-card shadow-lg px-6 py-8 sm:px-8">
           {children}
