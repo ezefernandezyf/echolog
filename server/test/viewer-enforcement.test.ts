@@ -48,9 +48,7 @@ describe('viewer enforcement', () => {
     });
     const wsRes = await ownerAgent.post('/api/workspaces').send({ name: 'Viewer List WS' });
     const workspaceId: string = wsRes.body.id;
-    await ownerAgent
-      .post(`/api/workspaces/${workspaceId}/boards`)
-      .send({ name: 'General' });
+    await ownerAgent.post(`/api/workspaces/${workspaceId}/boards`).send({ name: 'General' });
 
     // Register viewer and add as VIEWER
     const viewerAgent = request.agent(app);
@@ -203,9 +201,7 @@ describe('viewer enforcement', () => {
       .post(`/api/boards/${boardId}/posts`)
       .send({ title: 'Test Post', body: 'Test' });
     const postId: string = postRes.body.id;
-    await ownerAgent
-      .post(`/api/posts/${postId}/comments`)
-      .send({ body: 'Owner comment' });
+    await ownerAgent.post(`/api/posts/${postId}/comments`).send({ body: 'Owner comment' });
 
     // Register viewer and add as VIEWER
     const viewerAgent = request.agent(app);

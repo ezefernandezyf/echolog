@@ -74,7 +74,7 @@ describe('comments membership hardening', () => {
     expect(deleteRes.body.success).toBe(true);
   });
 
-  it('allows OWNER to delete another user\'s comment (200)', async () => {
+  it("allows OWNER to delete another user's comment (200)", async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
 
     // Owner creates workspace
@@ -124,7 +124,7 @@ describe('comments membership hardening', () => {
     expect(deleteRes.body.success).toBe(true);
   });
 
-  it('allows ADMIN to delete another user\'s comment (200)', async () => {
+  it("allows ADMIN to delete another user's comment (200)", async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
 
     // Owner creates workspace
@@ -220,7 +220,7 @@ describe('comments membership hardening', () => {
     expect(commentRes.body.id).toBeDefined();
   });
 
-  it('returns 403 when non-privileged user tries to delete another user\'s comment', async () => {
+  it("returns 403 when non-privileged user tries to delete another user's comment", async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
 
     // Owner creates workspace

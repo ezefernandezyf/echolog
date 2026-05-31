@@ -43,7 +43,9 @@ export function updatePostsCache(
       ...old,
       pages: old.pages.map((page: PostCachePage) => ({
         ...page,
-        posts: Array.isArray(page.posts) ? page.posts.map((p) => updater(p as unknown as PostRowData)) : [],
+        posts: Array.isArray(page.posts)
+          ? page.posts.map((p) => updater(p as unknown as PostRowData))
+          : [],
       })),
     };
   }

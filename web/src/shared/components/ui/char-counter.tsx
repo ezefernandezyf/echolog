@@ -11,11 +11,7 @@ export function CharCounter({ current, max, showAt = 0.75, className }: CharCoun
   if (ratio <= showAt) return null;
 
   const colorClass =
-    ratio >= 1
-      ? 'text-destructive'
-      : ratio >= 0.9
-        ? 'text-warning'
-        : 'text-muted-foreground';
+    ratio >= 1 ? 'text-destructive' : ratio >= 0.9 ? 'text-warning' : 'text-muted-foreground';
 
   return (
     <p className={`text-xs ${colorClass} ${className ?? ''}`}>

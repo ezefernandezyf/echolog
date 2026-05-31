@@ -6,10 +6,7 @@ import { cn } from '../lib/cn';
  */
 export function PostSkeleton() {
   return (
-    <article
-      className="border-b border-border bg-card"
-      aria-hidden="true"
-    >
+    <article className="border-b border-border bg-card" aria-hidden="true">
       <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-5 py-5 sm:px-6">
         {/* Vote button shape */}
         <Skeleton width={48} height={56} rounded="2xl" />

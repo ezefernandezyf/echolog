@@ -122,11 +122,13 @@ describe('invitation flow', () => {
     const workspaceId: string = wsRes.body.id;
 
     // Register user A (the invited user)
-    await request(app).post('/api/auth/register').send({
-      email: `invited-${suffix}@test.dev`,
-      password: 'secret12345',
-      name: 'Invited',
-    });
+    await request(app)
+      .post('/api/auth/register')
+      .send({
+        email: `invited-${suffix}@test.dev`,
+        password: 'secret12345',
+        name: 'Invited',
+      });
 
     // Register user B (the wrong user)
     const wrongAgent = request.agent(app);
@@ -211,11 +213,13 @@ describe('invitation flow', () => {
     });
 
     // Register another user and add as VIEWER
-    const regRes2 = await request(app).post('/api/auth/register').send({
-      email: `viewer-${suffix}@test.dev`,
-      password: 'secret12345',
-      name: 'Viewer',
-    });
+    const regRes2 = await request(app)
+      .post('/api/auth/register')
+      .send({
+        email: `viewer-${suffix}@test.dev`,
+        password: 'secret12345',
+        name: 'Viewer',
+      });
     const viewerId: string = regRes2.body.user.id;
     await prisma.workspaceMember.create({
       data: { userId: viewerId, workspaceId, role: 'VIEWER' },
@@ -251,11 +255,13 @@ describe('invitation flow', () => {
     const workspaceId: string = wsRes.body.id;
 
     // Register another user and add as MEMBER
-    const regRes = await request(app).post('/api/auth/register').send({
-      email: `changeme-${suffix}@test.dev`,
-      password: 'secret12345',
-      name: 'ChangeMe',
-    });
+    const regRes = await request(app)
+      .post('/api/auth/register')
+      .send({
+        email: `changeme-${suffix}@test.dev`,
+        password: 'secret12345',
+        name: 'ChangeMe',
+      });
     const targetId: string = regRes.body.user.id;
     await prisma.workspaceMember.create({
       data: { userId: targetId, workspaceId, role: 'MEMBER' },
@@ -283,20 +289,20 @@ describe('invitation flow', () => {
     const workspaceId: string = wsRes.body.id;
 
     // Register another user and add as MEMBER
-    const regRes = await request(app).post('/api/auth/register').send({
-      email: `removeme-${suffix}@test.dev`,
-      password: 'secret12345',
-      name: 'RemoveMe',
-    });
+    const regRes = await request(app)
+      .post('/api/auth/register')
+      .send({
+        email: `removeme-${suffix}@test.dev`,
+        password: 'secret12345',
+        name: 'RemoveMe',
+      });
     const targetId: string = regRes.body.user.id;
     await prisma.workspaceMember.create({
       data: { userId: targetId, workspaceId, role: 'MEMBER' },
     });
 
     // Owner removes member → 204
-    const removeRes = await ownerAgent.delete(
-      `/api/workspaces/${workspaceId}/members/${targetId}`,
-    );
+    const removeRes = await ownerAgent.delete(`/api/workspaces/${workspaceId}/members/${targetId}`);
     expect(removeRes.status).toBe(204);
 
     // Verify member count decreased

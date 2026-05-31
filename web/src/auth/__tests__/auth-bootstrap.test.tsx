@@ -7,22 +7,16 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 // ---------------------------------------------------------------------------
 // Mock the API client — vi.mock is hoisted, so use vi.fn() inside the factory
 // ---------------------------------------------------------------------------
-vi.mock('../../core/api-client', () => ({
+vi.mock('../../api/auth', () => ({
   authApi: {
     me: vi.fn(),
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
+    updateProfile: vi.fn(),
+    updateEmail: vi.fn(),
+    updatePassword: vi.fn(),
   },
-  workspaceApi: { list: vi.fn(), create: vi.fn() },
-  boardApi: { list: vi.fn(), create: vi.fn() },
-  postApi: { list: vi.fn(), create: vi.fn(), updateStatus: vi.fn() },
-  voteApi: { addVote: vi.fn(), removeVote: vi.fn() },
-  commentApi: { list: vi.fn(), create: vi.fn() },
-  apiClient: {},
-  fetchJson: vi.fn(),
-  createFetcher: vi.fn(),
-  createVoidFetcher: vi.fn(),
 }));
 
 vi.mock('sonner', () => ({
@@ -30,7 +24,7 @@ vi.mock('sonner', () => ({
 }));
 
 // Import the mocked module so we can control it
-import { authApi } from '../../core/api-client';
+import { authApi } from '../../api/auth';
 import type { AuthSessionDTO } from '../../../../shared/contracts/index.js';
 import { useSession } from '../use-session';
 import { useAuthStore } from '../auth-store';

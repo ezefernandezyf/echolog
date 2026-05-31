@@ -37,9 +37,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               <span className="text-2xl">⚠</span>
             </div>
             <div className="space-y-2">
-              <h1 className="text-lg font-semibold text-foreground">
-                Something went wrong
-              </h1>
+              <h1 className="text-lg font-semibold text-foreground">Something went wrong</h1>
               <p className="text-sm text-muted-foreground">
                 {this.state.error.message || 'An unexpected error occurred'}
               </p>

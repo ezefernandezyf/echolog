@@ -4,9 +4,11 @@ import { toast } from 'sonner';
 import { Badge } from '../../shared/components/ui/badge';
 import { Button } from '../../shared/components/ui/button';
 import { cn } from '../../shared/lib/cn';
-import { postApi, voteApi, commentApi } from '../../core/api-client';
+import { postApi } from '../../api/posts';
+import { voteApi } from '../../api/votes';
+import { commentApi } from '../../api/comments';
 import { useAuthStore } from '../../auth/auth-store';
-import type { ApiError } from '../../core/api-client';
+import type { ApiError } from '../../api/client';
 import type { PostDTO } from '../../../../shared/contracts/index.js';
 import { CommentSection } from './comment-section';
 import { PostSkeleton } from '../../shared/components/domain-skeletons';
@@ -16,10 +18,8 @@ import { PageTitle } from '../../core/page-title';
 
 const statusStyles: Record<string, string> = {
   OPEN: 'border-border bg-secondary text-muted-foreground',
-  PLANNED:
-    'border-border bg-muted text-secondary-foreground',
-  IN_PROGRESS:
-    'border-border bg-card text-secondary-foreground',
+  PLANNED: 'border-border bg-muted text-secondary-foreground',
+  IN_PROGRESS: 'border-border bg-card text-secondary-foreground',
   DONE: 'border-border bg-primary text-primary-foreground',
 };
 
