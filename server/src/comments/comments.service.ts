@@ -1,6 +1,7 @@
 import type { NotificationType } from '@prisma/client';
 import { prisma } from '../infra/prisma.js';
 import { HttpError } from '../infra/http.js';
+import { sanitizeInput } from '../infra/sanitize.js';
 import { notificationsService } from '../notifications/notifications.service.js';
 import type { CommentDTO, CreateCommentDTO } from '../../../shared/contracts/index.js';
 
@@ -38,7 +39,7 @@ export class CommentsService {
       data: {
         postId,
         authorId: userId,
-        body: input.body,
+        body: sanitizeInput(input.body),
       },
       include: {
         author: { select: { name: true } },

@@ -26,6 +26,19 @@ export default tseslint.config(
     },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'CallExpression[callee.property.name="$queryRawUnsafe"]',
+          message:
+            'Use Prisma parameterized queries instead of $queryRawUnsafe. This method is banned for SQL injection prevention.',
+        },
+        {
+          selector: 'CallExpression[callee.property.name="$executeRawUnsafe"]',
+          message:
+            'Use Prisma parameterized queries instead of $executeRawUnsafe. This method is banned for SQL injection prevention.',
+        },
+      ],
     },
   },
 

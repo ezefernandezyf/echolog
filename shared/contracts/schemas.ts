@@ -36,6 +36,7 @@ export type NotificationType = z.infer<typeof NotificationTypeSchema>;
 export const AuthUserSchema = z.object({
   id: z.string(),
   email: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
   name: z.string().nullable(),
 });
 export type AuthUserDTO = z.infer<typeof AuthUserSchema>;
@@ -84,6 +85,7 @@ export type UpdatePasswordDTO = z.infer<typeof UpdatePasswordDTOSchema>;
 
 export const WorkspaceSchema = z.object({
   id: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
   name: z.string(),
   slug: z.string(),
   role: WorkspaceRoleSchema,
@@ -106,8 +108,10 @@ export type UpdateWorkspaceDTO = z.infer<typeof UpdateWorkspaceDTOSchema>;
 export const BoardSchema = z.object({
   id: z.string(),
   workspaceId: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
   name: z.string(),
   slug: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
   description: z.string().nullable(),
 });
 export type BoardDTO = z.infer<typeof BoardSchema>;
@@ -132,7 +136,9 @@ export const PostSchema = z.object({
   workspaceId: z.string(),
   boardId: z.string(),
   authorId: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
   title: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
   body: z.string(),
   status: z.string(),
   voteCount: z.number(),
@@ -179,6 +185,7 @@ export const CommentSchema = z.object({
   id: z.string(),
   postId: z.string(),
   authorId: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
   body: z.string(),
   createdAt: z.string(),
   authorName: z.string().nullable().optional(),
@@ -196,6 +203,7 @@ export const MemberSchema = z.object({
   userId: z.string(),
   workspaceId: z.string(),
   role: WorkspaceRoleSchema,
+  /** Plain text — not HTML-safe. React escapes on render. */
   name: z.string().nullable(),
   email: z.string(),
   joinedAt: z.string(),
@@ -233,6 +241,7 @@ export const NotificationSchema = z.object({
   id: z.string(),
   userId: z.string(),
   type: NotificationTypeSchema,
+  /** Plain text — not HTML-safe. React escapes on render. */
   message: z.string(),
   read: z.boolean(),
   link: z.string().nullable(),

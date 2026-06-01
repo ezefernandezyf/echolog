@@ -1,5 +1,6 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
+import { sanitizeInput } from '../infra/sanitize.js';
 import type {
   CreatePostDTO,
   PostDTO,
@@ -126,8 +127,8 @@ export class PostsService {
         workspaceId: board.workspaceId,
         boardId,
         authorId: userId,
-        title: input.title,
-        body: input.body,
+        title: sanitizeInput(input.title),
+        body: sanitizeInput(input.body),
       },
     });
 

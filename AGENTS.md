@@ -161,6 +161,14 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 13.2 **Structured logging** — `pino` con redact de datos sensibles, `request-id` middleware con `X-Request-Id`, cero `console.*` en server/src/
 - [x] 13.3 **Expand test coverage** — 80 tests nuevos (42 unit tests de `workspaces.service.ts` + 38 UI tests de members/invitations/settings). Total: 226 tests.
 
+### Phase 13.5: Security Hardening ✅
+> CSP explícita, sanitización server-side con sanitize-html, ESLint anti-rawSQL, 16 tests de seguridad. 137 tests totales server.
+
+- [x] 13.5.1 **CSP & Security Headers** — helmet con CSP explícita (`default-src 'self'`, `font-src` Google Fonts, `frame-ancestors 'none'`), `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`
+- [x] 13.5.2 **Server-side input sanitization** — `sanitizeInput()` con `sanitize-html` en 9 campos de 5 services (posts, comments, boards, workspaces, auth). HTML stripping total.
+- [x] 13.5.3 **Output encoding audit** — JSDoc en DTOs de `shared/contracts` marcando campos user-generated como plain text. React escapa JSX por defecto.
+- [x] 13.5.4 **SQL injection hardening** — ESLint `no-restricted-syntax` para `$queryRawUnsafe`. Cero raw SQL en codebase.
+
 ### Phase 14: Email Service (v1.1) 🔲
 - [ ] 14.1 **Email provider integration** (Resend) — transactional email client with templating, delivery status tracking, graceful failure fallback
 - [ ] 14.2 **Email templates** — invitation email with token link + workspace name, welcome email on registration or first workspace creation

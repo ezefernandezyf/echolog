@@ -3,6 +3,7 @@ import type { InvitationStatus, WorkspaceRole, NotificationType } from '@prisma/
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
 import { notificationsService } from '../notifications/notifications.service.js';
+import { sanitizeInput } from '../infra/sanitize.js';
 import { slugify } from '../../../shared/lib/slugify.js';
 import type {
   CreateWorkspaceDTO,
@@ -50,7 +51,7 @@ export class WorkspacesService {
 
     const workspace = await prisma.workspace.create({
       data: {
-        name: input.name,
+        name: sanitizeInput(input.name),
         slug,
         members: {
           create: {
@@ -92,7 +93,7 @@ export class WorkspacesService {
     const workspace = await prisma.workspace.update({
       where: { id: workspaceId },
       data: {
-        ...(input.name !== undefined && { name: input.name }),
+        ...(input.name !== undefined && { name: sanitizeInput(input.name) }),
         ...(input.slug !== undefined && { slug: input.slug }),
       },
     });
