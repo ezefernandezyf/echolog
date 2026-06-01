@@ -36,10 +36,10 @@ export const createRateLimiter = (
 /**
  * Pre-configured limiters — these skip in test environment (NODE_ENV=test).
  *
- * authLimiter:       5 requests per 15 minutes — brute-force prevention for login/register
+ * authLimiter:       20 requests per 15 minutes — brute-force prevention for login/register
  * invitationLimiter: 20 requests per 15 minutes — spam prevention for invitations
- * voteLimiter:       30 requests per 1 minute   — abuse prevention for voting
+ * voteLimiter:       30 requests per 1 minute    — abuse prevention for voting
  */
-export const authLimiter = createRateLimiter(15 * 60 * 1000, 5);
+export const authLimiter = createRateLimiter(15 * 60 * 1000, 20);
 export const invitationLimiter = createRateLimiter(15 * 60 * 1000, 20);
 export const voteLimiter = createRateLimiter(60 * 1000, 30);
