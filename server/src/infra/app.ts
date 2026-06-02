@@ -11,6 +11,7 @@ import { workspaceRouter } from '../workspaces/workspaces.router.js';
 import { errorHandler } from './error-handler.js';
 import { requestId } from './request-id.js';
 import { authLimiter, invitationLimiter, voteLimiter } from './rate-limiter.js';
+import { prisma } from './prisma.js';
 
 export const createApp = () => {
   const app = express();
@@ -56,7 +57,13 @@ export const createApp = () => {
     const raw = process.env.DATABASE_URL ?? '';
     const masked = raw ? raw.replace(/\/\/.*@/, '//***:***@') : 'not set';
     const host = raw.includes('@') ? raw.split('@')[1]?.split('/')[0] ?? 'unknown' : 'not set';
-    res.json({ host, masked });
+    try {
+      const users = await prisma.user.count();
+      const workspaces = await prisma.workspace.count();
+      res.json({ host, masked, users, workspaces });
+    } catch {
+      res.json({ host, masked, users: 'error', workspaces: 'error' });
+    }
   });
 
   app.use('/api/auth', authLimiter, authRouter);
