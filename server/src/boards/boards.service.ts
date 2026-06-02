@@ -1,5 +1,6 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
+import { sanitizeInput } from '../infra/sanitize.js';
 import { slugify } from '../../../shared/lib/slugify.js';
 import type { BoardDTO, CreateBoardDTO, UpdateBoardDTO } from '../../../shared/contracts/index.js';
 
@@ -42,9 +43,9 @@ export class BoardsService {
     return prisma.board.create({
       data: {
         workspaceId,
-        name: input.name,
+        name: sanitizeInput(input.name),
         slug,
-        description: input.description ?? null,
+        description: input.description ? sanitizeInput(input.description) : null,
       },
       select: {
         id: true,
@@ -88,9 +89,11 @@ export class BoardsService {
     return prisma.board.update({
       where: { id: boardId },
       data: {
-        ...(input.name !== undefined && { name: input.name }),
+        ...(input.name !== undefined && { name: sanitizeInput(input.name) }),
         ...(input.slug !== undefined && { slug: input.slug }),
-        ...(input.description !== undefined && { description: input.description }),
+        ...(input.description !== undefined && {
+          description: input.description ? sanitizeInput(input.description) : null,
+        }),
       },
       select: {
         id: true,

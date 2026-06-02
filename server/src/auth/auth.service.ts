@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
+import { sanitizeInput } from '../infra/sanitize.js';
 import type {
   AuthLoginDTO,
   AuthRegisterDTO,
@@ -25,7 +26,7 @@ export class AuthService {
     const user = await prisma.user.create({
       data: {
         email: input.email,
-        name: input.name ?? null,
+        name: input.name ? sanitizeInput(input.name) : null,
         passwordHash,
       },
     });
@@ -63,7 +64,7 @@ export class AuthService {
   async updateProfile(userId: string, input: UpdateProfileDTO): Promise<UpdateProfileResult> {
     const updated = await prisma.user.update({
       where: { id: userId },
-      data: { name: input.name },
+      data: { name: sanitizeInput(input.name) },
     });
 
     return {

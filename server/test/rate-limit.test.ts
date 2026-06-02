@@ -88,9 +88,7 @@ describe('rate limiting', () => {
       expect(response.status).not.toBe(429);
       expect(response.headers).toHaveProperty('ratelimit-limit');
       expect(response.headers).toHaveProperty('ratelimit-remaining');
-      expect(Number(response.headers['ratelimit-remaining'])).toBeGreaterThanOrEqual(
-        10 - (i + 1),
-      );
+      expect(Number(response.headers['ratelimit-remaining'])).toBeGreaterThanOrEqual(10 - (i + 1));
     }
   });
 
