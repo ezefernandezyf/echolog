@@ -52,6 +52,13 @@ export const createApp = () => {
     res.status(200).json({ status: 'ok' });
   });
 
+  app.get('/health/db', async (_req, res) => {
+    const raw = process.env.DATABASE_URL ?? '';
+    const masked = raw ? raw.replace(/\/\/.*@/, '//***:***@') : 'not set';
+    const host = raw.includes('@') ? raw.split('@')[1]?.split('/')[0] ?? 'unknown' : 'not set';
+    res.json({ host, masked });
+  });
+
   app.use('/api/auth', authLimiter, authRouter);
   app.use('/api/workspaces', workspaceRouter);
   app.use('/api/invitations', invitationLimiter, invitationsRouter);
