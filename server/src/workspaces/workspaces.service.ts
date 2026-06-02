@@ -3,6 +3,7 @@ import type { InvitationStatus, WorkspaceRole, NotificationType } from '@prisma/
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
 import { notificationsService } from '../notifications/notifications.service.js';
+import { emailService } from '../email/email.service.js';
 import { sanitizeInput } from '../infra/sanitize.js';
 import { slugify } from '../../../shared/lib/slugify.js';
 import type {
@@ -167,14 +168,23 @@ export class WorkspacesService {
     // Notify the invited user if they exist
     if (invitedUser) {
       const inviter = await prisma.user.findUnique({ where: { id: invitedById } });
+      const inviterName = inviter?.name ?? 'Someone';
       notificationsService.create({
         userId: invitedUser.id,
         type: 'INVITE_SENT' as NotificationType,
-        message: `${inviter?.name ?? 'Someone'} invited you to **${invitation.workspace.name}**`,
+        message: `${inviterName} invited you to **${invitation.workspace.name}**`,
         link: `/invite/${invitation.token}`,
         actorId: invitedById,
         workspaceId,
       });
+
+      // Send invitation email (non-blocking — wrapper swallows errors)
+      emailService.sendInvitationEmail(
+        invitation.token,
+        invitedEmail,
+        invitation.workspace.name,
+        inviterName,
+      );
     }
 
     return {
@@ -424,14 +434,20 @@ export class WorkspacesService {
 
     // Notify the affected user
     const workspaceForNotif = await prisma.workspace.findUnique({ where: { id: workspaceId } });
+    const workspaceName = workspaceForNotif?.name ?? 'workspace';
     notificationsService.create({
       userId: targetUserId,
       type: 'ROLE_CHANGED' as NotificationType,
-      message: `Your role in **${workspaceForNotif?.name ?? 'workspace'}** was changed to **${newRole}**`,
+      message: `Your role in **${workspaceName}** was changed to **${newRole}**`,
       link: `/w/${workspaceId}`,
       actorId: actorUserId,
       workspaceId,
     });
+
+    // Send role change email (non-blocking — wrapper swallows errors)
+    if (updated.user.email) {
+      emailService.sendRoleChangedEmail(updated.user.email, workspaceName, newRole);
+    }
 
     return {
       userId: updated.userId,

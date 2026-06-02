@@ -1,5 +1,20 @@
 import crypto from 'node:crypto';
 import request from 'supertest';
+import { vi, expect } from 'vitest';
+
+// Mock email service to avoid real API calls during integration tests
+const { mockSendWelcomeEmail } = vi.hoisted(() => ({
+  mockSendWelcomeEmail: vi.fn(),
+}));
+
+vi.mock('../src/email/email.service', () => ({
+  emailService: {
+    sendInvitationEmail: vi.fn(),
+    sendRoleChangedEmail: vi.fn(),
+    sendWelcomeEmail: mockSendWelcomeEmail,
+  },
+}));
+
 import app from '../src/index.js';
 
 describe('auth routes', () => {
@@ -33,6 +48,24 @@ describe('auth routes', () => {
     expect(tokenCookie).toBeDefined();
     expect(tokenCookie).toContain('HttpOnly');
     expect(tokenCookie).toContain('Path=/');
+  });
+
+  it('calls sendWelcomeEmail on registration', async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+
+    const response = await request(app)
+      .post('/api/auth/register')
+      .send({
+        email: `welcome-${suffix}@test.dev`,
+        password: 'secret12345',
+        name: 'Welcome User',
+      });
+
+    expect(response.status).toBe(201);
+    expect(mockSendWelcomeEmail).toHaveBeenCalledWith(
+      `welcome-${suffix}@test.dev`,
+      'Welcome User',
+    );
   });
 
   it('logs in an existing user and sets auth cookie', async () => {

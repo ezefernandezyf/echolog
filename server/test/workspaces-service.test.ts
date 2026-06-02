@@ -42,12 +42,21 @@ vi.mock('../src/notifications/notifications.service', () => ({
   notificationsService: { create: vi.fn() },
 }));
 
+vi.mock('../src/email/email.service', () => ({
+  emailService: {
+    sendInvitationEmail: vi.fn(),
+    sendRoleChangedEmail: vi.fn(),
+    sendWelcomeEmail: vi.fn(),
+  },
+}));
+
 // ---------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------
 import { workspacesService } from '../src/workspaces/workspaces.service';
 import { prisma } from '../src/infra/prisma';
 import { notificationsService } from '../src/notifications/notifications.service';
+import { emailService } from '../src/email/email.service';
 import type { Mock } from 'vitest';
 
 // ---------------------------------------------------------------------------
@@ -314,6 +323,8 @@ describe('WorkspacesService', () => {
       expect(result.id).toBe('inv-1');
       // No notification should be sent for non-existing user
       expect(notificationsService.create).not.toHaveBeenCalled();
+      // No email should be sent for non-existing user
+      expect(emailService.sendInvitationEmail).not.toHaveBeenCalled();
     });
 
     it('throws 409 when invited email is already a member', async () => {
@@ -376,6 +387,31 @@ describe('WorkspacesService', () => {
           workspaceId: 'ws-1',
         }),
       );
+
+      // Verify email was sent
+      expect(emailService.sendInvitationEmail).toHaveBeenCalledWith(
+        expect.any(String),
+        'target@test.com',
+        'Test Workspace',
+        'Owner',
+      );
+    });
+
+    it('does NOT send email when invited user is not registered', async () => {
+      vi.mocked(prisma.workspace.findUnique).mockResolvedValue(mockWorkspace as any);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(null); // invited email not registered
+      vi.mocked(prisma.workspaceInvitation.create).mockResolvedValue(mockInvitation as any);
+
+      await workspacesService.createInvitation(
+        'ws-1',
+        'newuser@test.com',
+        'MEMBER',
+        'user-1',
+      );
+
+      // No notification, no email
+      expect(notificationsService.create).not.toHaveBeenCalled();
+      expect(emailService.sendInvitationEmail).not.toHaveBeenCalled();
     });
   });
 
@@ -640,6 +676,19 @@ describe('WorkspacesService', () => {
       const result = await workspacesService.changeMemberRole('ws-1', 'user-3', 'ADMIN', 'user-1');
 
       expect(result.role).toBe('ADMIN');
+      // Verify notification was created
+      expect(notificationsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-3',
+          type: 'ROLE_CHANGED',
+        }),
+      );
+      // Verify email was sent
+      expect(emailService.sendRoleChangedEmail).toHaveBeenCalledWith(
+        'charlie@test.com',
+        'Test Workspace',
+        'ADMIN',
+      );
     });
 
     it('throws 403 when trying to set role to OWNER', async () => {
