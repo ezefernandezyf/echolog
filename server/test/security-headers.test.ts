@@ -27,4 +27,25 @@ describe('security headers', () => {
     const res = await request(app).get('/health');
     expect(res.headers['x-frame-options']).toBe('DENY');
   });
+
+  it('allows Google Fonts in font-src CSP directive', async () => {
+    const res = await request(app).get('/health');
+    const csp = res.headers['content-security-policy'];
+    expect(csp).toContain('font-src');
+    expect(csp).toContain('https://fonts.googleapis.com');
+    expect(csp).toContain('https://fonts.gstatic.com');
+  });
+
+  it('allows unsafe-inline styles for development HMR', async () => {
+    const res = await request(app).get('/health');
+    const csp = res.headers['content-security-policy'];
+    expect(csp).toContain('style-src');
+    expect(csp).toContain("'unsafe-inline'");
+  });
+
+  it('sets default-src to self', async () => {
+    const res = await request(app).get('/health');
+    const csp = res.headers['content-security-policy'];
+    expect(csp).toContain("default-src 'self'");
+  });
 });

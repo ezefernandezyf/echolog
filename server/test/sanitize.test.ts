@@ -29,4 +29,30 @@ describe('sanitizeInput', () => {
   it('strips iframe', () => {
     expect(sanitizeInput('<iframe src="evil"></iframe>')).toBe('');
   });
+
+  it('strips <b> tag but preserves inner text', () => {
+    expect(sanitizeInput('<b>bold</b>')).toBe('bold');
+  });
+
+  it('preserves markdown bold syntax', () => {
+    expect(sanitizeInput('**bold**')).toBe('**bold**');
+  });
+
+  it('preserves markdown italic syntax', () => {
+    expect(sanitizeInput('*italic*')).toBe('*italic*');
+  });
+
+  it('preserves markdown link syntax', () => {
+    expect(sanitizeInput('[click](https://example.com)')).toBe('[click](https://example.com)');
+  });
+
+  it('preserves markdown syntax while stripping HTML', () => {
+    expect(sanitizeInput('**<b>bold</b>**')).toBe('**bold**');
+    expect(sanitizeInput('*<i>italic</i>*')).toBe('*italic*');
+    expect(sanitizeInput('[<a href="x">link</a>](url)')).toBe('[link](url)');
+  });
+
+  it('preserves markdown mixed with safe text', () => {
+    expect(sanitizeInput('Hello **world**, this is *cool*')).toBe('Hello **world**, this is *cool*');
+  });
 });
