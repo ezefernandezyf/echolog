@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
 import { sanitizeInput } from '../infra/sanitize.js';
+import { emailService } from '../email/email.service.js';
 import type {
   AuthLoginDTO,
   AuthRegisterDTO,
@@ -30,6 +31,9 @@ export class AuthService {
         passwordHash,
       },
     });
+
+    // Send welcome email (non-blocking — wrapper swallows errors)
+    emailService.sendWelcomeEmail(user.email, user.name);
 
     return {
       user: { id: user.id, email: user.email, name: user.name },
