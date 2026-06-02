@@ -49,8 +49,13 @@ export const createApp = () => {
   app.use(express.json());
   app.use(requestId);
 
-  app.get('/health', (_req, res) => {
-    res.status(200).json({ status: 'ok' });
+  app.get('/health', async (_req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.status(200).json({ status: 'ok' });
+    } catch {
+      res.status(503).json({ status: 'degraded', db: 'unreachable' });
+    }
   });
 
   app.get('/health/db', async (_req, res) => {

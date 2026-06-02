@@ -7,23 +7,39 @@ const port = Number(process.env.PORT ?? 3000);
 const app = createApp();
 
 if (process.env.NODE_ENV !== 'test') {
-  // Log DB connection info on startup for diagnostics
   const dbHost = process.env.DATABASE_URL?.includes('@')
     ? process.env.DATABASE_URL.split('@')[1]?.split('/')[0] ?? 'unknown'
     : 'not set';
 
-  prisma.user
-    .count()
-    .then((users) => prisma.workspace.count().then((workspaces) => ({ users, workspaces })))
-    .then(({ users, workspaces }) => {
-      logger.info({ host: dbHost, users, workspaces }, 'Database connected');
-    })
-    .catch((err) => {
-      logger.error({ host: dbHost, err: (err as Error).message }, 'Database connection failed');
-    });
+  // Retry DB connection on startup — Neon may be waking from auto-suspend
+  const MAX_RETRIES = 10;
+  const RETRY_DELAY_MS = 3000;
 
-  app.listen(port, '0.0.0.0', () => {
-    logger.info({ port }, 'EchoLog server started');
+  async function connectWithRetry(attempt = 1): Promise<void> {
+    try {
+      const users = await prisma.user.count();
+      const workspaces = await prisma.workspace.count();
+      logger.info({ host: dbHost, users, workspaces, attempt }, 'Database connected');
+    } catch (err) {
+      if (attempt < MAX_RETRIES) {
+        logger.warn(
+          { host: dbHost, attempt, err: (err as Error).message },
+          `DB unreachable — retrying in ${RETRY_DELAY_MS / 1000}s`,
+        );
+        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+        return connectWithRetry(attempt + 1);
+      }
+      logger.error(
+        { host: dbHost, attempts: MAX_RETRIES, err: (err as Error).message },
+        'Database connection failed after max retries',
+      );
+    }
+  }
+
+  connectWithRetry().then(() => {
+    app.listen(port, '0.0.0.0', () => {
+      logger.info({ port }, 'EchoLog server started');
+    });
   });
 }
 
