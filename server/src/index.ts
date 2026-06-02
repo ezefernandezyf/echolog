@@ -9,6 +9,7 @@ if (process.env.NODE_ENV !== 'test') {
   app.listen(port, '0.0.0.0', () => {
     logger.info({ port }, 'EchoLog server started');
   });
+  // test merge trigger — remove after diagnosing
 }
 
 export default app;
