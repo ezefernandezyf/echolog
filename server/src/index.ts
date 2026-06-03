@@ -17,8 +17,10 @@ if (process.env.NODE_ENV !== 'test') {
 
   async function connectWithRetry(attempt = 1): Promise<void> {
     try {
-      const users = await prisma.user.count();
-      const workspaces = await prisma.workspace.count();
+      // eslint-disable-next-line no-restricted-syntax
+      const [{count: users}] = await prisma.$queryRawUnsafe<[{count: bigint}]>('SELECT COUNT(*)::int FROM "User"');
+      // eslint-disable-next-line no-restricted-syntax
+      const [{count: workspaces}] = await prisma.$queryRawUnsafe<[{count: bigint}]>('SELECT COUNT(*)::int FROM "Workspace"');
       logger.info({ host: dbHost, users, workspaces, attempt }, 'Database connected');
     } catch (err) {
       if (attempt < MAX_RETRIES) {
