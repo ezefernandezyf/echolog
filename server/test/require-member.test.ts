@@ -5,6 +5,9 @@ import type { Request, Response, NextFunction } from 'express';
 
 vi.mock('../src/infra/prisma.js', () => ({
   prisma: {
+    workspace: {
+      findUnique: vi.fn(),
+    },
     workspaceMember: {
       findUnique: vi.fn(),
     },
@@ -13,6 +16,7 @@ vi.mock('../src/infra/prisma.js', () => ({
 
 function mockReq(overrides: Partial<Request> = {}): Request {
   return {
+    method: 'GET',
     userId: undefined,
     params: { workspaceId: 'ws-1' },
     ...overrides,
@@ -33,6 +37,11 @@ describe('requireWorkspaceMember', () => {
   beforeEach(() => {
     next = vi.fn();
     vi.clearAllMocks();
+    // Default: PRIVATE workspace
+    vi.mocked(prisma.workspace.findUnique).mockResolvedValue({
+      visibility: 'PRIVATE',
+      publicAccessLevel: 'READ_ONLY',
+    } as never);
   });
 
   it('returns 401 when req.userId is not set', async () => {

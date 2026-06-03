@@ -67,14 +67,18 @@ const mockWorkspaces: WorkspaceCardData[] = [
     slug: 'northstar-labs',
     role: 'OWNER',
     activeBoardsCount: 3,
-  },
+    visibility: 'PRIVATE',
+    publicAccessLevel: 'READ_ONLY',
+  } as unknown as WorkspaceCardData,
   {
     id: 'ws-2',
     name: 'Growth Team',
     slug: 'growth-team',
     role: 'MEMBER',
     activeBoardsCount: 1,
-  },
+    visibility: 'PRIVATE',
+    publicAccessLevel: 'READ_ONLY',
+  } as unknown as WorkspaceCardData,
 ];
 
 // ---------------------------------------------------------------------------
@@ -123,7 +127,7 @@ describe('WorkspaceHub', () => {
   // 1. Renders workspace list
   // -----------------------------------------------------------------------
   it('renders the list of workspaces when data is returned', async () => {
-    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces);
+    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces as any);
 
     render(<WorkspaceHub />, { wrapper: TestWrapper });
 
@@ -147,7 +151,7 @@ describe('WorkspaceHub', () => {
   // -----------------------------------------------------------------------
   it('navigates to workspace boards when a card is clicked', async () => {
     const user = userEvent.setup();
-    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces);
+    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces as any);
 
     render(<WorkspaceHub />, { wrapper: TestWrapper });
 
@@ -167,7 +171,7 @@ describe('WorkspaceHub', () => {
   it('calls onSelectWorkspace when a workspace card is clicked', async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
-    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces);
+    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces as any);
 
     render(<WorkspaceHub onSelectWorkspace={onSelect} />, { wrapper: TestWrapper });
 
@@ -221,7 +225,7 @@ describe('WorkspaceHub', () => {
     expect(retryButton).toBeInTheDocument();
 
     // Reset mock for retry
-    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces);
+    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces as any);
 
     await user.click(retryButton);
 
@@ -286,7 +290,7 @@ describe('WorkspaceHub', () => {
   it('calls onCreateWorkspace when the create button is clicked', async () => {
     const user = userEvent.setup();
     const onCreate = vi.fn();
-    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces);
+    vi.mocked(workspaceApi.list).mockResolvedValue(mockWorkspaces as any);
 
     render(<WorkspaceHub onCreateWorkspace={onCreate} />, { wrapper: TestWrapper });
 

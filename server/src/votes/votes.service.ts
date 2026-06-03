@@ -1,5 +1,6 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
+import { enforcePublicWriteAccess } from '../infra/public-access.js';
 import type { VoteDTO } from '../../../shared/contracts/index.js';
 
 export interface VoteResult extends VoteDTO {
@@ -11,10 +12,18 @@ export class VotesService {
     // Verify post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      select: { id: true },
+      select: { id: true, workspaceId: true },
     });
     if (!post) {
       throw new HttpError('Post not found', 404);
+    }
+
+    // Check public access level for non-members on PUBLIC workspaces
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId: post.workspaceId } },
+    });
+    if (!membership) {
+      await enforcePublicWriteAccess(post.workspaceId, 'ADD_VOTE');
     }
 
     const existing = await prisma.vote.findUnique({

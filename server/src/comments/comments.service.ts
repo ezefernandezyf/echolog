@@ -2,6 +2,7 @@ import type { NotificationType } from '@prisma/client';
 import { prisma } from '../infra/prisma.js';
 import { HttpError } from '../infra/http.js';
 import { sanitizeInput } from '../infra/sanitize.js';
+import { enforcePublicWriteAccess } from '../infra/public-access.js';
 import { notificationsService } from '../notifications/notifications.service.js';
 import type { CommentDTO, CreateCommentDTO } from '../../../shared/contracts/index.js';
 
@@ -33,6 +34,14 @@ export class CommentsService {
     });
     if (!post) {
       throw new HttpError('Post not found', 404);
+    }
+
+    // Check public access level for non-members on PUBLIC workspaces
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId: post.workspaceId } },
+    });
+    if (!membership) {
+      await enforcePublicWriteAccess(post.workspaceId, 'CREATE_COMMENT');
     }
 
     const comment = await prisma.comment.create({

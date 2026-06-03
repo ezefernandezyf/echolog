@@ -10,7 +10,7 @@ import { voteRouter } from '../votes/votes.router.js';
 import { workspaceRouter } from '../workspaces/workspaces.router.js';
 import { errorHandler } from './error-handler.js';
 import { requestId } from './request-id.js';
-import { authLimiter, invitationLimiter, voteLimiter } from './rate-limiter.js';
+import { authLimiter, invitationLimiter, voteLimiter, publicWorkspaceLimiter } from './rate-limiter.js';
 import { prisma } from './prisma.js';
 
 export const createApp = () => {
@@ -74,6 +74,7 @@ export const createApp = () => {
   });
 
   app.use('/api/auth', authLimiter, authRouter);
+  app.use('/api/workspaces/public', publicWorkspaceLimiter);
   app.use('/api/workspaces', workspaceRouter);
   app.use('/api/invitations', invitationLimiter, invitationsRouter);
   app.use('/api/notifications', notificationsRouter);

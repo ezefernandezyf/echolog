@@ -28,7 +28,7 @@ export const createRateLimiter = (
       retryAfter: Math.ceil(windowMs / 1000),
     },
     standardHeaders: true,
-    legacyHeaders: false,
+    legacyHeaders: true,
     skip: options?.skip ?? (() => process.env.NODE_ENV === 'test'),
   });
 };
@@ -43,3 +43,5 @@ export const createRateLimiter = (
 export const authLimiter = createRateLimiter(15 * 60 * 1000, 20);
 export const invitationLimiter = createRateLimiter(15 * 60 * 1000, 20);
 export const voteLimiter = createRateLimiter(60 * 1000, 30);
+export const publicWorkspaceLimiter = createRateLimiter(60 * 1000, 30);
+export const publicPostLimiter = createRateLimiter(60 * 1000, 60);

@@ -31,6 +31,12 @@ export type PostStatus = z.infer<typeof PostStatusSchema>;
 export const NotificationTypeSchema = z.enum(['INVITE_SENT', 'ROLE_CHANGED', 'NEW_COMMENT']);
 export type NotificationType = z.infer<typeof NotificationTypeSchema>;
 
+export const VisibilitySchema = z.enum(['PUBLIC', 'PRIVATE']);
+export type Visibility = z.infer<typeof VisibilitySchema>;
+
+export const PublicAccessLevelSchema = z.enum(['READ_ONLY', 'INTERACT', 'FULL']);
+export type PublicAccessLevel = z.infer<typeof PublicAccessLevelSchema>;
+
 // ── Auth DTO Schemas ───────────────────────────────────────────────────────
 
 export const AuthUserSchema = z.object({
@@ -89,6 +95,8 @@ export const WorkspaceSchema = z.object({
   name: z.string(),
   slug: z.string(),
   role: WorkspaceRoleSchema,
+  visibility: VisibilitySchema,
+  publicAccessLevel: PublicAccessLevelSchema,
 });
 export type WorkspaceDTO = z.infer<typeof WorkspaceSchema>;
 
@@ -283,6 +291,54 @@ export const updateWorkspaceSchema = z
   .refine((data) => data.name !== undefined || data.slug !== undefined, {
     message: 'Slug is missing',
   });
+
+// ── Public Workspace DTO Schemas ───────────────────────────────────────────
+
+export const PublicWorkspaceSchema = z.object({
+  id: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
+  name: z.string(),
+  slug: z.string(),
+  memberCount: z.number(),
+  postCount: z.number(),
+  createdAt: z.string(),
+});
+export type PublicWorkspaceDTO = z.infer<typeof PublicWorkspaceSchema>;
+
+export const PublicWorkspaceListSchema = z.object({
+  workspaces: z.array(PublicWorkspaceSchema),
+  nextCursor: z.string().nullable(),
+});
+export type PublicWorkspaceListDTO = z.infer<typeof PublicWorkspaceListSchema>;
+
+export const PublicBoardDTOSchema = z.object({
+  id: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
+  name: z.string(),
+  slug: z.string(),
+  postCount: z.number(),
+});
+export type PublicBoardDTO = z.infer<typeof PublicBoardDTOSchema>;
+
+export const PublicWorkspaceDetailDTOSchema = z.object({
+  id: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
+  name: z.string(),
+  slug: z.string(),
+  memberCount: z.number(),
+  postCount: z.number(),
+  visibility: VisibilitySchema,
+  publicAccessLevel: PublicAccessLevelSchema,
+  createdAt: z.string(),
+  boards: z.array(PublicBoardDTOSchema),
+});
+export type PublicWorkspaceDetailDTO = z.infer<typeof PublicWorkspaceDetailDTOSchema>;
+
+export const UpdateVisibilityDTOSchema = z.object({
+  visibility: VisibilitySchema,
+  publicAccessLevel: PublicAccessLevelSchema.optional(),
+});
+export type UpdateVisibilityDTO = z.infer<typeof UpdateVisibilityDTOSchema>;
 
 // ── Board Validation Schemas ───────────────────────────────────────────────
 

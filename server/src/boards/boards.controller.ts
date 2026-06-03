@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { boardsService } from './boards.service.js';
 
 export const listBoards = async (req: Request, res: Response) => {
-  const data = await boardsService.list(req.params.workspaceId as string, req.userId!);
+  const data = await boardsService.list(req.params.workspaceId as string, req.userId ?? '');
   res.status(200).json(data);
 };
 

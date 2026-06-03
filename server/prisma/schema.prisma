@@ -29,6 +29,17 @@ enum PostStatus {
   DONE
 }
 
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum PublicAccessLevel {
+  READ_ONLY
+  INTERACT
+  FULL
+}
+
 model User {
   id           String            @id @default(cuid())
   email        String            @unique
@@ -46,16 +57,18 @@ model User {
 }
 
 model Workspace {
-  id        String            @id @default(cuid())
-  name      String
-  slug      String            @unique
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  members   WorkspaceMember[]
-  boards    Board[]
-  posts     Post[]
-  invitations   WorkspaceInvitation[]
-  notifications Notification[] @relation("workspaceNotifications")
+  id                 String            @id @default(cuid())
+  name               String
+  slug               String            @unique
+  visibility         Visibility        @default(PRIVATE)
+  publicAccessLevel  PublicAccessLevel @default(READ_ONLY)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  members            WorkspaceMember[]
+  boards             Board[]
+  posts              Post[]
+  invitations        WorkspaceInvitation[]
+  notifications      Notification[]    @relation("workspaceNotifications")
 }
 
 model WorkspaceMember {

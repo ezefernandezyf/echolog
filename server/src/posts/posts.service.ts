@@ -1,6 +1,7 @@
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
 import { sanitizeInput } from '../infra/sanitize.js';
+import { enforcePublicWriteAccess } from '../infra/public-access.js';
 import type {
   CreatePostDTO,
   PostDTO,
@@ -120,6 +121,14 @@ export class PostsService {
     const board = await prisma.board.findUnique({ where: { id: boardId } });
     if (!board) {
       throw new HttpError('Board not found', 404);
+    }
+
+    // Check public access level for non-members on PUBLIC workspaces
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId: board.workspaceId } },
+    });
+    if (!membership) {
+      await enforcePublicWriteAccess(board.workspaceId, 'CREATE_POST');
     }
 
     const post = await prisma.post.create({

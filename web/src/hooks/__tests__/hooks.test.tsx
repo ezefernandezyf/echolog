@@ -55,8 +55,8 @@ import { useAuthStore } from '../../auth/auth-store';
 // Test data
 // ---------------------------------------------------------------------------
 const sampleWorkspaces = [
-  { id: 'ws-1', name: 'Alpha', slug: 'alpha', role: 'OWNER' as const },
-  { id: 'ws-2', name: 'Beta', slug: 'beta', role: 'MEMBER' as const },
+  { id: 'ws-1', name: 'Alpha', slug: 'alpha', role: 'OWNER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const },
+  { id: 'ws-2', name: 'Beta', slug: 'beta', role: 'MEMBER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const },
 ];
 
 const sampleBoards = [
@@ -177,7 +177,7 @@ describe('R4 — React Query Hooks', () => {
   // -----------------------------------------------------------------------
   describe('useCreateWorkspace', () => {
     it('calls workspaceApi.create and invalidates workspace cache on success', async () => {
-      const newWorkspace = { id: 'ws-new', name: 'New', slug: 'new', role: 'OWNER' as const };
+      const newWorkspace = { id: 'ws-new', name: 'New', slug: 'new', role: 'OWNER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const };
       vi.mocked(workspaceApi.create).mockResolvedValue(newWorkspace);
 
       const queryClient = createTestQueryClient();

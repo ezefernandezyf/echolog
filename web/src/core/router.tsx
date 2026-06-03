@@ -13,6 +13,9 @@ import { NotificationsPage } from '../workspaces/components/notifications-page';
 import { AcceptInvitationPage } from '../workspaces/components/accept-invitation-page';
 import { UserSettingsPage } from '../user/settings-page';
 import { LandingPage } from '../shared/components/landing-page';
+import { PublicLayout } from '../public/public-layout';
+import { PublicLobby } from '../public/public-lobby';
+import { PublicWorkspaceView } from '../public/public-workspace-view';
 
 export function AppRouter() {
   return (
@@ -25,6 +28,12 @@ export function AppRouter() {
 
       {/* Public invitation route — no auth required, but checks inside */}
       <Route path="/invite/:token" element={<AcceptInvitationPage />} />
+
+      {/* Public discovery — accessible to everyone */}
+      <Route element={<PublicLayout />}>
+        <Route path="/explore" element={<PublicLobby />} />
+        <Route path="/explore/:slug" element={<PublicWorkspaceView />} />
+      </Route>
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AuthenticatedLayout />}>

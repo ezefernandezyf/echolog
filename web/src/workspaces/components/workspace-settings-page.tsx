@@ -15,7 +15,8 @@ import { slugify } from '../../../../shared/lib/slugify';
 import { useAuthStore } from '../../auth/auth-store';
 import { useWorkspaces } from '../../hooks/use-workspaces';
 import { useUpdateWorkspace, useDeleteWorkspace } from '../../hooks/use-workspaces';
-import type { UpdateWorkspaceDTO } from '../../../../shared/contracts/index.js';
+import { useUpdateVisibility } from '../../hooks/use-public-workspaces';
+import type { UpdateWorkspaceDTO, Visibility, PublicAccessLevel } from '../../../../shared/contracts/index.js';
 import { updateWorkspaceSchema } from '../../../../shared/contracts/index.js';
 import { PageTitle } from '../../core/page-title';
 
@@ -54,6 +55,12 @@ export function WorkspaceSettingsPage() {
   const updateWorkspaceMutation = useUpdateWorkspace();
 
   const deleteWorkspaceMutation = useDeleteWorkspace();
+
+  const updateVisibilityMutation = useUpdateVisibility();
+
+  const isOwner = workspace?.role === 'OWNER';
+  const [visibility, setVisibility] = useState<Visibility>(workspace?.visibility ?? 'PRIVATE');
+  const [publicAccessLevel, setPublicAccessLevel] = useState<PublicAccessLevel>(workspace?.publicAccessLevel ?? 'READ_ONLY');
 
   if (workspaceQuery.isPending) {
     return (
@@ -199,6 +206,96 @@ export function WorkspaceSettingsPage() {
             </div>
           </form>
         </section>
+
+        {/* Visibility */}
+        {isOwner ? (
+          <section className="space-y-6 rounded-2xl border border-border bg-card p-6">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold text-foreground">Visibility</h2>
+              <p className="text-sm text-muted-foreground">
+                Control who can see and interact with this workspace.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <label className="block space-y-2">
+                <span className="text-sm font-medium text-secondary-foreground">Status</span>
+                <select
+                  id="workspace-visibility"
+                  value={visibility}
+                  onChange={(e) => {
+                    const newVisibility = e.target.value as Visibility;
+                    setVisibility(newVisibility);
+                    updateVisibilityMutation.mutate(
+                      {
+                        workspaceId: workspaceId!,
+                        data: {
+                          visibility: newVisibility,
+                          publicAccessLevel: newVisibility === 'PUBLIC' ? publicAccessLevel : undefined,
+                        },
+                      },
+                      {
+                        onError: (error) => {
+                          toast.error(error instanceof Error ? error.message : 'Failed to update visibility');
+                          setVisibility(workspace.visibility);
+                        },
+                      },
+                    );
+                  }}
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  disabled={updateVisibilityMutation.isPending}
+                >
+                  <option value="PRIVATE">Private — only members can access</option>
+                  <option value="PUBLIC">Public — discoverable by anyone</option>
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  {visibility === 'PUBLIC'
+                    ? 'Anyone can find and view this workspace. Write access depends on the level below.'
+                    : 'Only invited members can access this workspace.'}
+                </p>
+              </label>
+
+              {visibility === 'PUBLIC' ? (
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-secondary-foreground">Access Level</span>
+                  <select
+                    id="workspace-access-level"
+                    value={publicAccessLevel}
+                    onChange={(e) => {
+                      const newLevel = e.target.value as PublicAccessLevel;
+                      setPublicAccessLevel(newLevel);
+                      updateVisibilityMutation.mutate(
+                        {
+                          workspaceId: workspaceId!,
+                          data: { visibility: 'PUBLIC', publicAccessLevel: newLevel },
+                        },
+                        {
+                          onError: (error) => {
+                            toast.error(error instanceof Error ? error.message : 'Failed to update access level');
+                            setPublicAccessLevel(workspace.publicAccessLevel);
+                          },
+                        },
+                      );
+                    }}
+                    className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    disabled={updateVisibilityMutation.isPending}
+                  >
+                    <option value="READ_ONLY">Read Only — visitors can only view</option>
+                    <option value="INTERACT">Interact — visitors can vote and comment</option>
+                    <option value="FULL">Full — visitors can create posts</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground">
+                    {publicAccessLevel === 'READ_ONLY'
+                      ? 'Non-members can browse but cannot vote, comment, or create posts.'
+                      : publicAccessLevel === 'INTERACT'
+                        ? 'Logged-in non-members can vote and comment. Posts and boards require membership.'
+                        : 'Logged-in non-members can create posts. Full participation without joining.'}
+                  </p>
+                </label>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
 
         {/* Members */}
         <section className="space-y-6 rounded-2xl border border-border bg-card p-6">

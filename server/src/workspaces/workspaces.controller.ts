@@ -101,3 +101,26 @@ export const removeMember = async (req: Request, res: Response) => {
   );
   res.status(204).send();
 };
+
+// ── Public Discovery Handlers ─────────────────────────────────────────
+
+export const listPublicWorkspaces = async (req: Request, res: Response) => {
+  const sort = (req.query.sort as string) === 'popular' ? 'popular' : 'recent';
+  const cursor = req.query.cursor as string | undefined;
+  const data = await workspacesService.listPublic(sort, cursor);
+  res.status(200).json(data);
+};
+
+export const getPublicWorkspace = async (req: Request, res: Response) => {
+  const data = await workspacesService.getPublicBySlug(req.params.slug as string);
+  res.status(200).json(data);
+};
+
+export const updateVisibility = async (req: Request, res: Response) => {
+  const data = await workspacesService.updateVisibility(
+    req.params.workspaceId as string,
+    req.userId!,
+    req.body,
+  );
+  res.status(200).json(data);
+};
