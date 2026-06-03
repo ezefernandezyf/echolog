@@ -25,6 +25,7 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/echolog-test'
+      DIRECT_URL: 'postgresql://postgres:postgres@localhost:5432/echolog-test'
       JWT_SECRET: 'ci-test-secret'
       NODE_ENV: test
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
