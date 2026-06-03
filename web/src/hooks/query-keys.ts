@@ -39,4 +39,8 @@ export const queryKeys = {
     unread: ['notifications', 'unread'] as const,
     count: ['notifications', 'count'] as const,
   },
+  public: {
+    workspaces: (sort?: 'recent' | 'popular') => ['public-workspaces', sort ?? 'recent'] as const,
+    workspaceDetail: (slug: string) => ['public-workspace', slug] as const,
+  },
 };

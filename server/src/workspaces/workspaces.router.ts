@@ -6,11 +6,14 @@ import {
   createInvitation,
   createWorkspace,
   deleteWorkspace,
+  getPublicWorkspace,
   getWorkspace,
   listInvitations,
   listMembers,
+  listPublicWorkspaces,
   listWorkspaces,
   removeMember,
+  updateVisibility,
   updateWorkspace,
 } from './workspaces.controller.js';
 import { requireAuth } from '../auth/auth.middleware.js';
@@ -20,11 +23,25 @@ import {
   changeRoleSchema,
   createInvitationSchema,
   createWorkspaceSchema,
+  UpdateVisibilityDTOSchema,
   updateWorkspaceSchema,
 } from '../../../shared/contracts/index.js';
 
 export const workspaceRouter = Router();
 
+// ── Public discovery (no auth required, rate-limited in app.ts) ───────
+workspaceRouter.get('/public', listPublicWorkspaces);
+workspaceRouter.get('/public/:slug', getPublicWorkspace);
+
+// ── Visibility toggle (owner-only) ────────────────────────────────────
+workspaceRouter.patch(
+  '/:workspaceId/visibility',
+  requireAuth,
+  validate(UpdateVisibilityDTOSchema),
+  updateVisibility,
+);
+
+// ── CRUD routes ───────────────────────────────────────────────────────
 workspaceRouter.get('/', requireAuth, listWorkspaces);
 workspaceRouter.get('/:workspaceId', requireAuth, getWorkspace);
 workspaceRouter.post('/', requireAuth, validate(createWorkspaceSchema), createWorkspace);

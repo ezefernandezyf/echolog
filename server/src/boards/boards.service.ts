@@ -2,6 +2,7 @@ import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
 import { sanitizeInput } from '../infra/sanitize.js';
 import { slugify } from '../../../shared/lib/slugify.js';
+import { enforcePublicWriteAccess } from '../infra/public-access.js';
 import type { BoardDTO, CreateBoardDTO, UpdateBoardDTO } from '../../../shared/contracts/index.js';
 
 export class BoardsService {
@@ -19,8 +20,17 @@ export class BoardsService {
     });
   }
 
-  // Membership is enforced by requireAnyMember middleware on the router.
-  async create(workspaceId: string, input: CreateBoardDTO, _userId: string): Promise<BoardDTO> {
+  // Membership is enforced by requireWorkspaceMember middleware on the router.
+  // For PUBLIC workspaces, non-member writes may still be allowed based on access level.
+  async create(workspaceId: string, input: CreateBoardDTO, userId: string): Promise<BoardDTO> {
+    // Check public access level for non-members on PUBLIC workspaces
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId } },
+    });
+    if (!membership) {
+      await enforcePublicWriteAccess(workspaceId, 'CREATE_BOARD');
+    }
+
     const slug = slugify(input.name);
 
     const existing = await prisma.board.findUnique({

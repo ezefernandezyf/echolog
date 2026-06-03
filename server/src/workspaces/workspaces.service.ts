@@ -10,6 +10,9 @@ import type {
   CreateWorkspaceDTO,
   InvitationDTO,
   MemberDTO,
+  PublicWorkspaceDetailDTO,
+  PublicWorkspaceListDTO,
+  UpdateVisibilityDTO,
   UpdateWorkspaceDTO,
   WorkspaceDTO,
 } from '../../../shared/contracts/index.js';
@@ -26,6 +29,8 @@ export class WorkspacesService {
       name: m.workspace.name,
       slug: m.workspace.slug,
       role: m.role,
+      visibility: m.workspace.visibility as WorkspaceDTO['visibility'],
+      publicAccessLevel: m.workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
     }));
   }
 
@@ -68,6 +73,8 @@ export class WorkspacesService {
       name: workspace.name,
       slug: workspace.slug,
       role: 'OWNER',
+      visibility: workspace.visibility as WorkspaceDTO['visibility'],
+      publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
     };
   }
 
@@ -104,8 +111,9 @@ export class WorkspacesService {
       name: workspace.name,
       slug: workspace.slug,
       role: membership.role,
-    };
-  }
+      visibility: workspace.visibility as WorkspaceDTO['visibility'],
+      publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+    };}
 
   async delete(workspaceId: string, userId: string): Promise<void> {
     const membership = await prisma.workspaceMember.findUnique({
@@ -116,6 +124,123 @@ export class WorkspacesService {
     }
 
     await prisma.workspace.delete({ where: { id: workspaceId } });
+  }
+
+  // ── Public Discovery Methods ────────────────────────────────────────
+
+  async listPublic(sort?: 'recent' | 'popular', cursor?: string, limit = 20): Promise<PublicWorkspaceListDTO> {
+    const orderBy: Record<string, unknown> =
+      sort === 'popular'
+        ? { members: { _count: 'desc' } }
+        : { createdAt: 'desc' };
+
+    const query: Record<string, unknown> = {
+      where: { visibility: 'PUBLIC' },
+      orderBy,
+      take: limit + 1,
+      include: { _count: { select: { members: true, posts: true } } },
+    };
+
+    if (cursor) {
+      (query as Record<string, unknown>).cursor = { id: cursor };
+      (query as Record<string, unknown>).skip = 1;
+    }
+
+    const workspaces = await prisma.workspace.findMany(query as Parameters<typeof prisma.workspace.findMany>[0]);
+
+    const hasMore = workspaces.length > limit;
+    const items = hasMore ? workspaces.slice(0, limit) : workspaces;
+
+    type WorkspaceWithCount = typeof workspaces[number] & {
+      _count: { members: number; posts: number };
+    };
+
+    return {
+      workspaces: items.map((w) => ({
+        id: w.id,
+        name: w.name,
+        slug: w.slug,
+        memberCount: (w as WorkspaceWithCount)._count.members,
+        postCount: (w as WorkspaceWithCount)._count.posts,
+        createdAt: w.createdAt.toISOString(),
+      })),
+      nextCursor: hasMore ? items[items.length - 1]!.id : null,
+    };
+  }
+
+  async updateVisibility(
+    workspaceId: string,
+    userId: string,
+    data: UpdateVisibilityDTO,
+  ): Promise<WorkspaceDTO> {
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId } },
+    });
+    if (!membership || membership.role !== 'OWNER') {
+      throw new HttpError('Only the workspace owner can change visibility', 403);
+    }
+
+    const workspace = await prisma.workspace.update({
+      where: { id: workspaceId },
+      data: {
+        visibility: data.visibility,
+        ...(data.publicAccessLevel !== undefined && { publicAccessLevel: data.publicAccessLevel }),
+      },
+    });
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      role: membership.role,
+      visibility: workspace.visibility as WorkspaceDTO['visibility'],
+      publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+    };
+  }
+
+  // ── Public Detail Method ────────────────────────────────────────────
+
+  async getPublicBySlug(slug: string): Promise<PublicWorkspaceDetailDTO> {
+    const workspace = await prisma.workspace.findFirst({
+      where: { slug, visibility: 'PUBLIC' },
+      include: {
+        _count: { select: { members: true, posts: true } },
+        boards: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            _count: { select: { posts: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!workspace) {
+      throw new HttpError('Workspace not found', 404);
+    }
+
+    type BoardWithCount = (typeof workspace.boards)[number] & {
+      _count: { posts: number };
+    };
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      memberCount: workspace._count.members,
+      postCount: workspace._count.posts,
+      visibility: workspace.visibility as PublicWorkspaceDetailDTO['visibility'],
+      publicAccessLevel: workspace.publicAccessLevel as PublicWorkspaceDetailDTO['publicAccessLevel'],
+      createdAt: workspace.createdAt.toISOString(),
+      boards: workspace.boards.map((b) => ({
+        id: b.id,
+        name: b.name,
+        slug: b.slug,
+        postCount: (b as BoardWithCount)._count.posts,
+      })),
+    };
   }
 
   // ── Invitation Methods ──────────────────────────────────────────────

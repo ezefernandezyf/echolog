@@ -14,6 +14,14 @@ vi.mock('../../hooks/use-workspaces', () => ({
   useDeleteWorkspace: vi.fn(),
 }));
 
+vi.mock('../../hooks/use-public-workspaces', () => ({
+  useUpdateVisibility: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+  usePublicWorkspaces: vi.fn(),
+}));
+
 vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
@@ -108,7 +116,7 @@ describe('WorkspaceSettingsPage', () => {
   // ── Renders current workspace name and slug ──────────────────────────
   it('renders workspace name and slug in form fields', async () => {
     vi.mocked(useWorkspaces).mockReturnValue({
-      data: [{ id: 'ws-1', name: 'Northstar Labs', slug: 'northstar-labs', role: 'OWNER' }],
+      data: [{ id: 'ws-1', name: 'Northstar Labs', slug: 'northstar-labs', role: 'OWNER', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY' }],
       isPending: false,
       isError: false,
       error: null,
@@ -131,14 +139,14 @@ describe('WorkspaceSettingsPage', () => {
   // ── Edit form works with validation ──────────────────────────────────
   it('updates workspace name on form submission', async () => {
     vi.mocked(useWorkspaces).mockReturnValue({
-      data: [{ id: 'ws-1', name: 'Northstar Labs', slug: 'northstar-labs', role: 'OWNER' }],
+      data: [{ id: 'ws-1', name: 'Northstar Labs', slug: 'northstar-labs', role: 'OWNER', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY' }],
       isPending: false,
       isError: false,
       error: null,
     } as any);
 
     const updateMutation = mockMutation({
-      onSuccessData: { id: 'ws-1', name: 'Updated Name', slug: 'northstar-labs', role: 'OWNER' },
+      onSuccessData: { id: 'ws-1', name: 'Updated Name', slug: 'northstar-labs', role: 'OWNER', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY' },
     });
     vi.mocked(useUpdateWorkspace).mockReturnValue(updateMutation);
     vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
@@ -169,7 +177,7 @@ describe('WorkspaceSettingsPage', () => {
   // ── Delete workspace shows typed confirmation ────────────────────────
   it('opens delete confirmation dialog and navigates on success', async () => {
     vi.mocked(useWorkspaces).mockReturnValue({
-      data: [{ id: 'ws-1', name: 'Northstar Labs', slug: 'northstar-labs', role: 'OWNER' }],
+      data: [{ id: 'ws-1', name: 'Northstar Labs', slug: 'northstar-labs', role: 'OWNER', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY' }],
       isPending: false,
       isError: false,
       error: null,
@@ -229,7 +237,7 @@ describe('WorkspaceSettingsPage', () => {
   // ── Renders Members and Danger Zone sections ─────────────────────────
   it('renders Members section with manage link and Danger Zone', async () => {
     vi.mocked(useWorkspaces).mockReturnValue({
-      data: [{ id: 'ws-1', name: 'Northstar Labs', slug: 'northstar-labs', role: 'OWNER' }],
+      data: [{ id: 'ws-1', name: 'Northstar Labs', slug: 'northstar-labs', role: 'OWNER', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY' }],
       isPending: false,
       isError: false,
       error: null,

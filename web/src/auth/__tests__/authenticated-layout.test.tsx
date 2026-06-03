@@ -64,7 +64,7 @@ import { useBoards } from '../../hooks/use-boards';
 const sampleUser = { id: 'user-1', email: 'alice@echolog.dev', name: 'Alice' };
 
 const sampleWorkspaces = [
-  { id: 'ws-1', name: 'Workspace 1', slug: 'ws-1', role: 'OWNER' as const },
+  { id: 'ws-1', name: 'Workspace 1', slug: 'ws-1', role: 'OWNER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const },
   { id: 'ws-2', name: 'Workspace 2', slug: 'ws-2', role: 'MEMBER' as const },
 ];
 

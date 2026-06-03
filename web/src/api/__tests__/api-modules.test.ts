@@ -67,8 +67,8 @@ describe('R3 — Domain API Modules', () => {
   describe('API call return shape', () => {
     it('workspaceApi.list resolves with an array of workspaces', async () => {
       const mockWorkspaces = [
-        { id: 'ws-1', name: 'Alpha', slug: 'alpha', role: 'OWNER' as const },
-        { id: 'ws-2', name: 'Beta', slug: 'beta', role: 'MEMBER' as const },
+        { id: 'ws-1', name: 'Alpha', slug: 'alpha', role: 'OWNER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const },
+        { id: 'ws-2', name: 'Beta', slug: 'beta', role: 'MEMBER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const },
       ];
 
       vi.mocked(workspaceApi.list).mockResolvedValueOnce(mockWorkspaces);
