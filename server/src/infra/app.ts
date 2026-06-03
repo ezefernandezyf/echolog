@@ -16,6 +16,8 @@ import { prisma } from './prisma.js';
 export const createApp = () => {
   const app = express();
 
+  app.set('trust proxy', 1);
+
   app.use(
     helmet({
       contentSecurityPolicy: {
