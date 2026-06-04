@@ -245,8 +245,8 @@ export function WorkspaceSettingsPage() {
                   className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   disabled={updateVisibilityMutation.isPending}
                 >
-                  <option value="PRIVATE">Private — only members can access</option>
-                  <option value="PUBLIC">Public — discoverable by anyone</option>
+                  <option value="PRIVATE">Private - only members can access</option>
+                  <option value="PUBLIC">Public - discoverable by anyone</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
                   {visibility === 'PUBLIC'
@@ -280,9 +280,9 @@ export function WorkspaceSettingsPage() {
                     className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     disabled={updateVisibilityMutation.isPending}
                   >
-                    <option value="READ_ONLY">Read Only — visitors can only view</option>
-                    <option value="INTERACT">Interact — visitors can vote and comment</option>
-                    <option value="FULL">Full — visitors can create posts</option>
+                    <option value="READ_ONLY">Read Only - visitors can only view</option>
+                    <option value="INTERACT">Interact - visitors can vote and comment</option>
+                    <option value="FULL">Full - visitors can create posts</option>
                   </select>
                   <p className="text-xs text-muted-foreground">
                     {publicAccessLevel === 'READ_ONLY'
