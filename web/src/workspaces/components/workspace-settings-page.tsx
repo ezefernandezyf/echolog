@@ -24,6 +24,9 @@ export function WorkspaceSettingsPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showVisibilityDialog, setShowVisibilityDialog] = useState(false);
+  const [pendingVisibility, setPendingVisibility] = useState<Visibility | null>(null);
+  const [pendingAccessLevel, setPendingAccessLevel] = useState<PublicAccessLevel | null>(null);
 
   const userId = useAuthStore((state) => state.session?.user?.id);
 
@@ -225,28 +228,15 @@ export function WorkspaceSettingsPage() {
                   value={visibility}
                   onChange={(e) => {
                     const newVisibility = e.target.value as Visibility;
-                    setVisibility(newVisibility);
-                    updateVisibilityMutation.mutate(
-                      {
-                        workspaceId: workspaceId!,
-                        data: {
-                          visibility: newVisibility,
-                          publicAccessLevel: newVisibility === 'PUBLIC' ? publicAccessLevel : undefined,
-                        },
-                      },
-                      {
-                        onError: (error) => {
-                          toast.error(error instanceof Error ? error.message : 'Failed to update visibility');
-                          setVisibility(workspace.visibility);
-                        },
-                      },
-                    );
+                    setPendingVisibility(newVisibility);
+                    setPendingAccessLevel(newVisibility === 'PUBLIC' ? publicAccessLevel : null);
+                    setShowVisibilityDialog(true);
                   }}
                   className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   disabled={updateVisibilityMutation.isPending}
                 >
-                  <option value="PRIVATE">Private — only members can access</option>
-                  <option value="PUBLIC">Public — discoverable by anyone</option>
+                  <option value="PRIVATE">Private - only members can access</option>
+                  <option value="PUBLIC">Public - discoverable by anyone</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
                   {visibility === 'PUBLIC'
@@ -263,26 +253,16 @@ export function WorkspaceSettingsPage() {
                     value={publicAccessLevel}
                     onChange={(e) => {
                       const newLevel = e.target.value as PublicAccessLevel;
-                      setPublicAccessLevel(newLevel);
-                      updateVisibilityMutation.mutate(
-                        {
-                          workspaceId: workspaceId!,
-                          data: { visibility: 'PUBLIC', publicAccessLevel: newLevel },
-                        },
-                        {
-                          onError: (error) => {
-                            toast.error(error instanceof Error ? error.message : 'Failed to update access level');
-                            setPublicAccessLevel(workspace.publicAccessLevel);
-                          },
-                        },
-                      );
+                      setPendingVisibility('PUBLIC');
+                      setPendingAccessLevel(newLevel);
+                      setShowVisibilityDialog(true);
                     }}
                     className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     disabled={updateVisibilityMutation.isPending}
                   >
-                    <option value="READ_ONLY">Read Only — visitors can only view</option>
-                    <option value="INTERACT">Interact — visitors can vote and comment</option>
-                    <option value="FULL">Full — visitors can create posts</option>
+                    <option value="READ_ONLY">Read Only - visitors can only view</option>
+                    <option value="INTERACT">Interact - visitors can vote and comment</option>
+                    <option value="FULL">Full - visitors can create posts</option>
                   </select>
                   <p className="text-xs text-muted-foreground">
                     {publicAccessLevel === 'READ_ONLY'
@@ -346,6 +326,49 @@ export function WorkspaceSettingsPage() {
         confirmLabel="Delete Workspace"
         confirmInput={workspace.name}
         isLoading={deleteWorkspaceMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={showVisibilityDialog}
+        onClose={() => {
+          setShowVisibilityDialog(false);
+          setPendingVisibility(null);
+          setPendingAccessLevel(null);
+        }}
+        onConfirm={() => {
+          if (!pendingVisibility) return;
+          setVisibility(pendingVisibility);
+          if (pendingAccessLevel) setPublicAccessLevel(pendingAccessLevel);
+          setShowVisibilityDialog(false);
+          updateVisibilityMutation.mutate(
+            {
+              workspaceId: workspaceId!,
+              data: {
+                visibility: pendingVisibility,
+                publicAccessLevel:
+                  pendingVisibility === 'PUBLIC' ? (pendingAccessLevel ?? publicAccessLevel) : undefined,
+              },
+            },
+            {
+              onError: (error) => {
+                toast.error(error instanceof Error ? error.message : 'Failed to update visibility');
+                setVisibility(workspace.visibility);
+                setPublicAccessLevel(workspace.publicAccessLevel);
+              },
+            },
+          );
+          setPendingVisibility(null);
+          setPendingAccessLevel(null);
+        }}
+        title="Change Visibility"
+        message={
+          pendingVisibility === 'PUBLIC'
+            ? 'Making this workspace PUBLIC will allow anyone to view its boards and posts. Are you sure?'
+            : 'Making this workspace PRIVATE will hide it from public discovery. Only members will have access. Are you sure?'
+        }
+        confirmLabel="Make Public"
+        variant="danger"
+        isLoading={updateVisibilityMutation.isPending}
       />
     </main>
   );

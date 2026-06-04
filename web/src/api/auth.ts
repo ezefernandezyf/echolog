@@ -32,4 +32,9 @@ export const authApi = {
       method: 'PUT',
       data,
     }),
+  resendVerification: () =>
+    fetchJson<{ message: string }, void>({
+      url: '/auth/resend-verification',
+      method: 'POST',
+    }),
 };

@@ -12,6 +12,15 @@ export function usePublicWorkspaces(sort: 'recent' | 'popular' = 'recent') {
   });
 }
 
+export function usePublicBoard(slug: string, boardSlug: string) {
+  return useQuery({
+    queryKey: queryKeys.public.boardDetail(slug, boardSlug),
+    queryFn: () => publicApi.getBoardBySlug(slug, boardSlug),
+    enabled: !!slug && !!boardSlug,
+    staleTime: 30_000,
+  });
+}
+
 export function useUpdateVisibility() {
   const queryClient = useQueryClient();
 

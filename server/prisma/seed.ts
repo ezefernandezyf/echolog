@@ -33,6 +33,67 @@ async function main() {
 
   const users = [demoUser, alice, bob];
 
+  // ── Community Workspace: Bienvenido ──────────────────────────────────
+
+  const communityOwnerEmail = 'ezefernandezyf@gmail.com';
+  const communityOwner = await prisma.user.upsert({
+    where: { email: communityOwnerEmail },
+    update: {},
+    create: { email: communityOwnerEmail, name: 'Ezequiel', passwordHash },
+  });
+
+  const bienvenido = await prisma.workspace.upsert({
+    where: { slug: 'bienvenido' },
+    update: {},
+    create: {
+      name: 'Bienvenido',
+      slug: 'bienvenido',
+      visibility: 'PUBLIC',
+      publicAccessLevel: 'INTERACT',
+    },
+  });
+
+  await prisma.workspaceMember.upsert({
+    where: { userId_workspaceId: { userId: communityOwner.id, workspaceId: bienvenido.id } },
+    update: {},
+    create: { userId: communityOwner.id, workspaceId: bienvenido.id, role: 'OWNER' },
+  });
+
+  const bienvenidoBoard = await prisma.board.upsert({
+    where: { workspaceId_slug: { workspaceId: bienvenido.id, slug: 'welcome' } },
+    update: {},
+    create: {
+      workspaceId: bienvenido.id,
+      name: 'Welcome',
+      slug: 'welcome',
+      description: 'Start here to learn how EchoLog works',
+    },
+  });
+
+  // Welcome post
+  await prisma.post.create({
+    data: {
+      workspaceId: bienvenido.id,
+      boardId: bienvenidoBoard.id,
+      authorId: communityOwner.id,
+      title: 'Welcome to EchoLog!',
+      body: `Hi there! This is the Bienvenido workspace — a community space where you can explore how EchoLog works.
+
+Here is what you can do:
+
+- Browse public workspaces from the /explore page
+- Create your own workspace to collect feedback
+- Set up boards for different topics or features
+- Post ideas, vote on suggestions, and leave comments
+- Invite your team to collaborate
+
+This workspace is open for interaction — feel free to vote and comment on posts. To create your own workspaces, sign up for a free account.
+
+Happy building!`,
+      status: 'OPEN',
+    },
+  });
+
   // ── Workspace 1: Product Feedback ───────────────────────────────────
 
   const w1 = await prisma.workspace.upsert({
@@ -370,8 +431,9 @@ async function main() {
   console.log(`  Users:     demo@echolog.dev / password123`);
   console.log(`            alice@echolog.dev / password123`);
   console.log(`            bob@echolog.dev / password123`);
-  console.log(`  Workspaces: product-feedback, design-system, mobile-app`);
-  console.log(`  Boards:     ${w1Boards.length + w2Boards.length + w3Boards.length}`);
+  console.log(`            ezefernandezyf@gmail.com / password123`);
+  console.log(`  Workspaces: bienvenido (PUBLIC), product-feedback, design-system, mobile-app`);
+  console.log(`  Boards:     ${1 + w1Boards.length + w2Boards.length + w3Boards.length}`);
   console.log(`  Posts:      ${createdPosts.length}`);
 }
 
