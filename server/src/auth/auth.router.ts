@@ -7,6 +7,8 @@ import {
   updateProfile,
   updateEmail,
   updatePassword,
+  verifyEmail,
+  resendVerification,
 } from './auth.controller.js';
 import { requireAuth } from './auth.middleware.js';
 import { validate } from '../infra/validate.js';
@@ -27,3 +29,5 @@ authRouter.get('/me', session);
 authRouter.patch('/profile', requireAuth, validate(updateProfileSchema), updateProfile);
 authRouter.put('/email', requireAuth, validate(updateEmailSchema), updateEmail);
 authRouter.put('/password', requireAuth, validate(updatePasswordSchema), updatePassword);
+authRouter.get('/verify-email/:token', verifyEmail);
+authRouter.post('/resend-verification', requireAuth, resendVerification);
