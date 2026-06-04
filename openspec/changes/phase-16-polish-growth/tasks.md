@@ -41,24 +41,24 @@ Chain strategy: stacked-to-main
 
 ## 16-C: Growth Features (schema migration)
 
-- [ ] 16-C.1 — `server/prisma/schema.prisma`: Add `emailVerified Boolean @default(false)` on User; add `VerificationToken` model (userId, token unique, expiresAt, cascade delete)
-- [ ] 16-C.2 — Run `pnpm run prisma:migrate` for new schema
-- [ ] 16-C.3 — `shared/contracts/schemas.ts`: Add `emailVerified` to `AuthUserSchema`
-- [ ] 16-C.4 — `server/src/auth/auth.service.ts`: Add `generateVerificationToken()`, `verifyEmail()`, `resendVerification()` — crypto.randomUUID, 24h expiry, Resend
-- [ ] 16-C.5 — `server/src/auth/auth.controller.ts`: Add verifyEmail + resendVerification handlers
-- [ ] 16-C.6 — `server/src/auth/auth.router.ts`: Wire `GET /verify-email/:token` + `POST /resend-verification`
-- [ ] 16-C.7 — `server/src/email/email.service.ts`: Add `sendVerificationEmail(token, email)` method
-- [ ] 16-C.8 — `server/src/email/templates/verification.ts`: Email template with token link + 24h expiry notice
-- [ ] 16-C.9 — `server/src/workspaces/workspaces.service.ts`: Limit check in `create()` — 1 for unverified, 20 for verified
-- [ ] 16-C.10 — `server/prisma/seed.ts`: Add "Bienvenido" workspace (PUBLIC/INTERACT, owner ezefernandezyf@gmail.com)
-- [ ] 16-C.11 — `web/src/user/settings-page.tsx`: Add verification badge section — ✓ "Verified" or ⚠ "Unverified" + resend CTA → toast
-- [ ] 16-C.12 — `web/src/auth/auth-store.ts`: Include `emailVerified` in `patchUser`
+- [x] 16-C.1 — `server/prisma/schema.prisma`: Add `emailVerified Boolean @default(false)` on User; add `VerificationToken` model (userId, token unique, expiresAt, cascade delete)
+- [x] 16-C.2 — Run `pnpm run prisma:migrate` for new schema
+- [x] 16-C.3 — `shared/contracts/schemas.ts`: Add `emailVerified` to `AuthUserSchema`
+- [x] 16-C.4 — `server/src/auth/auth.service.ts`: Add `generateVerificationToken()`, `verifyEmail()`, `resendVerification()` — crypto.randomUUID, 24h expiry, Resend
+- [x] 16-C.5 — `server/src/auth/auth.controller.ts`: Add verifyEmail + resendVerification handlers
+- [x] 16-C.6 — `server/src/auth/auth.router.ts`: Wire `GET /verify-email/:token` + `POST /resend-verification`
+- [x] 16-C.7 — `server/src/email/email.service.ts`: Add `sendVerificationEmail(token, email)` method
+- [x] 16-C.8 — `server/src/email/templates/verification.ts`: Email template with token link + 24h expiry notice
+- [x] 16-C.9 — `server/src/workspaces/workspaces.service.ts`: Limit check in `create()` — 1 for unverified, 20 for verified
+- [x] 16-C.10 — `server/prisma/seed.ts`: Add "Bienvenido" workspace (PUBLIC/INTERACT, owner ezefernandezyf@gmail.com)
+- [x] 16-C.11 — `web/src/user/settings-page.tsx`: Add verification badge section — ✓ "Verified" or ⚠ "Unverified" + resend CTA → toast
+- [x] 16-C.12 — `web/src/auth/auth-store.ts`: Include `emailVerified` in `patchUser` (type-widening from 16-C.3 contract update)
 
 ## Testing
 
-- [ ] T.1 — Unit: Public board service — valid slug, private workspace, 404
-- [ ] T.2 — Unit: Verification token — generate, verify, expired token
-- [ ] T.3 — Unit: Workspace limit — unverified blocked at 1, verified allowed at 20
-- [ ] T.4 — Unit: PublicRoute guard — redirects `/login`, allows `/` and `/explore`
-- [ ] T.5 — Integration: Public board endpoint via supertest
-- [ ] T.6 — Run all tests: `pnpm --filter @echolog/server run test` + `pnpm --filter @echolog/web run test`
+- [x] T.1 — Unit: Public board service — valid slug, private workspace, 404 (pre-existing from 16-B)
+- [x] T.2 — Unit: Verification token — generate, verify, expired token (auth.test.ts integration)
+- [x] T.3 — Unit: Workspace limit — unverified blocked at 1, verified allowed at 20 (workspaces-service.test.ts)
+- [x] T.4 — Unit: PublicRoute guard — redirects `/login`, allows `/` and `/explore` (pre-existing from 16-A)
+- [x] T.5 — Integration: Public board endpoint via supertest (pre-existing from 16-B)
+- [x] T.6 — Run all tests: `pnpm --filter @echolog/server run test` + `pnpm --filter @echolog/web run test`
