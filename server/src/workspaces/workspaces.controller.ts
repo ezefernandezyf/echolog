@@ -116,6 +116,14 @@ export const getPublicWorkspace = async (req: Request, res: Response) => {
   res.status(200).json(data);
 };
 
+export const getPublicBoardBySlug = async (req: Request, res: Response) => {
+  const data = await workspacesService.getPublicBoardBySlug(
+    req.params.slug as string,
+    req.params.boardSlug as string,
+  );
+  res.status(200).json(data);
+};
+
 export const updateVisibility = async (req: Request, res: Response) => {
   const data = await workspacesService.updateVisibility(
     req.params.workspaceId as string,

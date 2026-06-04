@@ -10,6 +10,7 @@ import type {
   CreateWorkspaceDTO,
   InvitationDTO,
   MemberDTO,
+  PublicBoardDetailDTO,
   PublicWorkspaceDetailDTO,
   PublicWorkspaceListDTO,
   UpdateVisibilityDTO,
@@ -240,6 +241,57 @@ export class WorkspacesService {
         slug: b.slug,
         postCount: (b as BoardWithCount)._count.posts,
       })),
+    };
+  }
+
+  async getPublicBoardBySlug(slug: string, boardSlug: string): Promise<PublicBoardDetailDTO> {
+    const workspace = await prisma.workspace.findFirst({
+      where: { slug, visibility: 'PUBLIC' },
+    });
+
+    if (!workspace) {
+      throw new HttpError('Workspace not found', 404);
+    }
+
+    const board = await prisma.board.findFirst({
+      where: { workspaceId: workspace.id, slug: boardSlug },
+      include: {
+        posts: {
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+          include: {
+            author: { select: { name: true } },
+            _count: { select: { comments: true, votes: true } },
+          },
+        },
+        _count: { select: { posts: true } },
+      },
+    });
+
+    if (!board) {
+      throw new HttpError('Board not found', 404);
+    }
+
+    return {
+      id: board.id,
+      name: board.name,
+      slug: board.slug,
+      description: board.description,
+      postCount: board._count.posts,
+      posts: board.posts.map((p) => ({
+        id: p.id,
+        workspaceId: p.workspaceId,
+        boardId: p.boardId,
+        authorId: p.authorId,
+        title: p.title,
+        body: p.body,
+        status: p.status,
+        voteCount: p._count.votes,
+        commentCount: p._count.comments,
+        authorName: p.author.name,
+        isUpvoted: false,
+      })),
+      nextCursor: null,
     };
   }
 

@@ -334,6 +334,18 @@ export const PublicWorkspaceDetailDTOSchema = z.object({
 });
 export type PublicWorkspaceDetailDTO = z.infer<typeof PublicWorkspaceDetailDTOSchema>;
 
+export const PublicBoardDetailDTOSchema = z.object({
+  id: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullable(),
+  postCount: z.number(),
+  posts: z.array(PostSchema),
+  nextCursor: z.string().nullable(),
+});
+export type PublicBoardDetailDTO = z.infer<typeof PublicBoardDetailDTOSchema>;
+
 export const UpdateVisibilityDTOSchema = z.object({
   visibility: VisibilitySchema,
   publicAccessLevel: PublicAccessLevelSchema.optional(),
