@@ -44,6 +44,7 @@ export const AuthUserSchema = z.object({
   email: z.string(),
   /** Plain text — not HTML-safe. React escapes on render. */
   name: z.string().nullable(),
+  emailVerified: z.boolean(),
 });
 export type AuthUserDTO = z.infer<typeof AuthUserSchema>;
 
