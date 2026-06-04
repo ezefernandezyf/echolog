@@ -56,6 +56,33 @@ export class WorkspacesService {
       throw new HttpError('Workspace slug already exists', 409);
     }
 
+    // ── Workspace creation limits ─────────────────────────────────────
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { emailVerified: true },
+    });
+
+    if (user) {
+      // Check if user has ADMIN role in any workspace (bypass limit)
+      const adminMembership = await prisma.workspaceMember.findFirst({
+        where: { userId, role: 'ADMIN' },
+      });
+
+      if (!adminMembership) {
+        const workspaceCount = await prisma.workspaceMember.count({
+          where: { userId },
+        });
+
+        if (!user.emailVerified && workspaceCount >= 1) {
+          throw new HttpError('Verify your email to create more workspaces', 403);
+        }
+
+        if (user.emailVerified && workspaceCount >= 20) {
+          throw new HttpError('Maximum 20 workspaces reached', 403);
+        }
+      }
+    }
+
     const workspace = await prisma.workspace.create({
       data: {
         name: sanitizeInput(input.name),
