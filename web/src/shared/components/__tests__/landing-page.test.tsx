@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LandingPage } from '../landing-page';
 
 function renderLandingPage() {
@@ -10,6 +11,14 @@ function renderLandingPage() {
     </MemoryRouter>,
   );
 }
+
+beforeEach(() => {
+  cleanup();
+});
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('LandingPage', () => {
   it('renders "Continue without account" CTA', () => {
@@ -39,5 +48,33 @@ describe('LandingPage', () => {
 
     const headings = screen.getAllByText('EchoLog');
     expect(headings.length).toBeGreaterThan(0);
+  });
+
+  it('"See how it works" button navigates to /explore', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/explore" element={<p>Explore page</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const button = screen.getByRole('button', { name: 'See how it works' });
+    await user.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText('Explore page')).toBeInTheDocument();
+    });
+  });
+
+  it('no visible text contains em dash (U+2014)', () => {
+    renderLandingPage();
+
+    const { innerHTML } = document.body;
+    // Em dash is \u2014 — it should not appear in visible rendered text
+    expect(innerHTML).not.toContain('\u2014');
   });
 });

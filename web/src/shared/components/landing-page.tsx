@@ -48,7 +48,7 @@ export function LandingPage() {
             </span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Give every team their own space. Collect feedback, vote on ideas, ship what matters —
+            Give every team their own space. Collect feedback, vote on ideas, ship what matters -
             without the noise.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -63,7 +63,7 @@ export function LandingPage() {
             <Button
               variant="outline"
               className="h-12 px-8 text-base"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/explore')}
             >
               See how it works
             </Button>
@@ -111,7 +111,7 @@ export function LandingPage() {
 
       {/* Footer */}
       <footer className="mt-auto border-t border-border px-4 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] text-center text-sm text-muted-foreground">
-        Built with ♥ — EchoLog
+        Built with ♥ - EchoLog
       </footer>
     </main>
   );
