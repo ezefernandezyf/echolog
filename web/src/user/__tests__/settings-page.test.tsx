@@ -91,7 +91,7 @@ describe('UserSettingsPage', () => {
   it('updates profile name on form submission', async () => {
     const user = userEvent.setup();
     vi.mocked(authApi.updateProfile).mockResolvedValue({
-      user: { id: 'user-1', email: 'alice@test.com', name: 'Alice Updated' },
+      user: { id: 'user-1', email: 'alice@test.com', name: 'Alice Updated', emailVerified: false },
     } as any);
 
     render(<UserSettingsPage />, { wrapper: TestWrapper });
@@ -112,7 +112,7 @@ describe('UserSettingsPage', () => {
   it('updates email on form submission', async () => {
     const user = userEvent.setup();
     vi.mocked(authApi.updateEmail).mockResolvedValue({
-      user: { id: 'user-1', email: 'newemail@test.com', name: 'Alice' },
+      user: { id: 'user-1', email: 'newemail@test.com', name: 'Alice', emailVerified: false },
     } as any);
 
     render(<UserSettingsPage />, { wrapper: TestWrapper });

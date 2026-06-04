@@ -121,7 +121,7 @@ describe('PublicLayout', () => {
 
   it('shows Dashboard button when authenticated', () => {
     useAuthStore.setState({
-      session: { user: { id: 'u-1', email: 'test@test.dev', name: 'Test' } },
+      session: { user: { id: 'u-1', email: 'test@test.dev', name: 'Test', emailVerified: false } },
       status: 'authenticated',
     } as never);
 
@@ -257,7 +257,7 @@ describe('PublicWorkspaceView', () => {
 
   it('shows read-only notice for logged-in non-member on READ_ONLY workspace', async () => {
     useAuthStore.setState({
-      session: { user: { id: 'u-1', email: 'test@test.dev', name: 'Test' } },
+      session: { user: { id: 'u-1', email: 'test@test.dev', name: 'Test', emailVerified: false } },
       status: 'authenticated',
     } as never);
 
@@ -286,7 +286,7 @@ describe('PublicWorkspaceView', () => {
 
   it('shows interact-mode indicator for logged-in non-member on INTERACT workspace', async () => {
     useAuthStore.setState({
-      session: { user: { id: 'u-1', email: 'test@test.dev', name: 'Test' } },
+      session: { user: { id: 'u-1', email: 'test@test.dev', name: 'Test', emailVerified: false } },
       status: 'authenticated',
     } as never);
 
@@ -317,7 +317,7 @@ describe('PublicWorkspaceView', () => {
 
   it('shows full-access indicator and create board button for logged-in non-member on FULL workspace', async () => {
     useAuthStore.setState({
-      session: { user: { id: 'u-1', email: 'test@test.dev', name: 'Test' } },
+      session: { user: { id: 'u-1', email: 'test@test.dev', name: 'Test', emailVerified: false } },
       status: 'authenticated',
     } as never);
 

@@ -143,12 +143,11 @@ describe('AcceptInvitationPage', () => {
   // ── Authenticated: shows accept/decline buttons ──────────────────────
   it('shows accept and decline buttons when authenticated', async () => {
     useAuthStore.setState({
-      session: { user: { id: 'user-1', email: 'alice@test.com', name: 'Alice' } },
+      session: { user: { id: 'user-1', email: 'alice@test.com', name: 'Alice', emailVerified: false } },
       status: 'authenticated' as const,
     });
 
     vi.mocked(invitationsApi.getByToken).mockResolvedValue(mockInvitation as any);
-
     render(<AcceptInvitationPage />, { wrapper: TestWrapper });
 
     await waitFor(() => {
@@ -164,7 +163,7 @@ describe('AcceptInvitationPage', () => {
     const user = userEvent.setup();
 
     useAuthStore.setState({
-      session: { user: { id: 'user-1', email: 'alice@test.com', name: 'Alice' } },
+      session: { user: { id: 'user-1', email: 'alice@test.com', name: 'Alice', emailVerified: false } },
       status: 'authenticated' as const,
     });
 

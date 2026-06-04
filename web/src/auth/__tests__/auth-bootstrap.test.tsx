@@ -39,6 +39,7 @@ const sampleSession: AuthSessionDTO = {
     id: 'user-1',
     email: 'alice@echolog.dev',
     name: 'Alice',
+    emailVerified: false,
   },
 };
 
