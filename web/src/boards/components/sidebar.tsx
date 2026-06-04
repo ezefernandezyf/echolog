@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { cn } from '../../shared/lib/cn';
 import { useAuthStore } from '../../auth/auth-store';
-import { useLogout } from '../../hooks/use-auth';
 import { Link, useNavigate } from 'react-router-dom';
-import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import { ThemeToggle } from '../../shared/components/theme-toggle';
 import { PendingInvitationsBell } from '../../workspaces/components/pending-invitations-bell';
 import { useUiStore } from '../../core/store/ui-store';
@@ -56,7 +54,6 @@ export function Sidebar({
   const userName = user?.name ?? 'Unknown User';
   const userEmail = user?.email ?? '';
   const initials = getUserInitials(user?.name ?? null, userEmail);
-  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
   // Focus trap for mobile sidebar overlay
   useEffect(() => {
@@ -104,8 +101,6 @@ export function Sidebar({
     };
   }, [sidebarOpen, closeSidebar]);
 
-  const logoutMutation = useLogout();
-
   return (
     <aside
       ref={asideRef}
@@ -130,6 +125,26 @@ export function Sidebar({
           </div>
           <span className="text-xs text-muted-foreground">←</span>
         </button>
+
+        <Link
+          to="/explore"
+          onClick={onNavClick}
+          className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground tracking-[-0.01em] transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="size-4 shrink-0"
+          >
+            <path
+              fillRule="evenodd"
+              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span className="flex-1">Explore</span>
+        </Link>
         {workspaceId ? (
           <>
             <Link
@@ -227,71 +242,7 @@ export function Sidebar({
               <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
             </div>
           </div>
-          <div className="flex items-center border-t border-border">
-            <Link
-              to="/settings"
-              onClick={onNavClick}
-              className="flex flex-1 items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="size-3.5"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M7.84 1.804A1 1 0 018.82 1h2.36a1 1 0 01.98.804l.331 1.652a6.993 6.993 0 011.929 1.115l1.598-.54a1 1 0 011.186.447l1.18 2.044a1 1 0 01-.205 1.251l-1.267 1.113a7.047 7.047 0 010 2.228l1.267 1.113a1 1 0 01.206 1.25l-1.18 2.045a1 1 0 01-1.187.447l-1.598-.54a6.993 6.993 0 01-1.929 1.115l-.33 1.652a1 1 0 01-.98.804H8.82a1 1 0 01-.98-.804l-.331-1.652a6.993 6.993 0 01-1.929-1.115l-1.598.54a1 1 0 01-1.186-.447l-1.18-2.044a1 1 0 01.205-1.251l1.267-1.114a7.05 7.05 0 010-2.227L1.821 7.773a1 1 0 01-.206-1.25l1.18-2.045a1 1 0 011.187-.447l1.598.54A6.993 6.993 0 017.51 3.456l.33-1.652zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Settings
-            </Link>
-            <div className="h-5 w-px bg-border" />
-            <button
-              type="button"
-              onClick={() => setShowSignOutDialog(true)}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="size-3.5"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v2a.75.75 0 01-1.5 0v-2a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-2a.75.75 0 011.5 0v2A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z"
-                  clipRule="evenodd"
-                />
-                <path
-                  fillRule="evenodd"
-                  d="M19 10a.75.75 0 00-.75-.75H8.704l1.048-.943a.75.75 0 10-1.004-1.114l-2.5 2.25a.75.75 0 000 1.114l2.5 2.25a.75.75 0 101.004-1.114l-1.048-.943h9.546A.75.75 0 0019 10z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Log out
-            </button>
-          </div>
         </div>
-
-        <ConfirmDialog
-          open={showSignOutDialog}
-          onClose={() => setShowSignOutDialog(false)}
-          onConfirm={() =>
-            logoutMutation.mutate(undefined, {
-              onSuccess: () => {
-                setShowSignOutDialog(false);
-                navigate('/login', { replace: true });
-              },
-            })
-          }
-          title="Sign out"
-          message="Are you sure you want to sign out?"
-          confirmLabel="Sign out"
-          variant="danger"
-          isLoading={logoutMutation.isPending}
-        />
       </div>
     </aside>
   );
