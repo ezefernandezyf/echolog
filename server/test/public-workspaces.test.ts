@@ -17,6 +17,11 @@ describe('public workspaces', () => {
       name: 'Public Tester',
     });
 
+    // Verify email to bypass workspace creation limit
+    const resendRes = await agent.post('/api/auth/resend-verification');
+    const token = resendRes.body.token;
+    await request(app).get(`/api/auth/verify-email/${token}`);
+
     // Create two workspaces
     const ws1 = await agent.post('/api/workspaces').send({ name: `Public WS ${suffix}` });
     const ws2 = await agent.post('/api/workspaces').send({ name: `Private WS ${suffix}` });
