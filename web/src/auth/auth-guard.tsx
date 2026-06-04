@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from './auth-store';
 import { SessionSkeleton } from '../shared/components/domain-skeletons';
 
@@ -50,9 +50,13 @@ export function ProtectedRoute() {
 
 export function PublicRoute() {
   const session = useAuthStore((state) => state.session);
+  const location = useLocation();
 
   if (session) {
-    return <Navigate to="/w" replace />;
+    // Whitelist: only redirect auth pages — allow landing and /explore for logged-in users
+    if (location.pathname === '/login' || location.pathname === '/register') {
+      return <Navigate to="/w" replace />;
+    }
   }
 
   return <Outlet />;
