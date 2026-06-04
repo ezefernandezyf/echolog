@@ -117,7 +117,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockNavigate.mockClear();
   useAuthStore.setState({
-    session: { user: { id: 'owner-1', email: 'alice@test.com', name: 'Alice Owner', emailVerified: false } },
+    session: { user: { id: 'owner-1', email: 'alice@test.com', name: 'Alice Owner' } },
     status: 'authenticated' as const,
   });
 });

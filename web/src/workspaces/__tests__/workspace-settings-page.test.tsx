@@ -268,7 +268,7 @@ describe('WorkspaceSettingsPage', () => {
 
     beforeEach(() => {
       useAuthStore.setState({
-        session: { user: { id: 'user-1', email: 'test@test.dev', name: 'Test', emailVerified: false } },
+        session: { user: { id: 'user-1', email: 'test@test.dev', name: 'Test' } },
         status: 'authenticated',
       } as never);
       vi.mocked(useWorkspaces).mockReturnValue({

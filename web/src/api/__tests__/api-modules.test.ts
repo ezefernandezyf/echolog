@@ -84,7 +84,7 @@ describe('R3 — Domain API Modules', () => {
 
     it('authApi.me resolves with session-shaped data', async () => {
       const mockSession = {
-        user: { id: 'user-1', email: 'alice@echolog.dev', name: 'Alice', emailVerified: false },
+        user: { id: 'user-1', email: 'alice@echolog.dev', name: 'Alice' },
       };
 
       vi.mocked(authApi.me).mockResolvedValueOnce(mockSession);

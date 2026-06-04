@@ -125,7 +125,7 @@ export function UserSettingsPage() {
                   </span>
                   <Button
                     variant="outline"
-                    className="min-h-9 px-3 text-xs"
+                    size="sm"
                     disabled={resending}
                     onClick={handleResendVerification}
                   >

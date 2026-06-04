@@ -80,7 +80,7 @@ export const updatePassword = async (req: Request, res: Response) => {
 // ── Email Verification ─────────────────────────────────────────────────────
 
 export const verifyEmail = async (req: Request, res: Response) => {
-  const token = req.params.token as string;
+  const { token } = req.params;
   const user = await authService.verifyEmail(token);
   res.status(200).json({ user });
 };
