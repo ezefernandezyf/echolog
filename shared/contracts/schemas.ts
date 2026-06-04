@@ -44,7 +44,6 @@ export const AuthUserSchema = z.object({
   email: z.string(),
   /** Plain text — not HTML-safe. React escapes on render. */
   name: z.string().nullable(),
-  emailVerified: z.boolean(),
 });
 export type AuthUserDTO = z.infer<typeof AuthUserSchema>;
 
@@ -334,18 +333,6 @@ export const PublicWorkspaceDetailDTOSchema = z.object({
   boards: z.array(PublicBoardDTOSchema),
 });
 export type PublicWorkspaceDetailDTO = z.infer<typeof PublicWorkspaceDetailDTOSchema>;
-
-export const PublicBoardDetailDTOSchema = z.object({
-  id: z.string(),
-  /** Plain text — not HTML-safe. React escapes on render. */
-  name: z.string(),
-  slug: z.string(),
-  description: z.string().nullable(),
-  postCount: z.number(),
-  posts: z.array(PostSchema),
-  nextCursor: z.string().nullable(),
-});
-export type PublicBoardDetailDTO = z.infer<typeof PublicBoardDetailDTOSchema>;
 
 export const UpdateVisibilityDTOSchema = z.object({
   visibility: VisibilitySchema,

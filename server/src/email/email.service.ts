@@ -3,7 +3,6 @@ import { resendClient, emailConfig } from './email.config.js';
 import { render as renderInvitation } from './templates/invitation.js';
 import { render as renderWelcome } from './templates/welcome.js';
 import { render as renderRoleChanged } from './templates/role-changed.js';
-import { render as renderVerification } from './templates/verification.js';
 
 export class EmailService {
   /**
@@ -79,27 +78,6 @@ export class EmailService {
         });
       },
       { type: 'welcome', recipient: userEmail },
-    );
-  }
-
-  /**
-   * Sends an email verification message.
-   * Uses Resend to deliver the token link. Fails gracefully.
-   */
-  async sendVerificationEmail(token: string, userEmail: string): Promise<void> {
-    if (process.env.NODE_ENV === 'test') return;
-
-    await this.withEmailErrorHandling(
-      async () => {
-        const html = renderVerification(token);
-        await resendClient!.emails.send({
-          from: emailConfig.from,
-          to: userEmail,
-          subject: 'Verify your EchoLog email',
-          html,
-        });
-      },
-      { type: 'verification', recipient: userEmail },
     );
   }
 

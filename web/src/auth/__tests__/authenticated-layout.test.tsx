@@ -259,10 +259,10 @@ describe('R6 — SidebarContainer data fetching', () => {
 });
 
 // ===========================================================================
-// TopNavbar (renamed from MobileHeader)
+// MobileHeader
 // ===========================================================================
 
-describe('TopNavbar', () => {
+describe('MobileHeader', () => {
   it('renders hamburger button with correct accessibility attributes', async () => {
     vi.mocked(useWorkspaces).mockReturnValue({
       data: sampleWorkspaces,
@@ -287,7 +287,7 @@ describe('TopNavbar', () => {
     expect(hamburger).toHaveAttribute('id', 'mobile-hamburger');
   });
 
-  it('has theme toggle present in TopNavbar', async () => {
+  it('has theme toggle present in MobileHeader', async () => {
     vi.mocked(useWorkspaces).mockReturnValue({
       data: sampleWorkspaces,
       isPending: false,
@@ -307,32 +307,5 @@ describe('TopNavbar', () => {
 
     // Theme toggle renders with "Switch to dark mode" since theme is 'light'
     expect(await screen.findByLabelText('Switch to dark mode')).toBeInTheDocument();
-  });
-
-  it('renders Settings and Log out links in the navbar', async () => {
-    vi.mocked(useWorkspaces).mockReturnValue({
-      data: sampleWorkspaces,
-      isPending: false,
-      isError: false,
-      error: null,
-      refetch: vi.fn(),
-    } as any);
-    vi.mocked(useBoards).mockReturnValue({
-      data: undefined,
-      isPending: false,
-      isError: false,
-      error: null,
-      refetch: vi.fn(),
-    } as any);
-
-    renderLayout();
-
-    // Settings link should exist in the navbar
-    const settingsLink = await screen.findByText('Settings');
-    expect(settingsLink).toBeInTheDocument();
-
-    // Log out link/button should exist
-    const logoutBtn = screen.getByText('Log out');
-    expect(logoutBtn).toBeInTheDocument();
   });
 });

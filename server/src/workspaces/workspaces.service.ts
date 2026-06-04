@@ -10,7 +10,6 @@ import type {
   CreateWorkspaceDTO,
   InvitationDTO,
   MemberDTO,
-  PublicBoardDetailDTO,
   PublicWorkspaceDetailDTO,
   PublicWorkspaceListDTO,
   UpdateVisibilityDTO,
@@ -54,33 +53,6 @@ export class WorkspacesService {
     const existing = await prisma.workspace.findUnique({ where: { slug } });
     if (existing) {
       throw new HttpError('Workspace slug already exists', 409);
-    }
-
-    // ── Workspace creation limits ─────────────────────────────────────
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { emailVerified: true },
-    });
-
-    if (user) {
-      // Check if user has ADMIN role in any workspace (bypass limit)
-      const adminMembership = await prisma.workspaceMember.findFirst({
-        where: { userId, role: 'ADMIN' },
-      });
-
-      if (!adminMembership) {
-        const workspaceCount = await prisma.workspaceMember.count({
-          where: { userId },
-        });
-
-        if (!user.emailVerified && workspaceCount >= 1) {
-          throw new HttpError('Verify your email to create more workspaces', 403);
-        }
-
-        if (user.emailVerified && workspaceCount >= 20) {
-          throw new HttpError('Maximum 20 workspaces reached', 403);
-        }
-      }
     }
 
     const workspace = await prisma.workspace.create({
@@ -268,57 +240,6 @@ export class WorkspacesService {
         slug: b.slug,
         postCount: (b as BoardWithCount)._count.posts,
       })),
-    };
-  }
-
-  async getPublicBoardBySlug(slug: string, boardSlug: string): Promise<PublicBoardDetailDTO> {
-    const workspace = await prisma.workspace.findFirst({
-      where: { slug, visibility: 'PUBLIC' },
-    });
-
-    if (!workspace) {
-      throw new HttpError('Workspace not found', 404);
-    }
-
-    const board = await prisma.board.findFirst({
-      where: { workspaceId: workspace.id, slug: boardSlug },
-      include: {
-        posts: {
-          orderBy: { createdAt: 'desc' },
-          take: 20,
-          include: {
-            author: { select: { name: true } },
-            _count: { select: { comments: true, votes: true } },
-          },
-        },
-        _count: { select: { posts: true } },
-      },
-    });
-
-    if (!board) {
-      throw new HttpError('Board not found', 404);
-    }
-
-    return {
-      id: board.id,
-      name: board.name,
-      slug: board.slug,
-      description: board.description,
-      postCount: board._count.posts,
-      posts: board.posts.map((p) => ({
-        id: p.id,
-        workspaceId: p.workspaceId,
-        boardId: p.boardId,
-        authorId: p.authorId,
-        title: p.title,
-        body: p.body,
-        status: p.status,
-        voteCount: p._count.votes,
-        commentCount: p._count.comments,
-        authorName: p.author.name,
-        isUpvoted: false,
-      })),
-      nextCursor: null,
     };
   }
 

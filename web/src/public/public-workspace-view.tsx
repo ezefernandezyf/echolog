@@ -71,7 +71,7 @@ export function PublicWorkspaceView() {
 
   return (
     <main id="main-content" className="mx-auto w-full max-w-4xl px-4 py-10 animate-fade-in">
-      <PageTitle title={`${workspace.name} - EchoLog`} />
+      <PageTitle title={`${workspace.name} — EchoLog`} />
 
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-sm">

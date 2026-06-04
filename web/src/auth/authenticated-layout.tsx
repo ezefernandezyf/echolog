@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { useUiStore } from '../core/store/ui-store';
 import { SidebarContainer } from './sidebar-container';
-import { TopNavbar } from './top-navbar';
+import { MobileHeader } from './mobile-header';
 import { CreateBoardModal } from '../boards/components/create-board-modal';
 import { CreatePostModal } from '../boards/components/create-post-modal';
 
@@ -55,7 +55,7 @@ export function AuthenticatedLayout() {
         />
 
         <div className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden">
-          <TopNavbar onToggleSidebar={openSidebar} />
+          <MobileHeader onToggleSidebar={openSidebar} />
           <Outlet />
         </div>
 

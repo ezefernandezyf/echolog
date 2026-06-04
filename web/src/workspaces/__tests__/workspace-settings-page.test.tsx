@@ -15,10 +15,10 @@ vi.mock('../../hooks/use-workspaces', () => ({
 }));
 
 vi.mock('../../hooks/use-public-workspaces', () => ({
-  useUpdateVisibility: vi.fn(() => ({
+  useUpdateVisibility: () => ({
     mutate: vi.fn(),
     isPending: false,
-  })),
+  }),
   usePublicWorkspaces: vi.fn(),
 }));
 
@@ -38,9 +38,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 // ---------------------------------------------------------------------------
 // Imports after mocks
 // ---------------------------------------------------------------------------
-import { useAuthStore } from '../../auth/auth-store';
 import { useWorkspaces, useUpdateWorkspace, useDeleteWorkspace } from '../../hooks/use-workspaces';
-import { useUpdateVisibility } from '../../hooks/use-public-workspaces';
 import { WorkspaceSettingsPage } from '../components/workspace-settings-page';
 
 // ---------------------------------------------------------------------------
@@ -257,172 +255,5 @@ describe('WorkspaceSettingsPage', () => {
     expect(screen.getByText('Members')).toBeInTheDocument();
     expect(screen.getByText('Manage Members')).toBeInTheDocument();
     expect(screen.getByText('Danger Zone')).toBeInTheDocument();
-  });
-
-  // ── 16-B.1: ConfirmDialog before visibility mutation ──────────────────
-  describe('Visibility change ConfirmDialog', () => {
-    const ownerWorkspace = {
-      id: 'ws-1', name: 'Test WS', slug: 'test-ws', role: 'OWNER' as const,
-      visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const,
-    };
-
-    beforeEach(() => {
-      useAuthStore.setState({
-        session: { user: { id: 'user-1', email: 'test@test.dev', name: 'Test' } },
-        status: 'authenticated',
-      } as never);
-      vi.mocked(useWorkspaces).mockReturnValue({
-        data: [ownerWorkspace],
-        isPending: false,
-        isError: false,
-        error: null,
-      } as any);
-      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
-      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
-    });
-
-    it('shows ConfirmDialog when changing visibility from PRIVATE to PUBLIC, before any mutation', async () => {
-      const updateVisibilityMutate = vi.fn();
-      vi.mocked(useUpdateVisibility).mockReturnValue({
-        mutate: updateVisibilityMutate,
-        isPending: false,
-      } as any);
-
-      const user = userEvent.setup();
-      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
-      });
-
-      // Verify visibility section rendered and select starts at PRIVATE
-      const visibilitySelect = screen.getByRole('combobox', { name: /status/i }) as HTMLSelectElement;
-      expect(visibilitySelect.value).toBe('PRIVATE');
-
-      // Change visibility select from PRIVATE to PUBLIC
-      await user.selectOptions(visibilitySelect, 'PUBLIC');
-
-      // ConfirmDialog should appear BEFORE mutation is called
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
-      });
-
-      // Mutation should NOT have been called yet
-      expect(updateVisibilityMutate).not.toHaveBeenCalled();
-    });
-
-    it('calls mutation when user confirms in ConfirmDialog', async () => {
-      const updateVisibilityMutate = vi.fn();
-      vi.mocked(useUpdateVisibility).mockReturnValue({
-        mutate: updateVisibilityMutate,
-        isPending: false,
-      } as any);
-
-      const user = userEvent.setup();
-      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
-      });
-
-      const visibilitySelect = screen.getByRole('combobox', { name: /status/i }) as HTMLSelectElement;
-      await user.selectOptions(visibilitySelect, 'PUBLIC');
-
-      // Wait for dialog
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
-      });
-
-      // Confirm the dialog
-      const dialog = screen.getByRole('dialog');
-      const confirmBtn = within(dialog).getByRole('button', { name: /make public/i });
-      await user.click(confirmBtn);
-
-      await waitFor(() => {
-        expect(updateVisibilityMutate).toHaveBeenCalled();
-      });
-    });
-
-    it('reverts select when user cancels ConfirmDialog without calling mutation', async () => {
-      const updateVisibilityMutate = vi.fn();
-      vi.mocked(useUpdateVisibility).mockReturnValue({
-        mutate: updateVisibilityMutate,
-        isPending: false,
-      } as any);
-
-      const user = userEvent.setup();
-      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
-      });
-
-      const visibilitySelect = screen.getByRole('combobox', { name: /status/i }) as HTMLSelectElement;
-      await user.selectOptions(visibilitySelect, 'PUBLIC');
-
-      // Wait for dialog
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
-      });
-
-      // Cancel the dialog
-      const dialog = screen.getByRole('dialog');
-      const cancelBtn = within(dialog).getByRole('button', { name: /cancel/i });
-      await user.click(cancelBtn);
-
-      // Dialog should close and mutation NOT called
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      });
-      expect(updateVisibilityMutate).not.toHaveBeenCalled();
-
-      // Select should be reverted to PRIVATE
-      expect(visibilitySelect.value).toBe('PRIVATE');
-    });
-
-    it('shows ConfirmDialog when changing access level, and confirms mutation', async () => {
-      const updateVisibilityMutate = vi.fn();
-      vi.mocked(useUpdateVisibility).mockReturnValue({
-        mutate: updateVisibilityMutate,
-        isPending: false,
-      } as any);
-
-      // Start with PUBLIC visibility to render access level select
-      vi.mocked(useWorkspaces).mockReturnValue({
-        data: [{ ...ownerWorkspace, visibility: 'PUBLIC' as const }],
-        isPending: false,
-        isError: false,
-        error: null,
-      } as any);
-
-      const user = userEvent.setup();
-      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
-      });
-
-      // Access level select should be visible (workspace is PUBLIC)
-      const accessLevelSelect = screen.getByRole('combobox', { name: /access level/i }) as HTMLSelectElement;
-      expect(accessLevelSelect.value).toBe('READ_ONLY');
-
-      // Change to FULL
-      await user.selectOptions(accessLevelSelect, 'FULL');
-
-      // Dialog should appear
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
-      });
-      expect(updateVisibilityMutate).not.toHaveBeenCalled();
-
-      // Confirm
-      const dialog = screen.getByRole('dialog');
-      const confirmBtn = within(dialog).getByRole('button', { name: /make public/i });
-      await user.click(confirmBtn);
-
-      await waitFor(() => {
-        expect(updateVisibilityMutate).toHaveBeenCalled();
-      });
-    });
   });
 });

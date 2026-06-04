@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'node:crypto';
 import { HttpError } from '../infra/http.js';
 import { prisma } from '../infra/prisma.js';
 import { sanitizeInput } from '../infra/sanitize.js';
@@ -36,12 +35,8 @@ export class AuthService {
     // Send welcome email (non-blocking — wrapper swallows errors)
     emailService.sendWelcomeEmail(user.email, user.name);
 
-    // Generate and send verification email
-    const verificationToken = await this.generateVerificationToken(user.id);
-    emailService.sendVerificationEmail(verificationToken, user.email);
-
     return {
-      user: { id: user.id, email: user.email, name: user.name, emailVerified: user.emailVerified },
+      user: { id: user.id, email: user.email, name: user.name },
     };
   }
 
@@ -57,7 +52,7 @@ export class AuthService {
     }
 
     return {
-      user: { id: user.id, email: user.email, name: user.name, emailVerified: user.emailVerified },
+      user: { id: user.id, email: user.email, name: user.name },
     };
   }
 
@@ -66,7 +61,7 @@ export class AuthService {
     if (!user) return null;
 
     return {
-      user: { id: user.id, email: user.email, name: user.name, emailVerified: user.emailVerified },
+      user: { id: user.id, email: user.email, name: user.name },
     };
   }
 
@@ -77,7 +72,7 @@ export class AuthService {
     });
 
     return {
-      user: { id: updated.id, email: updated.email, name: updated.name, emailVerified: updated.emailVerified },
+      user: { id: updated.id, email: updated.email, name: updated.name },
     };
   }
 
@@ -97,7 +92,7 @@ export class AuthService {
     });
 
     return {
-      user: { id: updated.id, email: updated.email, name: updated.name, emailVerified: updated.emailVerified },
+      user: { id: updated.id, email: updated.email, name: updated.name },
     };
   }
 
@@ -116,67 +111,6 @@ export class AuthService {
     });
 
     return { message: 'Password updated' };
-  }
-
-  // ── Email Verification ──────────────────────────────────────────────
-
-  async generateVerificationToken(userId: string): Promise<string> {
-    // Delete any existing tokens for this user first
-    await prisma.verificationToken.deleteMany({ where: { userId } });
-
-    const token = crypto.randomUUID();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-    await prisma.verificationToken.create({
-      data: { userId, token, expiresAt },
-    });
-
-    return token;
-  }
-
-  async verifyEmail(token: string): Promise<{ id: string; email: string; name: string | null; emailVerified: boolean }> {
-    const record = await prisma.verificationToken.findUnique({ where: { token } });
-
-    if (!record) {
-      throw new HttpError('Invalid verification token', 404);
-    }
-
-    if (record.expiresAt < new Date()) {
-      // Delete expired token
-      await prisma.verificationToken.delete({ where: { id: record.id } });
-      throw new HttpError('Verification token has expired', 400);
-    }
-
-    const user = await prisma.user.update({
-      where: { id: record.userId },
-      data: { emailVerified: true },
-    });
-
-    // Delete the used token
-    await prisma.verificationToken.delete({ where: { id: record.id } });
-
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      emailVerified: true,
-    };
-  }
-
-  async resendVerification(userId: string): Promise<{ token: string; message: string }> {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new HttpError('User not found', 404);
-
-    if (user.emailVerified) {
-      throw new HttpError('Email already verified', 400);
-    }
-
-    const token = await this.generateVerificationToken(userId);
-
-    // Send verification email (non-blocking — wrapper swallows errors)
-    emailService.sendVerificationEmail(token, user.email);
-
-    return { token, message: 'Verification email sent' };
   }
 }
 

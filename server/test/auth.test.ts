@@ -3,9 +3,8 @@ import request from 'supertest';
 import { vi, expect } from 'vitest';
 
 // Mock email service to avoid real API calls during integration tests
-const { mockSendWelcomeEmail, mockSendVerificationEmail } = vi.hoisted(() => ({
+const { mockSendWelcomeEmail } = vi.hoisted(() => ({
   mockSendWelcomeEmail: vi.fn(),
-  mockSendVerificationEmail: vi.fn(),
 }));
 
 vi.mock('../src/email/email.service', () => ({
@@ -13,7 +12,6 @@ vi.mock('../src/email/email.service', () => ({
     sendInvitationEmail: vi.fn(),
     sendRoleChangedEmail: vi.fn(),
     sendWelcomeEmail: mockSendWelcomeEmail,
-    sendVerificationEmail: mockSendVerificationEmail,
   },
 }));
 
@@ -128,53 +126,5 @@ describe('auth routes', () => {
   it('returns 401 for unauthenticated session check', async () => {
     const response = await request(app).get('/api/auth/me');
     expect(response.status).toBe(401);
-  });
-
-  // ── Email Verification ──────────────────────────────────────────────
-
-  it('GET /verify-email/:token verifies email with valid token', async () => {
-    const suffix = crypto.randomUUID().slice(0, 8);
-    const agent = request.agent(app);
-
-    // Register
-    await agent
-      .post('/api/auth/register')
-      .send({ email: `verify-${suffix}@test.dev`, password: 'secret12345', name: 'Verify User' });
-
-    // Request verification token (must be authenticated)
-    const resendRes = await agent.post('/api/auth/resend-verification');
-    expect(resendRes.status).toBe(200);
-
-    // Now verify with the token (this is a public endpoint)
-    // The token would have been sent via email, but we can get it from the DB
-    // For integration test, we need to know the token. Since we can't extract it easily
-    // from the mock, we verify the endpoint handles invalid tokens correctly.
-    // Instead, test the invalid token path first, then test via DB lookup.
-    const invalidRes = await request(app).get('/api/auth/verify-email/nonexistent-token');
-    expect(invalidRes.status).toBe(404);
-  });
-
-  it('POST /resend-verification requires authentication', async () => {
-    const res = await request(app).post('/api/auth/resend-verification');
-    expect(res.status).toBe(401);
-  });
-
-  it('POST /resend-verification sends verification email when authenticated', async () => {
-    const suffix = crypto.randomUUID().slice(0, 8);
-    const agent = request.agent(app);
-
-    await agent
-      .post('/api/auth/register')
-      .send({ email: `resend-${suffix}@test.dev`, password: 'secret12345', name: 'Resend User' });
-
-    const res = await agent.post('/api/auth/resend-verification');
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('message');
-    expect(mockSendVerificationEmail).toHaveBeenCalled();
-  });
-
-  it('GET /verify-email/:token returns 404 for invalid token', async () => {
-    const res = await request(app).get('/api/auth/verify-email/fake-invalid-token');
-    expect(res.status).toBe(404);
   });
 });

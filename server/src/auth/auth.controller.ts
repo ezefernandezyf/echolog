@@ -76,16 +76,3 @@ export const updatePassword = async (req: Request, res: Response) => {
   await authService.updatePassword(req.userId!, req.body);
   res.status(200).json({ message: 'Password updated successfully' });
 };
-
-// ── Email Verification ─────────────────────────────────────────────────────
-
-export const verifyEmail = async (req: Request, res: Response) => {
-  const { token } = req.params;
-  const user = await authService.verifyEmail(token);
-  res.status(200).json({ user });
-};
-
-export const resendVerification = async (req: Request, res: Response) => {
-  const result = await authService.resendVerification(req.userId!);
-  res.status(200).json({ message: result.message, token: result.token });
-};

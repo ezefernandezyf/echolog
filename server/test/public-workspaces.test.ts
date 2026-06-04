@@ -17,11 +17,6 @@ describe('public workspaces', () => {
       name: 'Public Tester',
     });
 
-    // Verify email to bypass workspace creation limit
-    const resendRes = await agent.post('/api/auth/resend-verification');
-    const token = resendRes.body.token;
-    await request(app).get(`/api/auth/verify-email/${token}`);
-
     // Create two workspaces
     const ws1 = await agent.post('/api/workspaces').send({ name: `Public WS ${suffix}` });
     const ws2 = await agent.post('/api/workspaces').send({ name: `Private WS ${suffix}` });
@@ -405,94 +400,5 @@ describe('public workspace rate limiting', () => {
     expect(res.headers).toHaveProperty('ratelimit-limit');
     expect(res.headers).toHaveProperty('x-ratelimit-limit');
     expect(res.headers['ratelimit-remaining']).toBe('0');
-  });
-});
-
-describe('public board detail', () => {
-  it('GET /api/workspaces/public/:slug/boards/:boardSlug returns board with posts for PUBLIC workspace', async () => {
-    const suffix = crypto.randomUUID().slice(0, 8);
-    const agent = request.agent(app);
-
-    await agent.post('/api/auth/register').send({
-      email: `pub-board-detail-${suffix}@test.dev`,
-      password: 'secret12345',
-      name: 'Owner',
-    });
-
-    const ws = await agent.post('/api/workspaces').send({ name: `Public Board Detail ${suffix}` });
-    expect(ws.status).toBe(201);
-    const wsId: string = ws.body.id;
-    const wsSlug: string = ws.body.slug;
-
-    // Create a board
-    const board = await agent.post(`/api/workspaces/${wsId}/boards`).send({ name: 'Feature Requests' });
-    expect(board.status).toBe(201);
-    const boardSlug: string = board.body.slug;
-
-    // Create a post
-    const post = await agent.post(`/api/boards/${board.body.id}/posts`).send({ title: 'Dark mode', body: 'Please add dark mode support' });
-    expect(post.status).toBe(201);
-
-    // Make workspace PUBLIC
-    await agent
-      .patch(`/api/workspaces/${wsId}/visibility`)
-      .send({ visibility: 'PUBLIC', publicAccessLevel: 'READ_ONLY' });
-
-    // Anonymous request to public board detail
-    const res = await request(app).get(`/api/workspaces/public/${wsSlug}/boards/${boardSlug}`);
-    expect(res.status).toBe(200);
-    expect(res.body.name).toBe('Feature Requests');
-    expect(res.body.slug).toBe(boardSlug);
-    expect(res.body.postCount).toBe(1);
-    expect(res.body.posts).toBeInstanceOf(Array);
-    expect(res.body.posts).toHaveLength(1);
-    expect(res.body.posts[0].title).toBe('Dark mode');
-  });
-
-  it('GET /api/workspaces/public/:slug/boards/:boardSlug returns 404 for PRIVATE workspace', async () => {
-    const suffix = crypto.randomUUID().slice(0, 8);
-    const agent = request.agent(app);
-
-    await agent.post('/api/auth/register').send({
-      email: `priv-board-detail-${suffix}@test.dev`,
-      password: 'secret12345',
-      name: 'Owner',
-    });
-
-    const ws = await agent.post('/api/workspaces').send({ name: `Private Board ${suffix}` });
-    expect(ws.status).toBe(201);
-    const wsId: string = ws.body.id;
-    const wsSlug: string = ws.body.slug;
-
-    const board = await agent.post(`/api/workspaces/${wsId}/boards`).send({ name: 'Internal' });
-    expect(board.status).toBe(201);
-    const boardSlug: string = board.body.slug;
-
-    // Workspace is still PRIVATE (default)
-    const res = await request(app).get(`/api/workspaces/public/${wsSlug}/boards/${boardSlug}`);
-    expect(res.status).toBe(404);
-  });
-
-  it('GET /api/workspaces/public/:slug/boards/:boardSlug returns 404 for non-existent board', async () => {
-    const suffix = crypto.randomUUID().slice(0, 8);
-    const agent = request.agent(app);
-
-    await agent.post('/api/auth/register').send({
-      email: `noboard-detail-${suffix}@test.dev`,
-      password: 'secret12345',
-      name: 'Owner',
-    });
-
-    const ws = await agent.post('/api/workspaces').send({ name: `No Board WS ${suffix}` });
-    expect(ws.status).toBe(201);
-    const wsId: string = ws.body.id;
-    const wsSlug: string = ws.body.slug;
-
-    await agent
-      .patch(`/api/workspaces/${wsId}/visibility`)
-      .send({ visibility: 'PUBLIC', publicAccessLevel: 'READ_ONLY' });
-
-    const res = await request(app).get(`/api/workspaces/public/${wsSlug}/boards/nonexistent`);
-    expect(res.status).toBe(404);
   });
 });

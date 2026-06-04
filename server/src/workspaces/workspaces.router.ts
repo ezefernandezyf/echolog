@@ -6,7 +6,6 @@ import {
   createInvitation,
   createWorkspace,
   deleteWorkspace,
-  getPublicBoardBySlug,
   getPublicWorkspace,
   getWorkspace,
   listInvitations,
@@ -33,7 +32,6 @@ export const workspaceRouter = Router();
 // ── Public discovery (no auth required, rate-limited in app.ts) ───────
 workspaceRouter.get('/public', listPublicWorkspaces);
 workspaceRouter.get('/public/:slug', getPublicWorkspace);
-workspaceRouter.get('/public/:slug/boards/:boardSlug', getPublicBoardBySlug);
 
 // ── Visibility toggle (owner-only) ────────────────────────────────────
 workspaceRouter.patch(
