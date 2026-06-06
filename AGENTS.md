@@ -187,19 +187,19 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] **16-B UX Upgrades** — ConfirmDialog visibilidad, public board detail, Explore en sidebar, TopNavbar
 - [x] **16-C Growth Features** — email verification, workspace limits, seed "Bienvenido", verification badge
 
-### Phase 16-D: Polish Iteration 🔲
+### Phase 16-D: Polish Iteration ✅
 > Correcciones y mejoras sobre lo mergeado en develop. Bugs + UX pendientes de Phase 16.
-- [ ] 16-D.1 **Fix navegación a boards públicos** — los boards dentro de workspaces públicos no responden al click. Arreglar navegación respetando nivel de acceso del workspace.
-- [ ] 16-D.2 **Votar, postear y comentar en boards públicos** — wirear las acciones según publicAccessLevel (READ_ONLY/INTERACT/FULL) cuando el usuario no es miembro.
-- [ ] 16-D.3 **Posts nuevos no se refrescan automáticamente** — al crear un post, la lista de posts no se actualiza. Fixear invalidación de queries.
-- [ ] 16-D.4 **Botón hamburguesa en desktop no hace nada** — el botón de menú hamburguesa no tiene funcionalidad en desktop (solo en mobile).
-- [ ] 16-D.5 **Eliminar "Continue without account" del homepage** — ya existe "See how it works" → /explore.
-- [ ] 16-D.6 **Mover notificaciones, theme toggle y perfil a la TopNavbar** — notificaciones y perfil como avatar con dropdown (settings, logout). Theme toggle se mueve también.
-- [ ] 16-D.7 **Link Explore solo en dashboard** — el link "Explore" de la sidebar solo debe aparecer en `/w` (dashboard), no dentro de un workspace.
-- [ ] 16-D.8 **Admins y owners borran posts/comentarios/boards de cualquiera** — autorización para borrar contenido ajeno dentro del workspace.
+- [x] 16-D.1 **Fix navegación a boards públicos** — BoardCard ahora linkea a `/explore/:slug/:boardSlug`.
+- [x] 16-D.2 **Votar, postear y comentar en boards públicos** — PublicPostRow con controles gateados por accessLevel (READ_ONLY/INTERACT/FULL).
+- [x] 16-D.3 **Posts nuevos no se refrescan automáticamente** — query invalidation fixeada con prefijo `['posts', boardId]`.
+- [x] 16-D.4 **Botón hamburguesa** — agregado `lg:hidden`: visible solo en mobile, sidebar siempre visible en desktop.
+- [x] 16-D.5 **Eliminar "Continue without account" del homepage** — solo queda "See how it works" → /explore como Link.
+- [x] 16-D.6 **Mover notificaciones, theme toggle y perfil a la TopNavbar** — avatar dropdown (Settings/Sign out) + PendingInvitationsBell + ThemeToggle. Sidebar sin sección inferior.
+- [x] 16-D.7 **Link Explore solo en dashboard** — condicional: solo visible en `/w`, oculto dentro de un workspace.
 
 ### Phase 17: Workspace Permissions & Board Approval 🔲
 > Sistema de permisos granulares por workspace + flujo de aprobación de boards.
 - [ ] 17.1 **Solicitud de creación de boards** — miembros solicitan crear board; admin/owner aprueba o rechaza. Configurable por workspace: creación libre, con aprobación, o solo admins/owner.
 - [ ] 17.2 **Permisos granulares por workspace** — owner configura por workspace: quién crea boards, quién borra, quién comenta (owner, admins, members, nobody).
 - [ ] 17.3 **Owner define si admins pueden cambiar configuraciones** — el owner decide si los admins tienen permiso para modificar settings del workspace o solo él.
+- [ ] 17.4 **Admins y owners borran posts/comentarios/boards de cualquiera** — autorización para borrar contenido ajeno dentro del workspace. (Movido de 16-D.8)

@@ -40,7 +40,7 @@ export function TopNavbar({ onToggleSidebar }: TopNavbarProps) {
           id="mobile-hamburger"
           onClick={onToggleSidebar}
           aria-label="Open sidebar"
-          className="inline-flex size-11 items-center justify-center rounded-xl border border-border bg-secondary shadow-sm transition-colors hover:bg-muted"
+          className="inline-flex size-11 items-center justify-center rounded-xl border border-border bg-secondary shadow-sm transition-colors hover:bg-muted lg:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
