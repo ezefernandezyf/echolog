@@ -55,7 +55,7 @@ export function useCreatePost() {
       postApi.create(boardId, data),
     onSuccess: (_data, variables) => {
       toast.success('Post created');
-      queryClient.invalidateQueries({ queryKey: queryKeys.posts.list(variables.boardId) });
+      queryClient.invalidateQueries({ queryKey: ['posts', variables.boardId] });
     },
   });
 }

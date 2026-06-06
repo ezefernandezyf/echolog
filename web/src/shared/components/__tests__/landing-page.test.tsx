@@ -21,12 +21,17 @@ afterEach(() => {
 });
 
 describe('LandingPage', () => {
-  it('renders "Continue without account" CTA', () => {
+  it('does NOT render "Continue without account" button', () => {
     renderLandingPage();
 
-    const ctas = screen.getAllByText('Continue without account');
-    expect(ctas.length).toBeGreaterThan(0);
-    expect(ctas[0]!.tagName).toBe('BUTTON');
+    expect(screen.queryByText('Continue without account')).not.toBeInTheDocument();
+  });
+
+  it('renders exactly one CTA that navigates to /explore', () => {
+    renderLandingPage();
+
+    const exploreLinks = screen.getAllByRole('button', { name: 'See how it works' });
+    expect(exploreLinks).toHaveLength(1);
   });
 
   it('renders "Get Started Free" CTA button', () => {

@@ -23,6 +23,15 @@ vi.mock('../../api/boards', () => ({
   },
 }));
 
+vi.mock('../../api/posts', () => ({
+  postApi: {
+    create: vi.fn(),
+    list: vi.fn(),
+    getById: vi.fn(),
+    updateStatus: vi.fn(),
+  },
+}));
+
 vi.mock('../../api/auth', () => ({
   authApi: {
     me: vi.fn(),
@@ -44,9 +53,11 @@ vi.mock('sonner', () => ({
 // ---------------------------------------------------------------------------
 import { workspaceApi } from '../../api/workspaces';
 import { boardApi } from '../../api/boards';
+import { postApi } from '../../api/posts';
 import { authApi } from '../../api/auth';
 import { useWorkspaces, useCreateWorkspace } from '../use-workspaces';
 import { useBoards } from '../use-boards';
+import { useCreatePost } from '../use-posts';
 import { useLogin } from '../use-auth';
 import { queryKeys } from '../query-keys';
 import { useAuthStore } from '../../auth/auth-store';
@@ -225,6 +236,70 @@ describe('R4 — React Query Hooks', () => {
         expect.objectContaining({ email: 'alice@echolog.dev' }),
       );
       expect(result.current.data).toEqual(sampleSession);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // useCreatePost invalidates with 2-element prefix ['posts', boardId]
+  // -----------------------------------------------------------------------
+  describe('useCreatePost', () => {
+    it('invalidates post query with 2-element key prefix on success', async () => {
+      const createdPost = {
+        id: 'new-post',
+        workspaceId: 'ws-1',
+        boardId: 'board-1',
+        authorId: 'user-1',
+        title: 'Test',
+        body: 'Body',
+        status: 'OPEN',
+        voteCount: 0,
+        commentCount: 0,
+      };
+      vi.mocked(postApi.create).mockResolvedValue(createdPost);
+
+      const queryClient = createTestQueryClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const { result } = renderHook(() => useCreatePost(), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      result.current.mutate({ boardId: 'board-1', data: { title: 'Test', body: 'Body' } });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['posts', 'board-1'],
+      });
+    });
+
+    it('does not invalidate when mutation fails', async () => {
+      vi.mocked(postApi.create).mockRejectedValue(new Error('Server error'));
+
+      const queryClient = createTestQueryClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const { result } = renderHook(() => useCreatePost(), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      result.current.mutate({ boardId: 'board-x', data: { title: 'Fail', body: 'Body' } });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      // Invalidation should NOT be called on error
+      const invalidationCalls = invalidateSpy.mock.calls.filter(
+        (call) =>
+          call.length > 0 &&
+          typeof call[0] === 'object' &&
+          call[0] !== null &&
+          'queryKey' in call[0],
+      );
+      expect(invalidationCalls).toHaveLength(0);
     });
   });
 });

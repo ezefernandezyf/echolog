@@ -12,7 +12,7 @@ import { queryKeys } from '../hooks/query-keys';
 function BoardCard({ board, workspaceSlug }: { board: PublicBoardDTO; workspaceSlug: string }) {
   return (
     <Link
-      to={`/explore/${workspaceSlug}`}
+      to={`/explore/${workspaceSlug}/${board.slug}`}
       className="group rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
     >
       <h3 className="font-display text-base font-semibold tracking-[-0.02em] text-foreground group-hover:text-primary transition-colors">

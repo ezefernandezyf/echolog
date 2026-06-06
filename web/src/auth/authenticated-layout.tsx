@@ -28,7 +28,7 @@ export function useAuthenticatedShell() {
 export function AuthenticatedLayout() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const sidebarOpen = useUiStore((state) => state.sidebarOpen);
-  const openSidebar = useUiStore((state) => state.openSidebar);
+  const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
@@ -55,7 +55,7 @@ export function AuthenticatedLayout() {
         />
 
         <div className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden">
-          <TopNavbar onToggleSidebar={openSidebar} />
+          <TopNavbar onToggleSidebar={toggleSidebar} />
           <Outlet />
         </div>
 

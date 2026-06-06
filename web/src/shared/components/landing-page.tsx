@@ -68,15 +68,6 @@ export function LandingPage() {
               See how it works
             </Button>
           </div>
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={() => navigate('/explore')}
-              className="text-sm text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
-            >
-              Continue without account
-            </button>
-          </div>
           <p className="mt-5 text-sm text-muted-foreground">
             No credit card required · Free forever plan
           </p>

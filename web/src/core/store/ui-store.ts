@@ -35,6 +35,7 @@ interface UiStore {
   theme: Theme;
   openSidebar: () => void;
   closeSidebar: () => void;
+  toggleSidebar: () => void;
   openModal: (modal: Exclude<UiModal, null>) => void;
   closeModal: () => void;
   setNotification: (message: string | null) => void;
@@ -50,6 +51,7 @@ export const useUiStore = create<UiStore>((set) => ({
   theme: getInitialTheme(),
   openSidebar: () => set({ sidebarOpen: true }),
   closeSidebar: () => set({ sidebarOpen: false }),
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   openModal: (modal) => {
     if (import.meta.env.DEV) {
       console.log('[ui-store] openModal:', modal);
