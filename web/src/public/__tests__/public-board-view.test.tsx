@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
@@ -15,13 +15,28 @@ vi.mock('../../api/public', () => ({
   },
 }));
 
+vi.mock('../../api/votes', () => ({
+  voteApi: {
+    addVote: vi.fn(),
+    removeVote: vi.fn(),
+  },
+}));
+
+vi.mock('../../boards/components/comment-section', () => ({
+  CommentSection: vi.fn(() => <div data-testid="comment-section">Comments</div>),
+}));
+
 vi.mock('sonner', () => ({
   toast: { error: vi.fn(), success: vi.fn() },
 }));
 
 import { publicApi } from '../../api/public';
 import { PublicBoardView } from '../public-board-view';
-import type { PublicBoardDetailDTO } from '../../../../shared/contracts/index.js';
+import { useAuthStore } from '../../auth/auth-store';
+import type {
+  PublicBoardDetailDTO,
+  PublicWorkspaceDetailDTO,
+} from '../../../../shared/contracts/index.js';
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -63,30 +78,68 @@ const mockBoardDetail: PublicBoardDetailDTO = {
   nextCursor: null,
 };
 
+const mockWorkspaceDetail: PublicWorkspaceDetailDTO = {
+  id: 'ws-pub-1',
+  name: 'Public Alpha',
+  slug: 'public-alpha',
+  memberCount: 5,
+  postCount: 12,
+  visibility: 'PUBLIC',
+  publicAccessLevel: 'READ_ONLY',
+  createdAt: new Date().toISOString(),
+  boards: [
+    {
+      id: 'bd-1',
+      name: 'Feature Requests',
+      slug: 'feature-requests',
+      postCount: 8,
+    },
+  ],
+};
+
+const sampleSession = {
+  user: { id: 'u-1', email: 'test@test.dev', name: 'Test User', emailVerified: false },
+};
+
 function createQueryClient() {
   return new QueryClient({
-    defaultOptions: { queries: { retry: false } },
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
   });
 }
 
-describe('PublicBoardView', () => {
+function renderBoardView() {
+  const queryClient = createQueryClient();
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={['/explore/public-alpha/feature-requests']}>
+        <Routes>
+          <Route path="/explore/:slug/:boardSlug" element={<PublicBoardView />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+// ===========================================================================
+// Existing tests — basic rendering
+// ===========================================================================
+describe('PublicBoardView — basic rendering', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useAuthStore.setState({ session: null, status: 'unauthenticated' } as never);
+  });
+  afterEach(() => {
+    cleanup();
   });
 
   it('renders board name and description when data loads', async () => {
     vi.mocked(publicApi.getBoardBySlug).mockResolvedValue(mockBoardDetail);
-    const queryClient = createQueryClient();
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue(mockWorkspaceDetail);
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/explore/public-alpha/feature-requests']}>
-          <Routes>
-            <Route path="/explore/:slug/:boardSlug" element={<PublicBoardView />} />
-          </Routes>
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
+    renderBoardView();
 
     await waitFor(() => {
       const headings = screen.getAllByText('Feature Requests');
@@ -98,24 +151,15 @@ describe('PublicBoardView', () => {
 
   it('shows post titles and counts from board data', async () => {
     vi.mocked(publicApi.getBoardBySlug).mockResolvedValue(mockBoardDetail);
-    const queryClient = createQueryClient();
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue(mockWorkspaceDetail);
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/explore/public-alpha/feature-requests']}>
-          <Routes>
-            <Route path="/explore/:slug/:boardSlug" element={<PublicBoardView />} />
-          </Routes>
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
+    renderBoardView();
 
     await waitFor(() => {
       expect(screen.getByText('Dark mode support')).toBeInTheDocument();
     });
 
     expect(screen.getByText('API integrations')).toBeInTheDocument();
-    // Post count: verify the text "2 posts" exists after data loads
     await waitFor(() => {
       const allText = document.body.textContent ?? '';
       expect(allText).toContain('2 posts');
@@ -124,17 +168,9 @@ describe('PublicBoardView', () => {
 
   it('shows back link to /explore when board not found', async () => {
     vi.mocked(publicApi.getBoardBySlug).mockRejectedValue(new Error('Not found'));
-    const queryClient = createQueryClient();
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue(mockWorkspaceDetail);
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/explore/public-alpha/nonexistent']}>
-          <Routes>
-            <Route path="/explore/:slug/:boardSlug" element={<PublicBoardView />} />
-          </Routes>
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
+    renderBoardView();
 
     await waitFor(() => {
       expect(screen.getByText(/board not found/i)).toBeInTheDocument();
@@ -143,5 +179,144 @@ describe('PublicBoardView', () => {
     const backLink = screen.getByText(/back to discovery/i);
     expect(backLink).toBeInTheDocument();
     expect(backLink.closest('a')).toHaveAttribute('href', '/explore');
+  });
+});
+
+// ===========================================================================
+// Phase 16-D: Access-level gate tests
+// ===========================================================================
+describe('PublicBoardView — access-level gates', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('Scenario: anonymous on READ_ONLY — no vote, comment, or create controls', async () => {
+    useAuthStore.setState({ session: null, status: 'unauthenticated' } as never);
+    vi.mocked(publicApi.getBoardBySlug).mockResolvedValue(mockBoardDetail);
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue({
+      ...mockWorkspaceDetail,
+      publicAccessLevel: 'READ_ONLY',
+    });
+
+    renderBoardView();
+
+    await waitFor(() => {
+      expect(screen.getByText('Dark mode support')).toBeInTheDocument();
+    });
+
+    // No vote buttons, no comment toggle button, no create-post button
+    expect(screen.queryByLabelText(/upvote/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /toggle comments/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /create post/i })).not.toBeInTheDocument();
+  });
+
+  it('Scenario: anonymous on INTERACT — no write controls render', async () => {
+    useAuthStore.setState({ session: null, status: 'unauthenticated' } as never);
+    vi.mocked(publicApi.getBoardBySlug).mockResolvedValue(mockBoardDetail);
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue({
+      ...mockWorkspaceDetail,
+      publicAccessLevel: 'INTERACT',
+    });
+
+    renderBoardView();
+
+    await waitFor(() => {
+      expect(screen.getByText('Dark mode support')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByLabelText(/upvote/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /create post/i })).not.toBeInTheDocument();
+  });
+
+  it('Scenario: logged-in on INTERACT — vote + comment visible, no create-post', async () => {
+    useAuthStore.setState({ session: sampleSession, status: 'authenticated' } as never);
+    vi.mocked(publicApi.getBoardBySlug).mockResolvedValue(mockBoardDetail);
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue({
+      ...mockWorkspaceDetail,
+      publicAccessLevel: 'INTERACT',
+    });
+
+    renderBoardView();
+
+    await waitFor(() => {
+      expect(screen.getByText('Dark mode support')).toBeInTheDocument();
+    });
+
+    // Vote buttons should exist
+    const voteButtons = screen.getAllByLabelText(/upvote/i);
+    expect(voteButtons.length).toBeGreaterThan(0);
+
+    // Comment toggle button should exist
+    const commentButtons = screen.getAllByRole('button', { name: /toggle comments/i });
+    expect(commentButtons.length).toBeGreaterThan(0);
+
+    // Create post button should NOT exist
+    expect(screen.queryByRole('button', { name: /create post/i })).not.toBeInTheDocument();
+  });
+
+  it('Scenario: logged-in on FULL — vote + comment + create-post all visible', async () => {
+    useAuthStore.setState({ session: sampleSession, status: 'authenticated' } as never);
+    vi.mocked(publicApi.getBoardBySlug).mockResolvedValue(mockBoardDetail);
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue({
+      ...mockWorkspaceDetail,
+      publicAccessLevel: 'FULL',
+    });
+
+    renderBoardView();
+
+    await waitFor(() => {
+      expect(screen.getByText('Dark mode support')).toBeInTheDocument();
+    });
+
+    // Vote buttons should exist
+    const voteButtons = screen.getAllByLabelText(/upvote/i);
+    expect(voteButtons.length).toBeGreaterThan(0);
+
+    // Comment toggle button should exist
+    const commentButtons = screen.getAllByRole('button', { name: /toggle comments/i });
+    expect(commentButtons.length).toBeGreaterThan(0);
+
+    // Create post link should exist
+    expect(screen.getByRole('link', { name: /create post/i })).toBeInTheDocument();
+  });
+
+  it('Scenario: logged-in on READ_ONLY — no write controls', async () => {
+    useAuthStore.setState({ session: sampleSession, status: 'authenticated' } as never);
+    vi.mocked(publicApi.getBoardBySlug).mockResolvedValue(mockBoardDetail);
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue({
+      ...mockWorkspaceDetail,
+      publicAccessLevel: 'READ_ONLY',
+    });
+
+    renderBoardView();
+
+    await waitFor(() => {
+      expect(screen.getByText('Dark mode support')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByLabelText(/upvote/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /toggle comments/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /create post/i })).not.toBeInTheDocument();
+  });
+
+  it('shows error state when workspace fetch fails but board succeeds', async () => {
+    useAuthStore.setState({ session: sampleSession, status: 'authenticated' } as never);
+    vi.mocked(publicApi.getBoardBySlug).mockResolvedValue(mockBoardDetail);
+    vi.mocked(publicApi.getWorkspaceBySlug).mockRejectedValue(
+      new Error('Workspace not accessible'),
+    );
+
+    renderBoardView();
+
+    // Board should still render (even if workspace data is unavailable)
+    await waitFor(() => {
+      expect(screen.getByText('Dark mode support')).toBeInTheDocument();
+    });
+
+    // When workspace fetch fails, default to no write controls
+    expect(screen.queryByLabelText(/upvote/i)).not.toBeInTheDocument();
   });
 });

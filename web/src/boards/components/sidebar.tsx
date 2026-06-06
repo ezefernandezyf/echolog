@@ -1,21 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { cn } from '../../shared/lib/cn';
-import { useAuthStore } from '../../auth/auth-store';
 import { Link, useNavigate } from 'react-router-dom';
-import { ThemeToggle } from '../../shared/components/theme-toggle';
-import { PendingInvitationsBell } from '../../workspaces/components/pending-invitations-bell';
 import { useUiStore } from '../../core/store/ui-store';
-
-function getUserInitials(name: string | null, email: string): string {
-  if (name && name.trim()) {
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  }
-  return email.substring(0, 2).toUpperCase();
-}
 
 export interface SidebarItem {
   id: string;
@@ -46,14 +32,10 @@ export function Sidebar({
   className,
   onNavClick,
 }: SidebarProps) {
-  const user = useAuthStore((state) => state.session?.user);
   const navigate = useNavigate();
   const sidebarOpen = useUiStore((state) => state.sidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const asideRef = useRef<HTMLElement>(null);
-  const userName = user?.name ?? 'Unknown User';
-  const userEmail = user?.email ?? '';
-  const initials = getUserInitials(user?.name ?? null, userEmail);
 
   // Focus trap for mobile sidebar overlay
   useEffect(() => {
@@ -126,25 +108,27 @@ export function Sidebar({
           <span className="text-xs text-muted-foreground">←</span>
         </button>
 
-        <Link
-          to="/explore"
-          onClick={onNavClick}
-          className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground tracking-[-0.01em] transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="size-4 shrink-0"
+        {!workspaceId ? (
+          <Link
+            to="/explore"
+            onClick={onNavClick}
+            className="mt-2 flex w-full items-center gap-2.5 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground tracking-[-0.01em] transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
           >
-            <path
-              fillRule="evenodd"
-              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span className="flex-1">Explore</span>
-        </Link>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="size-4 shrink-0"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="flex-1">Explore</span>
+          </Link>
+        ) : null}
         {workspaceId ? (
           <>
             <Link
@@ -223,27 +207,6 @@ export function Sidebar({
           ) : null}
         </div>
       </nav>
-
-      <div className="border-t border-border px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <div className="mb-4 flex items-center gap-2">
-          <ThemeToggle />
-          <PendingInvitationsBell />
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card shadow-sm shadow-black/[0.02] transition-shadow duration-200 hover:shadow-md">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <div className="flex size-10 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
-              {initials}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold tracking-[-0.01em] text-foreground">
-                {userName}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </aside>
   );
 }
