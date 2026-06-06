@@ -21,7 +21,8 @@ function BoardCard({ board, workspaceSlug }: { board: PublicBoardDTO; workspaceS
       <p className="mt-0.5 text-xs text-muted-foreground">/{board.slug}</p>
       <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
         <span>
-          <strong className="text-foreground">{board.postCount}</strong> post{board.postCount !== 1 ? 's' : ''}
+          <strong className="text-foreground">{board.postCount}</strong> post
+          {board.postCount !== 1 ? 's' : ''}
         </span>
       </div>
     </Link>
@@ -32,7 +33,11 @@ export function PublicWorkspaceView() {
   const { slug } = useParams<{ slug: string }>();
   const session = useAuthStore((state) => state.session);
 
-  const { data: workspace, isPending, isError } = useQuery({
+  const {
+    data: workspace,
+    isPending,
+    isError,
+  } = useQuery({
     queryKey: queryKeys.public.workspaceDetail(slug ?? ''),
     queryFn: () => publicApi.getWorkspaceBySlug(slug!),
     enabled: !!slug,
@@ -75,7 +80,10 @@ export function PublicWorkspaceView() {
 
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-sm">
-        <Link to="/explore" className="text-muted-foreground transition-colors hover:text-foreground">
+        <Link
+          to="/explore"
+          className="text-muted-foreground transition-colors hover:text-foreground"
+        >
           Discover
         </Link>
         <span className="text-muted-foreground/50">/</span>
@@ -91,10 +99,12 @@ export function PublicWorkspaceView() {
         </h1>
         <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
           <span>
-            <strong className="text-foreground">{workspace.memberCount}</strong> member{workspace.memberCount !== 1 ? 's' : ''}
+            <strong className="text-foreground">{workspace.memberCount}</strong> member
+            {workspace.memberCount !== 1 ? 's' : ''}
           </span>
           <span>
-            <strong className="text-foreground">{workspace.postCount}</strong> post{workspace.postCount !== 1 ? 's' : ''}
+            <strong className="text-foreground">{workspace.postCount}</strong> post
+            {workspace.postCount !== 1 ? 's' : ''}
           </span>
         </div>
       </div>
@@ -114,7 +124,10 @@ export function PublicWorkspaceView() {
           {!isLoggedIn ? (
             <div className="flex items-center gap-2">
               <Link to="/login">
-                <Button variant="primary" className="h-9 px-4 text-sm bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button
+                  variant="primary"
+                  className="h-9 px-4 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+                >
                   Sign In
                 </Button>
               </Link>
@@ -136,8 +149,12 @@ export function PublicWorkspaceView() {
               💬
             </span>
             <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">Interact mode:</strong> You can vote and comment on posts.
-              <Link to="/register" className="ml-1 font-medium text-accent underline hover:no-underline">
+              <strong className="text-foreground">Interact mode:</strong> You can vote and comment
+              on posts.
+              <Link
+                to="/register"
+                className="ml-1 font-medium text-accent underline hover:no-underline"
+              >
                 Join
               </Link>{' '}
               to create boards and posts.
@@ -153,7 +170,8 @@ export function PublicWorkspaceView() {
               🚀
             </span>
             <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">Full access mode:</strong> You can create boards and posts.
+              <strong className="text-foreground">Full access mode:</strong> You can create boards
+              and posts.
             </p>
           </div>
         </div>
@@ -180,9 +198,7 @@ export function PublicWorkspaceView() {
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            This workspace has no boards yet.
-          </p>
+          <p className="text-sm text-muted-foreground">This workspace has no boards yet.</p>
           {isLoggedIn && workspace.publicAccessLevel === 'FULL' ? (
             <Link
               to={`/explore/${workspace.slug}/new-board`}

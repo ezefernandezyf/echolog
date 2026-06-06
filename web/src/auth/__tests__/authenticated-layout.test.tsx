@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
@@ -405,5 +406,34 @@ describe('TopNavbar', () => {
     // The dropdown is initially closed — Settings and Sign out not visible
     // We test the avatar button exists; dropdown rendering is tested via integration
     // (the ConfirmDialog for sign out is rendered inside the same component)
+  });
+
+  it('hamburger button toggles sidebarOpen via toggleSidebar', async () => {
+    vi.mocked(useWorkspaces).mockReturnValue({
+      data: sampleWorkspaces,
+      isPending: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
+    vi.mocked(useBoards).mockReturnValue({
+      data: undefined,
+      isPending: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
+
+    useUiStore.setState({ sidebarOpen: true });
+    renderLayout();
+
+    const hamburger = await screen.findByLabelText('Open sidebar');
+    expect(useUiStore.getState().sidebarOpen).toBe(true);
+
+    await userEvent.click(hamburger);
+    expect(useUiStore.getState().sidebarOpen).toBe(false);
+
+    await userEvent.click(hamburger);
+    expect(useUiStore.getState().sidebarOpen).toBe(true);
   });
 });

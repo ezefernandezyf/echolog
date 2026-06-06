@@ -27,7 +27,10 @@ import { PublicLayout } from '../public-layout';
 import { PublicLobby } from '../public-lobby';
 import { PublicWorkspaceView } from '../public-workspace-view';
 import { useAuthStore } from '../../auth/auth-store';
-import type { PublicWorkspaceDetailDTO, PublicWorkspaceListDTO } from '../../../../shared/contracts/index.js';
+import type {
+  PublicWorkspaceDetailDTO,
+  PublicWorkspaceListDTO,
+} from '../../../../shared/contracts/index.js';
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -388,9 +391,7 @@ describe('PublicWorkspaceView', () => {
     });
 
     // BoardCard links should have href that includes board slug
-    const boardLinks = container.querySelectorAll(
-      'a[href*="/explore/public-alpha/"]',
-    );
+    const boardLinks = container.querySelectorAll('a[href*="/explore/public-alpha/"]');
     expect(boardLinks.length).toBeGreaterThanOrEqual(2);
 
     const hrefs = Array.from(boardLinks).map((el) => el.getAttribute('href'));
@@ -428,9 +429,7 @@ describe('PublicWorkspaceView', () => {
       expect(boardNames).toContain('No Slug Board');
     });
 
-    const boardLinks = container.querySelectorAll(
-      'a[href*="/explore/public-alpha/"]',
-    );
+    const boardLinks = container.querySelectorAll('a[href*="/explore/public-alpha/"]');
     expect(boardLinks.length).toBeGreaterThan(0);
 
     const hrefs = Array.from(boardLinks).map((el) => el.getAttribute('href') ?? '');

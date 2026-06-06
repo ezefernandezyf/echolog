@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { PageTitle } from '../../core/page-title';
 
@@ -60,13 +60,12 @@ export function LandingPage() {
               Get Started Free
               <span aria-hidden="true">&nbsp;→</span>
             </Button>
-            <Button
-              variant="outline"
-              className="h-12 px-8 text-base"
-              onClick={() => navigate('/explore')}
+            <Link
+              to="/explore"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-card px-8 text-base font-medium tracking-[-0.01em] text-foreground transition-all duration-150 hover:bg-secondary active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               See how it works
-            </Button>
+            </Link>
           </div>
           <p className="mt-5 text-sm text-muted-foreground">
             No credit card required · Free forever plan

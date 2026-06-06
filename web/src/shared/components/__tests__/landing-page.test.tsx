@@ -30,7 +30,7 @@ describe('LandingPage', () => {
   it('renders exactly one CTA that navigates to /explore', () => {
     renderLandingPage();
 
-    const exploreLinks = screen.getAllByRole('button', { name: 'See how it works' });
+    const exploreLinks = screen.getAllByRole('link', { name: 'See how it works' });
     expect(exploreLinks).toHaveLength(1);
   });
 
@@ -41,11 +41,11 @@ describe('LandingPage', () => {
     expect(buttons.length).toBeGreaterThan(0);
   });
 
-  it('renders "See how it works" button', () => {
+  it('renders "See how it works" link', () => {
     renderLandingPage();
 
-    const buttons = screen.getAllByText('See how it works');
-    expect(buttons.length).toBeGreaterThan(0);
+    const links = screen.getAllByRole('link', { name: 'See how it works' });
+    expect(links.length).toBeGreaterThan(0);
   });
 
   it('renders EchoLog hero heading', () => {
@@ -67,8 +67,8 @@ describe('LandingPage', () => {
       </MemoryRouter>,
     );
 
-    const button = screen.getByRole('button', { name: 'See how it works' });
-    await user.click(button);
+    const link = screen.getByRole('link', { name: 'See how it works' });
+    await user.click(link);
 
     await waitFor(() => {
       expect(screen.getByText('Explore page')).toBeInTheDocument();

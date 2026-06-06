@@ -181,22 +181,25 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 15.4 **"Continue without account"** — option on landing page that shows public workspace lobby with limited interactions based on access level
 - [x] 15.5 **Public workspace API** — public endpoints for listing and viewing workspace content without auth, with membership middleware bypass for public workspaces
 
-### Phase 16-A: Quick Wins 🔲
-> Bugs de alto impacto + fixes triviales. Se resuelven rápido y mejoran la experiencia inmediatamente.
-- [ ] 16-A.1 **Fix F5 blank page en /explore/:slug** — `queryClient.clear()` en use-auth.ts causa loop infinito de refetch cuando el server devuelve 401. Sacar el clear y manejar el error sin destruir el cache de React Query.
-- [ ] 16-A.2 **"See how it works" → /explore** — cambiar el link del botón en landing-page.tsx de `/login` a `/explore`.
-- [ ] 16-A.3 **No redirigir automáticamente a /w** — PublicRoute en auth-guard.tsx redirige a /w si detecta JWT. El usuario debe poder ver la landing y /explore aún estando logueado.
-- [ ] 16-A.4 **Reemplazar "—" (em dash) por "-" (guion normal)** — eliminar em dashes de todo el texto visible en UI (JSX, labels, placeholders, mensajes). Los comentarios de código no se tocan.
+### Phase 16: Polish & Growth (v1.2) ✅ — en `develop`
+> SDD completo. 31 tareas, 376 tests. Revertido de main a pedido del usuario; iterando en develop.
+- [x] **16-A Quick Wins** — F5 blank page, CTA → /explore, PublicRoute whitelist, em dashes
+- [x] **16-B UX Upgrades** — ConfirmDialog visibilidad, public board detail, Explore en sidebar, TopNavbar
+- [x] **16-C Growth Features** — email verification, workspace limits, seed "Bienvenido", verification badge
 
-### Phase 16-B: UX Upgrades 🔲
-> Mejoras de experiencia de usuario que requieren cambios más sustanciales en componentes y flujos.
-- [ ] 16-B.1 **Modal de confirmación al cambiar visibilidad** — workspace-settings-page.tsx: antes de cambiar visibility o publicAccessLevel, mostrar un ConfirmDialog que explique las consecuencias.
-- [ ] 16-B.2 **Navegación a boards en workspace público** — crear ruta `/explore/:slug/:boardSlug`, endpoint público de boards/posts, y componente PublicBoardView. Actualmente BoardCard linkea a la misma página y no hace nada.
-- [ ] 16-B.3 **Link a /explore para usuarios logueados** — agregar un item en la sidebar o un botón visible para que usuarios autenticados puedan descubrir workspaces públicos sin tener que tipear la URL.
-- [ ] 16-B.4 **Navbar superior para autenticados** — agregar un header tipo "EchoLog" (link a home) + settings, perfil, logout arriba a la derecha, manteniendo la sidebar actual. Mismo estilo que la navbar de usuarios no autenticados.
+### Phase 16-D: Polish Iteration 🔲
+> Correcciones y mejoras sobre lo mergeado en develop. Bugs + UX pendientes de Phase 16.
+- [ ] 16-D.1 **Fix navegación a boards públicos** — los boards dentro de workspaces públicos no responden al click. Arreglar navegación respetando nivel de acceso del workspace.
+- [ ] 16-D.2 **Votar, postear y comentar en boards públicos** — wirear las acciones según publicAccessLevel (READ_ONLY/INTERACT/FULL) cuando el usuario no es miembro.
+- [ ] 16-D.3 **Posts nuevos no se refrescan automáticamente** — al crear un post, la lista de posts no se actualiza. Fixear invalidación de queries.
+- [ ] 16-D.4 **Botón hamburguesa en desktop no hace nada** — el botón de menú hamburguesa no tiene funcionalidad en desktop (solo en mobile).
+- [ ] 16-D.5 **Eliminar "Continue without account" del homepage** — ya existe "See how it works" → /explore.
+- [ ] 16-D.6 **Mover notificaciones, theme toggle y perfil a la TopNavbar** — notificaciones y perfil como avatar con dropdown (settings, logout). Theme toggle se mueve también.
+- [ ] 16-D.7 **Link Explore solo en dashboard** — el link "Explore" de la sidebar solo debe aparecer en `/w` (dashboard), no dentro de un workspace.
+- [ ] 16-D.8 **Admins y owners borran posts/comentarios/boards de cualquiera** — autorización para borrar contenido ajeno dentro del workspace.
 
-### Phase 16-C: Growth Features 🔲
-> Features nuevas que agregan valor de producto: comunidad, verificación, límites.
-- [ ] 16-C.1 **Workspace público "Bienvenido"** — seed data: crear workspace público con INTERACT desde ezefernandezyf@gmail.com, con explicación breve de cómo usar el sitio, tono comunitario.
-- [ ] 16-C.2 **Email verification gate** — campo emailVerified en User, token + endpoint de verificación, email con Resend, límite de workspaces (1 sin verificar, 20 verificado). Logueado pero no verificado no puede crear más de 1 workspace.
-- [ ] 16-C.3 **Badge de verificación en UI** — mostrar estado verificado/no verificado en settings y perfil, con CTA para reenviar email de verificación.
+### Phase 17: Workspace Permissions & Board Approval 🔲
+> Sistema de permisos granulares por workspace + flujo de aprobación de boards.
+- [ ] 17.1 **Solicitud de creación de boards** — miembros solicitan crear board; admin/owner aprueba o rechaza. Configurable por workspace: creación libre, con aprobación, o solo admins/owner.
+- [ ] 17.2 **Permisos granulares por workspace** — owner configura por workspace: quién crea boards, quién borra, quién comenta (owner, admins, members, nobody).
+- [ ] 17.3 **Owner define si admins pueden cambiar configuraciones** — el owner decide si los admins tienen permiso para modificar settings del workspace o solo él.
