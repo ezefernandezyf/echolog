@@ -32,6 +32,7 @@ export class WorkspacesService {
       role: m.role,
       visibility: m.workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: m.workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+      adminsCanEditSettings: m.workspace.adminsCanEditSettings,
     }));
   }
 
@@ -103,6 +104,7 @@ export class WorkspacesService {
       role: 'OWNER',
       visibility: workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+      adminsCanEditSettings: workspace.adminsCanEditSettings,
     };
   }
 
@@ -118,30 +120,54 @@ export class WorkspacesService {
       throw new HttpError('Forbidden', 403);
     }
 
+    // Fetch workspace to check adminsCanEditSettings gate
+    const workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } });
+    if (!workspace) {
+      throw new HttpError('Workspace not found', 404);
+    }
+
+    // Gate: ADMIN blocked when adminsCanEditSettings is false
+    if (membership.role === 'ADMIN' && !workspace.adminsCanEditSettings) {
+      throw new HttpError('Only the owner can edit workspace settings', 403);
+    }
+
+    // ADMIN cannot toggle adminsCanEditSettings — strip if present
+    const effectiveInput = { ...input };
+    if (membership.role === 'ADMIN' && 'adminsCanEditSettings' in effectiveInput) {
+      delete effectiveInput.adminsCanEditSettings;
+    }
+
     // If slug is being changed, check uniqueness
-    if (input.slug) {
-      const existing = await prisma.workspace.findUnique({ where: { slug: input.slug } });
+    if (effectiveInput.slug) {
+      const existing = await prisma.workspace.findUnique({
+        where: { slug: effectiveInput.slug },
+      });
       if (existing && existing.id !== workspaceId) {
         throw new HttpError('Workspace slug already exists', 409);
       }
     }
 
-    const workspace = await prisma.workspace.update({
+    const updated = await prisma.workspace.update({
       where: { id: workspaceId },
       data: {
-        ...(input.name !== undefined && { name: sanitizeInput(input.name) }),
-        ...(input.slug !== undefined && { slug: input.slug }),
+        ...(effectiveInput.name !== undefined && { name: sanitizeInput(effectiveInput.name) }),
+        ...(effectiveInput.slug !== undefined && { slug: effectiveInput.slug }),
+        ...(effectiveInput.adminsCanEditSettings !== undefined && {
+          adminsCanEditSettings: effectiveInput.adminsCanEditSettings,
+        }),
       },
     });
 
     return {
-      id: workspace.id,
-      name: workspace.name,
-      slug: workspace.slug,
+      id: updated.id,
+      name: updated.name,
+      slug: updated.slug,
       role: membership.role,
-      visibility: workspace.visibility as WorkspaceDTO['visibility'],
-      publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
-    };}
+      visibility: updated.visibility as WorkspaceDTO['visibility'],
+      publicAccessLevel: updated.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+      adminsCanEditSettings: updated.adminsCanEditSettings,
+    };
+  }
 
   async delete(workspaceId: string, userId: string): Promise<void> {
     const membership = await prisma.workspaceMember.findUnique({
@@ -223,6 +249,7 @@ export class WorkspacesService {
       role: membership.role,
       visibility: workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+      adminsCanEditSettings: workspace.adminsCanEditSettings,
     };
   }
 

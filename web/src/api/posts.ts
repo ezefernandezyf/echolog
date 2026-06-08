@@ -26,4 +26,6 @@ export const postApi = {
       method: 'PATCH',
       data: { status },
     }),
+  deletePost: (postId: string) =>
+    fetchJson<void>({ url: `/posts/${postId}`, method: 'DELETE' }),
 };

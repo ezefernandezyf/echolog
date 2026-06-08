@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPost, getPostById, listPosts, updatePostStatus } from './posts.controller.js';
+import { createPost, deletePost, getPostById, listPosts, updatePostStatus } from './posts.controller.js';
 import { optionalAuth, requireAuth } from '../auth/auth.middleware.js';
 import { requireWorkspaceAdmin } from '../auth/require-admin.middleware.js';
 import { requireBoardMember, requirePostMember } from '../auth/require-member.middleware.js';
@@ -24,3 +24,4 @@ postRouter.patch(
   validate(updatePostStatusSchema),
   updatePostStatus,
 );
+postRouter.delete('/:postId', requireAuth, requirePostMember(), deletePost);

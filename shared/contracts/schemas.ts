@@ -98,6 +98,7 @@ export const WorkspaceSchema = z.object({
   role: WorkspaceRoleSchema,
   visibility: VisibilitySchema,
   publicAccessLevel: PublicAccessLevelSchema,
+  adminsCanEditSettings: z.boolean(),
 });
 export type WorkspaceDTO = z.infer<typeof WorkspaceSchema>;
 
@@ -109,6 +110,7 @@ export type CreateWorkspaceDTO = z.infer<typeof CreateWorkspaceDTOSchema>;
 export const UpdateWorkspaceDTOSchema = z.object({
   name: z.string().optional(),
   slug: z.string().optional(),
+  adminsCanEditSettings: z.boolean().optional(),
 });
 export type UpdateWorkspaceDTO = z.infer<typeof UpdateWorkspaceDTOSchema>;
 
@@ -288,10 +290,17 @@ export const updateWorkspaceSchema = z
   .object({
     name: optionalText(requiredText('Workspace name').max(120)),
     slug: optionalText(slugSchema),
+    adminsCanEditSettings: z.boolean().optional(),
   })
-  .refine((data) => data.name !== undefined || data.slug !== undefined, {
-    message: 'Slug is missing',
-  });
+  .refine(
+    (data) =>
+      data.name !== undefined ||
+      data.slug !== undefined ||
+      data.adminsCanEditSettings !== undefined,
+    {
+      message: 'At least one field must be provided',
+    },
+  );
 
 // ── Public Workspace DTO Schemas ───────────────────────────────────────────
 

@@ -71,18 +71,19 @@ model VerificationToken {
 }
 
 model Workspace {
-  id                 String            @id @default(cuid())
-  name               String
-  slug               String            @unique
-  visibility         Visibility        @default(PRIVATE)
-  publicAccessLevel  PublicAccessLevel @default(READ_ONLY)
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  members            WorkspaceMember[]
-  boards             Board[]
-  posts              Post[]
-  invitations        WorkspaceInvitation[]
-  notifications      Notification[]    @relation("workspaceNotifications")
+  id                     String            @id @default(cuid())
+  name                   String
+  slug                   String            @unique
+  visibility             Visibility        @default(PRIVATE)
+  publicAccessLevel      PublicAccessLevel @default(READ_ONLY)
+  adminsCanEditSettings  Boolean           @default(true)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  members                WorkspaceMember[]
+  boards                 Board[]
+  posts                  Post[]
+  invitations            WorkspaceInvitation[]
+  notifications          Notification[]    @relation("workspaceNotifications")
 }
 
 model WorkspaceMember {

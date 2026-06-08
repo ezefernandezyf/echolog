@@ -425,4 +425,57 @@ describe('WorkspaceSettingsPage', () => {
       });
     });
   });
+
+  // ── 17-A: Admins can edit settings toggle ────────────────────────────
+  describe('adminsCanEditSettings toggle', () => {
+    it('shows toggle only for workspace OWNER', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-1', email: 'test@test.dev', name: 'Owner', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{ id: 'ws-1', name: 'Test WS', slug: 'test-ws', role: 'OWNER', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY', adminsCanEditSettings: true }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Admins can edit settings')).toBeInTheDocument();
+    });
+
+    it('hides toggle for workspace ADMIN', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-2', email: 'admin@test.dev', name: 'Admin', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{ id: 'ws-1', name: 'Test WS', slug: 'test-ws', role: 'ADMIN', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY', adminsCanEditSettings: true }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Admins can edit settings')).not.toBeInTheDocument();
+    });
+  });
 });

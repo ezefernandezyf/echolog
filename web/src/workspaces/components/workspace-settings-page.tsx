@@ -210,6 +210,44 @@ export function WorkspaceSettingsPage() {
           </form>
         </section>
 
+        {/* Admin Settings */}
+        {isOwner ? (
+          <section className="space-y-6 rounded-2xl border border-border bg-card p-6">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold text-foreground">Admin Settings</h2>
+              <p className="text-sm text-muted-foreground">
+                Control what workspace admins are allowed to do.
+              </p>
+            </div>
+
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={workspace.adminsCanEditSettings ?? true}
+                onChange={(e) => {
+                  updateWorkspaceMutation.mutate(
+                    {
+                      workspaceId: workspaceId!,
+                      data: { adminsCanEditSettings: e.target.checked },
+                    },
+                    {
+                      onError: (error) => {
+                        toast.error(error instanceof Error ? error.message : 'Failed to update setting');
+                      },
+                    },
+                  );
+                }}
+                disabled={updateWorkspaceMutation.isPending}
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-foreground">Admins can edit settings</span>
+            </label>
+            <p className="text-xs text-muted-foreground">
+              When disabled, only the workspace owner can modify workspace settings.
+            </p>
+          </section>
+        ) : null}
+
         {/* Visibility */}
         {isOwner ? (
           <section className="space-y-6 rounded-2xl border border-border bg-card p-6">

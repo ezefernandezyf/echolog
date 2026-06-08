@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -8,6 +9,9 @@ import { postApi } from '../../api/posts';
 import { voteApi } from '../../api/votes';
 import { commentApi } from '../../api/comments';
 import { useAuthStore } from '../../auth/auth-store';
+import { useWorkspaces } from '../../hooks/use-workspaces';
+import { useDeletePost } from '../../hooks/use-posts';
+import { ConfirmDialog } from '../../shared/components/ui/confirm-dialog';
 import type { ApiError } from '../../api/client';
 import type { PostDTO } from '../../../../shared/contracts/index.js';
 import { CommentSection } from './comment-section';
@@ -139,6 +143,33 @@ export function PostDetailPage() {
 
   const voteIsPending = addVoteMutation.isPending || removeVoteMutation.isPending;
 
+  // ── Delete ────────────────────────────────────────────────────────────
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const workspaceQuery = useWorkspaces(currentUserId);
+  const workspaceRole = Array.isArray(workspaceQuery.data)
+    ? workspaceQuery.data.find((w) => w.id === workspaceId)?.role
+    : null;
+  const isAuthor = post ? currentUserId === post.authorId : false;
+  const canDelete = isAuthor || workspaceRole === 'ADMIN' || workspaceRole === 'OWNER';
+
+  const deleteMutation = useDeletePost();
+
+  const handleDelete = () => {
+    if (!post?.boardId) return;
+    deleteMutation.mutate(
+      { boardId: post.boardId, postId: post.id },
+      {
+        onSuccess: () => {
+          navigate(`/w/${workspaceId}`, { replace: true });
+        },
+        onError: () => {
+          toast.error('Failed to delete post');
+        },
+      },
+    );
+    setShowDeleteConfirm(false);
+  };
+
   useFocusOnMount('h1');
 
   if (isPending) {
@@ -236,6 +267,31 @@ export function PostDetailPage() {
                 >
                   {post.status.replace('_', ' ')}
                 </Badge>
+                {canDelete && (
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    aria-label={`Delete post ${post.title}`}
+                    className="inline-flex items-center justify-center rounded-full border border-border bg-card p-2 text-muted-foreground hover:border-destructive/30 hover:text-destructive transition-colors max-sm:min-h-[44px] max-sm:min-w-[44px]"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -280,6 +336,17 @@ export function PostDetailPage() {
           />
         </section>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Post"
+        message={`Are you sure you want to delete "${post.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+      />
     </main>
   );
 }

@@ -29,6 +29,7 @@ vi.mock('../../api/posts', () => ({
     list: vi.fn(),
     getById: vi.fn(),
     updateStatus: vi.fn(),
+    deletePost: vi.fn(),
   },
 }));
 
@@ -57,7 +58,7 @@ import { postApi } from '../../api/posts';
 import { authApi } from '../../api/auth';
 import { useWorkspaces, useCreateWorkspace } from '../use-workspaces';
 import { useBoards } from '../use-boards';
-import { useCreatePost } from '../use-posts';
+import { useCreatePost, useDeletePost } from '../use-posts';
 import { useLogin } from '../use-auth';
 import { queryKeys } from '../query-keys';
 import { useAuthStore } from '../../auth/auth-store';
@@ -73,6 +74,7 @@ const sampleWorkspaces = [
     role: 'OWNER' as const,
     visibility: 'PRIVATE' as const,
     publicAccessLevel: 'READ_ONLY' as const,
+    adminsCanEditSettings: true,
   },
   {
     id: 'ws-2',
@@ -81,6 +83,7 @@ const sampleWorkspaces = [
     role: 'MEMBER' as const,
     visibility: 'PRIVATE' as const,
     publicAccessLevel: 'READ_ONLY' as const,
+    adminsCanEditSettings: true,
   },
 ];
 
@@ -209,6 +212,7 @@ describe('R4 — React Query Hooks', () => {
         role: 'OWNER' as const,
         visibility: 'PRIVATE' as const,
         publicAccessLevel: 'READ_ONLY' as const,
+        adminsCanEditSettings: true,
       };
       vi.mocked(workspaceApi.create).mockResolvedValue(newWorkspace);
 
@@ -321,6 +325,90 @@ describe('R4 — React Query Hooks', () => {
           'queryKey' in call[0],
       );
       expect(invalidationCalls).toHaveLength(0);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // useDeletePost — optimistic removal, invalidation, rollback
+  // -----------------------------------------------------------------------
+  describe('useDeletePost', () => {
+    it('optimistically removes post from cache on mutate', async () => {
+      vi.mocked(postApi.deletePost).mockResolvedValue(undefined);
+
+      const queryClient = createTestQueryClient();
+
+      // Pre-fill the cache with posts
+      queryClient.setQueryData(['posts', 'board-1'], [
+        { id: 'post-1', title: 'Post 1' },
+        { id: 'post-2', title: 'Post 2' },
+      ]);
+
+      const { result } = renderHook(() => useDeletePost(), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      result.current.mutate({ boardId: 'board-1', postId: 'post-1' });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      // Post should be removed from cache
+      const cacheData = queryClient.getQueryData(['posts', 'board-1']) as Array<{ id: string }>;
+      expect(cacheData).toHaveLength(1);
+      expect(cacheData[0].id).toBe('post-2');
+    });
+
+    it('invalidates posts query on settle', async () => {
+      vi.mocked(postApi.deletePost).mockResolvedValue(undefined);
+
+      const queryClient = createTestQueryClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      // Pre-fill cache
+      queryClient.setQueryData(['posts', 'board-1'], [{ id: 'post-1' }]);
+
+      const { result } = renderHook(() => useDeletePost(), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      result.current.mutate({ boardId: 'board-1', postId: 'post-1' });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['posts', 'board-1'],
+      });
+    });
+
+    it('rolls back optimistic removal on error', async () => {
+      vi.mocked(postApi.deletePost).mockRejectedValue(new Error('Network error'));
+
+      const queryClient = createTestQueryClient();
+
+      // Pre-fill the cache
+      const previousData = [
+        { id: 'post-1', title: 'Post 1' },
+        { id: 'post-2', title: 'Post 2' },
+      ];
+      queryClient.setQueryData(['posts', 'board-1'], previousData);
+
+      const { result } = renderHook(() => useDeletePost(), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      result.current.mutate({ boardId: 'board-1', postId: 'post-1' });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      // Cache should be restored to previous state
+      const cacheData = queryClient.getQueryData(['posts', 'board-1']) as Array<{ id: string }>;
+      expect(cacheData).toHaveLength(2);
+      expect(cacheData).toEqual(previousData);
     });
   });
 });

@@ -197,9 +197,12 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 16-D.6 **Mover notificaciones, theme toggle y perfil a la TopNavbar** — avatar dropdown (Settings/Sign out) + PendingInvitationsBell + ThemeToggle. Sidebar sin sección inferior.
 - [x] 16-D.7 **Link Explore solo en dashboard** — condicional: solo visible en `/w`, oculto dentro de un workspace.
 
-### Phase 17: Workspace Permissions & Board Approval 🔲
-> Sistema de permisos granulares por workspace + flujo de aprobación de boards.
-- [ ] 17.1 **Solicitud de creación de boards** — miembros solicitan crear board; admin/owner aprueba o rechaza. Configurable por workspace: creación libre, con aprobación, o solo admins/owner.
-- [ ] 17.2 **Permisos granulares por workspace** — owner configura por workspace: quién crea boards, quién borra, quién comenta (owner, admins, members, nobody).
-- [ ] 17.3 **Owner define si admins pueden cambiar configuraciones** — el owner decide si los admins tienen permiso para modificar settings del workspace o solo él.
-- [ ] 17.4 **Admins y owners borran posts/comentarios/boards de cualquiera** — autorización para borrar contenido ajeno dentro del workspace. (Movido de 16-D.8)
+### Phase 17-A: Post Delete & Admin Settings 🔲
+> Endpoint de borrado de posts + toggle para que el owner decida si admins editan settings.
+- [ ] 17-A.1 **Delete posts** — endpoint DELETE /api/posts/:id, autorización: dueño del post O admin/owner del workspace.
+- [ ] 17-A.2 **Admins can edit settings toggle** — campo `adminsCanEditSettings` en Workspace, owner decide si admins pueden modificar config.
+
+### Phase 17-B: Permissions & Board Approval 🔲
+> Permisos granulares por workspace + flujo de aprobación de boards.
+- [ ] 17-B.1 **Permisos granulares por workspace** — owner configura quién crea boards, quién borra, quién comenta (owner, admins, members, nobody).
+- [ ] 17-B.2 **Aprobación de creación de boards** — miembros solicitan crear board; admin/owner aprueba o rechaza. Configurable: libre, con aprobación, o solo admins/owner.
