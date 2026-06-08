@@ -37,12 +37,12 @@ Chain strategy: pending
 
 ## Phase 2: Service-Layer Gating
 
-- [ ] 2.1 **RED** — Write tests: `boardsService.create()` gates per `boardCreationPolicy` (ADMINS_ONLY blocks MEMBER, APPROVAL_REQUIRED blocks MEMBER, FREE gates by boardCreation); each role × permission level combination
-- [ ] 2.2 **RED** — Write tests: `boardsService.delete()` gates on `boardDeletion` (OWNER blocks ADMIN); `commentsService.create()` gates on `commenting` (NOBODY blocks non-owner)
-- [ ] 2.3 **GREEN** — Modify `server/src/boards/boards.service.ts`: `create()` reads `boardCreation` + `boardCreationPolicy` fields; `delete()` reads `boardDeletion` field — throw 403 on deny
-- [ ] 2.4 **GREEN** — Modify `server/src/comments/comments.service.ts`: `create()` reads `commenting` field after membership/public-access check — throw 403 on deny
-- [ ] 2.5 **GREEN** — Modify `server/src/workspaces/workspaces.service.ts`: `update()` accepts boardCreation/boardDeletion/commenting/boardCreationPolicy (owner-only); `list()`/`getById()` includes new fields
-- [ ] 2.6 **REFACTOR** — Verify all existing role-check tests pass; remove hardcoded role arrays
+- [x] 2.1 **RED** — Write tests: `boardsService.create()` gates per `boardCreationPolicy` (ADMINS_ONLY blocks MEMBER, APPROVAL_REQUIRED blocks MEMBER, FREE gates by boardCreation); each role × permission level combination
+- [x] 2.2 **RED** — Write tests: `boardsService.delete()` gates on `boardDeletion` (OWNER blocks ADMIN); `commentsService.create()` gates on `commenting` (NOBODY blocks non-owner)
+- [x] 2.3 **GREEN** — Modify `server/src/boards/boards.service.ts`: `create()` reads `boardCreation` + `boardCreationPolicy` fields; `delete()` reads `boardDeletion` field — throw 403 on deny
+- [x] 2.4 **GREEN** — Modify `server/src/comments/comments.service.ts`: `create()` reads `commenting` field after membership/public-access check — throw 403 on deny
+- [x] 2.5 **GREEN** — Modify `server/src/workspaces/workspaces.service.ts`: `update()` accepts boardCreation/boardDeletion/commenting/boardCreationPolicy (owner-only); `list()`/`getById()` includes new fields
+- [x] 2.6 **REFACTOR** — Verify all existing role-check tests pass; remove hardcoded role arrays
 
 ## Phase 3: Board Requests Module
 

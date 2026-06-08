@@ -1,9 +1,12 @@
 import crypto from 'node:crypto';
 import request from 'supertest';
 import app from '../src/index.js';
+import { prisma } from '../src/infra/prisma.js';
 
 describe('post deletion', () => {
-  // Scenario 1: Author deletes their own post → 204
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
   it('allows the post author to delete their own post (204)', async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
     const agent = request.agent(app);
