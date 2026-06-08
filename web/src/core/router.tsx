@@ -16,6 +16,7 @@ import { LandingPage } from '../shared/components/landing-page';
 import { PublicLayout } from '../public/public-layout';
 import { PublicLobby } from '../public/public-lobby';
 import { PublicWorkspaceView } from '../public/public-workspace-view';
+import { PublicBoardView } from '../public/public-board-view';
 
 export function AppRouter() {
   return (
@@ -33,6 +34,7 @@ export function AppRouter() {
       <Route element={<PublicLayout />}>
         <Route path="/explore" element={<PublicLobby />} />
         <Route path="/explore/:slug" element={<PublicWorkspaceView />} />
+        <Route path="/explore/:slug/:boardSlug" element={<PublicBoardView />} />
       </Route>
 
       <Route element={<ProtectedRoute />}>
