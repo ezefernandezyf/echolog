@@ -61,7 +61,7 @@ describe('post deletion', () => {
     expect(ownerReg.status).toBe(201);
 
     // Create workspace
-    const wsRes = await ownerAgent.post('/api/workspaces').send({ name: 'Admin WS' });
+    const wsRes = await ownerAgent.post('/api/workspaces').send({ name: 'Admin Delete WS' });
     expect(wsRes.status).toBe(201);
     const workspaceId: string = wsRes.body.id;
 

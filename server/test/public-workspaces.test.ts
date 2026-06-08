@@ -8,27 +8,31 @@ import { workspaceRouter } from '../src/workspaces/workspaces.router.js';
 describe('public workspaces', () => {
   it('GET /api/workspaces/public returns only PUBLIC workspaces', async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
-    const agent = request.agent(app);
 
-    // Register user
-    await agent.post('/api/auth/register').send({
+    // Register user A to create the PUBLIC workspace
+    const agentA = request.agent(app);
+    await agentA.post('/api/auth/register').send({
       email: `pub-${suffix}@test.dev`,
       password: 'secret12345',
       name: 'Public Tester',
     });
-
-    // Create two workspaces
-    const ws1 = await agent.post('/api/workspaces').send({ name: `Public WS ${suffix}` });
-    const ws2 = await agent.post('/api/workspaces').send({ name: `Private WS ${suffix}` });
-
+    const ws1 = await agentA.post('/api/workspaces').send({ name: `Public WS ${suffix}` });
     expect(ws1.status).toBe(201);
-    expect(ws2.status).toBe(201);
-
     const ws1Id = ws1.body.id;
+
+    // Register user B to create the PRIVATE workspace (different user to avoid workspace limit)
+    const agentB = request.agent(app);
+    await agentB.post('/api/auth/register').send({
+      email: `priv-${suffix}@test.dev`,
+      password: 'secret12345',
+      name: 'Private Tester',
+    });
+    const ws2 = await agentB.post('/api/workspaces').send({ name: `Private WS ${suffix}` });
+    expect(ws2.status).toBe(201);
     const ws2Id = ws2.body.id;
 
     // Make ws1 PUBLIC, leave ws2 PRIVATE
-    const visRes = await agent
+    const visRes = await agentA
       .patch(`/api/workspaces/${ws1Id}/visibility`)
       .send({ visibility: 'PUBLIC', publicAccessLevel: 'READ_ONLY' });
     expect(visRes.status).toBe(200);

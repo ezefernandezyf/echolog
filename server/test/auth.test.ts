@@ -12,6 +12,7 @@ vi.mock('../src/email/email.service', () => ({
     sendInvitationEmail: vi.fn(),
     sendRoleChangedEmail: vi.fn(),
     sendWelcomeEmail: mockSendWelcomeEmail,
+    sendVerificationEmail: vi.fn(),
   },
 }));
 
