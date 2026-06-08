@@ -10,6 +10,77 @@ vi.mock('../client', () => ({
 import { authApi } from '../auth';
 import { workspaceApi } from '../workspaces';
 import { boardApi } from '../boards';
+import type { boardRequestsApi } from '../board-requests';
+
+// ===========================================================================
+// R3b: Board Requests API Module
+// ===========================================================================
+
+describe('R3b — Board Requests API Module', () => {
+  describe('boardRequests module', () => {
+    it('exports all expected board request functions', async () => {
+      const module = await import('../board-requests');
+      expect(module.boardRequestsApi).toHaveProperty('create');
+      expect(module.boardRequestsApi).toHaveProperty('update');
+      expect(module.boardRequestsApi).toHaveProperty('listPending');
+    });
+
+    it('create will POST to the correct URL', async () => {
+      const client = await import('../client');
+      const module = await import('../board-requests');
+
+      const spy = vi.fn().mockResolvedValue({ id: 'br-1', status: 'PENDING' });
+      vi.mocked(client.fetchJson).mockImplementation(spy);
+
+      await module.boardRequestsApi.create('ws-1', {
+        boardName: 'Feature Requests',
+        boardSlug: 'feature-requests',
+      });
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: '/workspaces/ws-1/board-requests',
+          method: 'POST',
+          data: { boardName: 'Feature Requests', boardSlug: 'feature-requests' },
+        }),
+      );
+    });
+
+    it('update will PATCH to the correct URL', async () => {
+      const client = await import('../client');
+      const module = await import('../board-requests');
+
+      const spy = vi.fn().mockResolvedValue({ id: 'br-1', status: 'APPROVED' });
+      vi.mocked(client.fetchJson).mockImplementation(spy);
+
+      await module.boardRequestsApi.update('ws-1', 'br-1', { status: 'APPROVED' });
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: '/workspaces/ws-1/board-requests/br-1',
+          method: 'PATCH',
+          data: { status: 'APPROVED' },
+        }),
+      );
+    });
+
+    it('listPending will GET the correct URL', async () => {
+      const client = await import('../client');
+      const module = await import('../board-requests');
+
+      const spy = vi.fn().mockResolvedValue([]);
+      vi.mocked(client.fetchJson).mockImplementation(spy);
+
+      await module.boardRequestsApi.listPending('ws-1');
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: '/workspaces/ws-1/board-requests',
+        }),
+      );
+    });
+  });
+});
 
 // ===========================================================================
 // R3: Domain API Modules — Calling Domain APIs
@@ -67,8 +138,8 @@ describe('R3 — Domain API Modules', () => {
   describe('API call return shape', () => {
     it('workspaceApi.list resolves with an array of workspaces', async () => {
       const mockWorkspaces = [
-        { id: 'ws-1', name: 'Alpha', slug: 'alpha', role: 'OWNER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const, adminsCanEditSettings: true },
-        { id: 'ws-2', name: 'Beta', slug: 'beta', role: 'MEMBER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const, adminsCanEditSettings: true },
+        { id: 'ws-1', name: 'Alpha', slug: 'alpha', role: 'OWNER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const, adminsCanEditSettings: true, boardCreation: 'MEMBERS' as const, boardDeletion: 'ADMINS' as const, commenting: 'MEMBERS' as const, boardCreationPolicy: 'FREE' as const },
+        { id: 'ws-2', name: 'Beta', slug: 'beta', role: 'MEMBER' as const, visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const, adminsCanEditSettings: true, boardCreation: 'MEMBERS' as const, boardDeletion: 'ADMINS' as const, commenting: 'MEMBERS' as const, boardCreationPolicy: 'FREE' as const },
       ];
 
       vi.mocked(workspaceApi.list).mockResolvedValueOnce(mockWorkspaces);

@@ -33,6 +33,10 @@ export class WorkspacesService {
       visibility: m.workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: m.workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
       adminsCanEditSettings: m.workspace.adminsCanEditSettings,
+      boardCreation: m.workspace.boardCreation as WorkspaceDTO['boardCreation'],
+      boardDeletion: m.workspace.boardDeletion as WorkspaceDTO['boardDeletion'],
+      commenting: m.workspace.commenting as WorkspaceDTO['commenting'],
+      boardCreationPolicy: m.workspace.boardCreationPolicy as WorkspaceDTO['boardCreationPolicy'],
     }));
   }
 
@@ -105,6 +109,10 @@ export class WorkspacesService {
       visibility: workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
       adminsCanEditSettings: workspace.adminsCanEditSettings,
+      boardCreation: workspace.boardCreation as WorkspaceDTO['boardCreation'],
+      boardDeletion: workspace.boardDeletion as WorkspaceDTO['boardDeletion'],
+      commenting: workspace.commenting as WorkspaceDTO['commenting'],
+      boardCreationPolicy: workspace.boardCreationPolicy as WorkspaceDTO['boardCreationPolicy'],
     };
   }
 
@@ -137,6 +145,16 @@ export class WorkspacesService {
       delete effectiveInput.adminsCanEditSettings;
     }
 
+    // Only OWNER can change permission fields
+    const hasPermissionFields =
+      effectiveInput.boardCreation !== undefined ||
+      effectiveInput.boardDeletion !== undefined ||
+      effectiveInput.commenting !== undefined ||
+      effectiveInput.boardCreationPolicy !== undefined;
+    if (hasPermissionFields && membership.role !== 'OWNER') {
+      throw new HttpError('Only the workspace owner can change permissions', 403);
+    }
+
     // If slug is being changed, check uniqueness
     if (effectiveInput.slug) {
       const existing = await prisma.workspace.findUnique({
@@ -155,6 +173,18 @@ export class WorkspacesService {
         ...(effectiveInput.adminsCanEditSettings !== undefined && {
           adminsCanEditSettings: effectiveInput.adminsCanEditSettings,
         }),
+        ...(effectiveInput.boardCreation !== undefined && {
+          boardCreation: effectiveInput.boardCreation,
+        }),
+        ...(effectiveInput.boardDeletion !== undefined && {
+          boardDeletion: effectiveInput.boardDeletion,
+        }),
+        ...(effectiveInput.commenting !== undefined && {
+          commenting: effectiveInput.commenting,
+        }),
+        ...(effectiveInput.boardCreationPolicy !== undefined && {
+          boardCreationPolicy: effectiveInput.boardCreationPolicy,
+        }),
       },
     });
 
@@ -166,6 +196,10 @@ export class WorkspacesService {
       visibility: updated.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: updated.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
       adminsCanEditSettings: updated.adminsCanEditSettings,
+      boardCreation: updated.boardCreation as WorkspaceDTO['boardCreation'],
+      boardDeletion: updated.boardDeletion as WorkspaceDTO['boardDeletion'],
+      commenting: updated.commenting as WorkspaceDTO['commenting'],
+      boardCreationPolicy: updated.boardCreationPolicy as WorkspaceDTO['boardCreationPolicy'],
     };
   }
 
@@ -250,6 +284,10 @@ export class WorkspacesService {
       visibility: workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
       adminsCanEditSettings: workspace.adminsCanEditSettings,
+      boardCreation: workspace.boardCreation as WorkspaceDTO['boardCreation'],
+      boardDeletion: workspace.boardDeletion as WorkspaceDTO['boardDeletion'],
+      commenting: workspace.commenting as WorkspaceDTO['commenting'],
+      boardCreationPolicy: workspace.boardCreationPolicy as WorkspaceDTO['boardCreationPolicy'],
     };
   }
 

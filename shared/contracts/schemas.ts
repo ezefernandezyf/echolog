@@ -28,7 +28,7 @@ export type InvitationStatus = z.infer<typeof InvitationStatusSchema>;
 export const PostStatusSchema = z.enum(['OPEN', 'PLANNED', 'IN_PROGRESS', 'DONE']);
 export type PostStatus = z.infer<typeof PostStatusSchema>;
 
-export const NotificationTypeSchema = z.enum(['INVITE_SENT', 'ROLE_CHANGED', 'NEW_COMMENT']);
+export const NotificationTypeSchema = z.enum(['INVITE_SENT', 'ROLE_CHANGED', 'NEW_COMMENT', 'BOARD_REQUEST']);
 export type NotificationType = z.infer<typeof NotificationTypeSchema>;
 
 export const VisibilitySchema = z.enum(['PUBLIC', 'PRIVATE']);
@@ -36,6 +36,15 @@ export type Visibility = z.infer<typeof VisibilitySchema>;
 
 export const PublicAccessLevelSchema = z.enum(['READ_ONLY', 'INTERACT', 'FULL']);
 export type PublicAccessLevel = z.infer<typeof PublicAccessLevelSchema>;
+
+export const WorkspacePermissionLevelSchema = z.enum(['OWNER', 'ADMINS', 'MEMBERS', 'NOBODY']);
+export type WorkspacePermissionLevel = z.infer<typeof WorkspacePermissionLevelSchema>;
+
+export const BoardCreationPolicySchema = z.enum(['FREE', 'APPROVAL_REQUIRED', 'ADMINS_ONLY']);
+export type BoardCreationPolicy = z.infer<typeof BoardCreationPolicySchema>;
+
+export const BoardRequestStatusSchema = z.enum(['PENDING', 'APPROVED', 'REJECTED']);
+export type BoardRequestStatus = z.infer<typeof BoardRequestStatusSchema>;
 
 // ── Auth DTO Schemas ───────────────────────────────────────────────────────
 
@@ -99,6 +108,10 @@ export const WorkspaceSchema = z.object({
   visibility: VisibilitySchema,
   publicAccessLevel: PublicAccessLevelSchema,
   adminsCanEditSettings: z.boolean(),
+  boardCreation: WorkspacePermissionLevelSchema,
+  boardDeletion: WorkspacePermissionLevelSchema,
+  commenting: WorkspacePermissionLevelSchema,
+  boardCreationPolicy: BoardCreationPolicySchema,
 });
 export type WorkspaceDTO = z.infer<typeof WorkspaceSchema>;
 
@@ -111,6 +124,10 @@ export const UpdateWorkspaceDTOSchema = z.object({
   name: z.string().optional(),
   slug: z.string().optional(),
   adminsCanEditSettings: z.boolean().optional(),
+  boardCreation: WorkspacePermissionLevelSchema.optional(),
+  boardDeletion: WorkspacePermissionLevelSchema.optional(),
+  commenting: WorkspacePermissionLevelSchema.optional(),
+  boardCreationPolicy: BoardCreationPolicySchema.optional(),
 });
 export type UpdateWorkspaceDTO = z.infer<typeof UpdateWorkspaceDTOSchema>;
 
@@ -139,6 +156,50 @@ export const UpdateBoardDTOSchema = z.object({
   description: z.string().nullable().optional(),
 });
 export type UpdateBoardDTO = z.infer<typeof UpdateBoardDTOSchema>;
+
+// ── Board Request DTO Schemas ─────────────────────────────────────────────
+
+export const BoardRequestSchema = z.object({
+  id: z.string(),
+  workspaceId: z.string(),
+  userId: z.string(),
+  /** Plain text — not HTML-safe. React escapes on render. */
+  userName: z.string().nullable(),
+  /** Plain text — not HTML-safe. React escapes on render. */
+  boardName: z.string(),
+  boardSlug: z.string(),
+  status: BoardRequestStatusSchema,
+  createdAt: z.string(),
+});
+export type BoardRequestDTO = z.infer<typeof BoardRequestSchema>;
+
+export const CreateBoardRequestDTOSchema = z.object({
+  boardName: z.string().trim().min(1, 'Board name is required').max(120),
+  boardSlug: z
+    .string()
+    .trim()
+    .min(1, 'Slug cannot be empty')
+    .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+});
+export type CreateBoardRequestDTO = z.infer<typeof CreateBoardRequestDTOSchema>;
+
+export const UpdateBoardRequestDTOSchema = z.object({
+  status: z.enum(['APPROVED', 'REJECTED']),
+});
+export type UpdateBoardRequestDTO = z.infer<typeof UpdateBoardRequestDTOSchema>;
+
+// ── Board Request Validation Schemas ───────────────────────────────────────
+
+export const createBoardRequestSchema = z.object({
+  boardName: requiredText('Board name').max(120),
+  boardSlug: slugSchema,
+});
+
+export const updateBoardRequestSchema = z.object({
+  status: z.enum(['APPROVED', 'REJECTED'], {
+    message: 'Status must be APPROVED or REJECTED',
+  }),
+});
 
 // ── Post DTO Schemas ───────────────────────────────────────────────────────
 
@@ -291,12 +352,20 @@ export const updateWorkspaceSchema = z
     name: optionalText(requiredText('Workspace name').max(120)),
     slug: optionalText(slugSchema),
     adminsCanEditSettings: z.boolean().optional(),
+    boardCreation: WorkspacePermissionLevelSchema.optional(),
+    boardDeletion: WorkspacePermissionLevelSchema.optional(),
+    commenting: WorkspacePermissionLevelSchema.optional(),
+    boardCreationPolicy: BoardCreationPolicySchema.optional(),
   })
   .refine(
     (data) =>
       data.name !== undefined ||
       data.slug !== undefined ||
-      data.adminsCanEditSettings !== undefined,
+      data.adminsCanEditSettings !== undefined ||
+      data.boardCreation !== undefined ||
+      data.boardDeletion !== undefined ||
+      data.commenting !== undefined ||
+      data.boardCreationPolicy !== undefined,
     {
       message: 'At least one field must be provided',
     },

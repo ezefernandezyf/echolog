@@ -45,6 +45,14 @@ vi.mock('../../api/auth', () => ({
   },
 }));
 
+vi.mock('../../api/board-requests', () => ({
+  boardRequestsApi: {
+    create: vi.fn(),
+    update: vi.fn(),
+    listPending: vi.fn(),
+  },
+}));
+
 vi.mock('sonner', () => ({
   toast: { error: vi.fn(), success: vi.fn() },
 }));
@@ -56,10 +64,12 @@ import { workspaceApi } from '../../api/workspaces';
 import { boardApi } from '../../api/boards';
 import { postApi } from '../../api/posts';
 import { authApi } from '../../api/auth';
+import { boardRequestsApi } from '../../api/board-requests';
 import { useWorkspaces, useCreateWorkspace } from '../use-workspaces';
 import { useBoards } from '../use-boards';
 import { useCreatePost, useDeletePost } from '../use-posts';
 import { useLogin } from '../use-auth';
+import { useCreateBoardRequest, useUpdateBoardRequest, usePendingRequests } from '../use-board-requests';
 import { queryKeys } from '../query-keys';
 import { useAuthStore } from '../../auth/auth-store';
 
@@ -75,6 +85,10 @@ const sampleWorkspaces = [
     visibility: 'PRIVATE' as const,
     publicAccessLevel: 'READ_ONLY' as const,
     adminsCanEditSettings: true,
+    boardCreation: 'MEMBERS' as const,
+    boardDeletion: 'ADMINS' as const,
+    commenting: 'MEMBERS' as const,
+    boardCreationPolicy: 'FREE' as const,
   },
   {
     id: 'ws-2',
@@ -84,6 +98,10 @@ const sampleWorkspaces = [
     visibility: 'PRIVATE' as const,
     publicAccessLevel: 'READ_ONLY' as const,
     adminsCanEditSettings: true,
+    boardCreation: 'MEMBERS' as const,
+    boardDeletion: 'ADMINS' as const,
+    commenting: 'MEMBERS' as const,
+    boardCreationPolicy: 'FREE' as const,
   },
 ];
 
@@ -213,6 +231,10 @@ describe('R4 — React Query Hooks', () => {
         visibility: 'PRIVATE' as const,
         publicAccessLevel: 'READ_ONLY' as const,
         adminsCanEditSettings: true,
+        boardCreation: 'MEMBERS' as const,
+        boardDeletion: 'ADMINS' as const,
+        commenting: 'MEMBERS' as const,
+        boardCreationPolicy: 'FREE' as const,
       };
       vi.mocked(workspaceApi.create).mockResolvedValue(newWorkspace);
 
@@ -409,6 +431,97 @@ describe('R4 — React Query Hooks', () => {
       const cacheData = queryClient.getQueryData(['posts', 'board-1']) as Array<{ id: string }>;
       expect(cacheData).toHaveLength(2);
       expect(cacheData).toEqual(previousData);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // Phase 17-B: Board Request Hooks
+  // -----------------------------------------------------------------------
+  describe('usePendingRequests', () => {
+    it('returns pending requests for a workspace', async () => {
+      const mockRequests = [
+        {
+          id: 'br-1', workspaceId: 'ws-1', userId: 'user-1', userName: 'Alice',
+          boardName: 'Feature Requests', boardSlug: 'feature-requests',
+          status: 'PENDING' as const, createdAt: '2026-01-01T00:00:00Z',
+        },
+      ];
+      vi.mocked(boardRequestsApi.listPending).mockResolvedValue(mockRequests);
+
+      const queryClient = createTestQueryClient();
+      const { result } = renderHook(() => usePendingRequests('ws-1'), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockRequests);
+      expect(vi.mocked(boardRequestsApi.listPending)).toHaveBeenCalledWith('ws-1');
+    });
+  });
+
+  describe('useCreateBoardRequest', () => {
+    it('calls boardRequestsApi.create and invalidates pending cache on success', async () => {
+      const mockRequest = {
+        id: 'br-1', workspaceId: 'ws-1', userId: 'user-1', userName: 'Alice',
+        boardName: 'New Board', boardSlug: 'new-board',
+        status: 'PENDING' as const, createdAt: '2026-01-01T00:00:00Z',
+      };
+      vi.mocked(boardRequestsApi.create).mockResolvedValue(mockRequest);
+
+      const queryClient = createTestQueryClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const { result } = renderHook(() => useCreateBoardRequest('ws-1'), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      result.current.mutate({ boardName: 'New Board', boardSlug: 'new-board' });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(vi.mocked(boardRequestsApi.create)).toHaveBeenCalledWith('ws-1', {
+        boardName: 'New Board',
+        boardSlug: 'new-board',
+      });
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: queryKeys.boardRequests.pending('ws-1'),
+      });
+    });
+  });
+
+  describe('useUpdateBoardRequest', () => {
+    it('calls boardRequestsApi.update and invalidates pending cache on success', async () => {
+      const mockRequest = {
+        id: 'br-1', workspaceId: 'ws-1', userId: 'user-1', userName: 'Alice',
+        boardName: 'Feature Requests', boardSlug: 'feature-requests',
+        status: 'APPROVED' as const, createdAt: '2026-01-01T00:00:00Z',
+      };
+      vi.mocked(boardRequestsApi.update).mockResolvedValue(mockRequest);
+
+      const queryClient = createTestQueryClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const { result } = renderHook(() => useUpdateBoardRequest('ws-1'), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      result.current.mutate({ requestId: 'br-1', data: { status: 'APPROVED' } });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(vi.mocked(boardRequestsApi.update)).toHaveBeenCalledWith('ws-1', 'br-1', {
+        status: 'APPROVED',
+      });
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: queryKeys.boardRequests.pending('ws-1'),
+      });
     });
   });
 });
