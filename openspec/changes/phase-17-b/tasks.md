@@ -46,12 +46,12 @@ Chain strategy: pending
 
 ## Phase 3: Board Requests Module
 
-- [ ] 3.1 **RED** — Write tests: `boardRequestsService.create()` — slug collision with Board + BoardRequest, duplicate PENDING from same user+slug → 409, BOARD_REQUEST notification fires to admins/owner
-- [ ] 3.2 **RED** — Write tests: `boardRequestsService.update()` — APPROVED creates board via `boards.service.create()` + status update + notify requester; REJECTED updates only + notify; immutable after resolution → 409
-- [ ] 3.3 **GREEN** — Create `server/src/boards/board-requests.service.ts`: `create()` validates slug uniqueness (Board + BoardRequest tables), creates PENDING request, fires notifications; `update()` handles APPROVED/REJECTED with board creation on approve
-- [ ] 3.4 **GREEN** — Create `server/src/boards/board-requests.controller.ts`: `createBoardRequest` (POST, 201), `updateBoardRequest` (PATCH, 200)
-- [ ] 3.5 **GREEN** — Create `server/src/boards/board-requests.router.ts`: `POST /` + `PATCH /:id` with `requireAdminOrOwner` on PATCH
-- [ ] 3.6 **GREEN** — Mount router in `server/src/infra/app.ts` at `/api/workspaces/:workspaceId/board-requests`
+- [x] 3.1 **RED** — Write tests: `boardRequestsService.create()` — slug collision with Board + BoardRequest, duplicate PENDING from same user+slug → 409, BOARD_REQUEST notification fires to admins/owner
+- [x] 3.2 **RED** — Write tests: `boardRequestsService.update()` — APPROVED creates board via `boards.service.create()` + status update + notify requester; REJECTED updates only + notify; immutable after resolution → 409
+- [x] 3.3 **GREEN** — Create `server/src/boards/board-requests.service.ts`: `create()` validates slug uniqueness (Board + BoardRequest tables), creates PENDING request, fires notifications; `update()` handles APPROVED/REJECTED with board creation on approve
+- [x] 3.4 **GREEN** — Create `server/src/boards/board-requests.controller.ts`: `createBoardRequest` (POST, 201), `updateBoardRequest` (PATCH, 200)
+- [x] 3.5 **GREEN** — Create `server/src/boards/board-requests.router.ts`: `POST /` + `PATCH /:id` with `requireAdminOrOwner` on PATCH
+- [x] 3.6 **GREEN** — Mount router in `server/src/infra/app.ts` at `/api/workspaces/:workspaceId/board-requests`
 
 ## Phase 4: Permissions UI + Visibility Modal Fix
 
