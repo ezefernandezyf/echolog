@@ -24,7 +24,7 @@ Collect, organize, and act on user feedback. Boards, upvoting, comments, and wor
 
 ## Architecture
 
-Monorepo managed with pnpm workspaces. The backend follows screaming architecture — business domains are top-level folders inside `server/src/`.
+Monorepo managed with pnpm workspaces. The backend follows screaming architecture - business domains are top-level folders inside `server/src/`.
 
 ```
 echolog/
@@ -49,16 +49,16 @@ echolog/
 
 ## Features (v1.1)
 
-- **Workspaces** — Multi-tenant isolation with roles (Owner, Admin, Member, Viewer)
-- **Boards & Posts** — Organize feedback into boards, with status tracking and voting
-- **Comments** — Threaded discussions on posts
-- **Public Workspaces** — Opt-in public visibility with tiered access (Read-only, Interact, Full)
-- **Email Verification** — Token-based verification via Resend, with workspace creation limits
-- **Granular Permissions** — Per-workspace control over who creates boards, deletes content, and comments
-- **Board Approval Flow** — Members request board creation, admins approve or reject
-- **In-App Notifications** — Bell icon with updates for invites, role changes, and approvals
-- **Dark Mode** — System-aware theme toggle
-- **Responsive Design** — Mobile-first with sidebar drawer and touch-friendly UI
+- **Workspaces** - Multi-tenant isolation with roles (Owner, Admin, Member, Viewer)
+- **Boards & Posts** - Organize feedback into boards, with status tracking and voting
+- **Comments** - Threaded discussions on posts
+- **Public Workspaces** - Opt-in public visibility with tiered access (Read-only, Interact, Full)
+- **Email Verification** - Token-based verification via Resend, with workspace creation limits
+- **Granular Permissions** - Per-workspace control over who creates boards, deletes content, and comments
+- **Board Approval Flow** - Members request board creation, admins approve or reject
+- **In-App Notifications** - Bell icon with updates for invites, role changes, and approvals
+- **Dark Mode** - System-aware theme toggle
+- **Responsive Design** - Mobile-first with sidebar drawer and touch-friendly UI
 
 ---
 
@@ -81,11 +81,11 @@ pnpm run dev:web      # terminal 2: frontend on :5173
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | — |
+| `DATABASE_URL` | PostgreSQL connection string | - |
 | `JWT_SECRET` | Secret for signing JWT tokens | `dev-secret-change-in-production` |
 | `PORT` | Server port | `3000` |
 | `CORS_ORIGIN` | Allowed frontend origin for CORS | `http://localhost:5173` |
-| `NODE_ENV` | Environment (production/test) | — |
+| `NODE_ENV` | Environment (production/test) | - |
 | `VITE_API_BASE_URL` | API base URL for frontend (only needed in prod) | `/api` |
 
 ---
@@ -111,13 +111,13 @@ pnpm run dev:web      # terminal 2: frontend on :5173
 
 ## Deploy
 
-### Database — Neon
+### Database - Neon
 
 1. Create a PostgreSQL database on [Neon](https://neon.tech)
 2. Copy the connection string (with `?sslmode=require`)
 3. Set as `DATABASE_URL` on Render
 
-### Backend — Render
+### Backend - Render
 
 1. Create a **Web Service** on [Render](https://render.com)
 2. Connect your GitHub repo
@@ -125,9 +125,9 @@ pnpm run dev:web      # terminal 2: frontend on :5173
 4. Build command: `pnpm run build`
 5. Start command: `node dist/server/src/index.js`
 6. Add environment variables: `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `NODE_ENV=production`
-7. Deploy — first request may take ~30s due to free tier spin-down
+7. Deploy - first request may take ~30s due to free tier spin-down
 
-### Frontend — Vercel
+### Frontend - Vercel
 
 1. Import your GitHub repo on [Vercel](https://vercel.com)
 2. Root directory: `web`
@@ -139,4 +139,4 @@ pnpm run dev:web      # terminal 2: frontend on :5173
 
 ## License
 
-MIT — see [LICENSE](./LICENSE)
+MIT - see [LICENSE](./LICENSE)
