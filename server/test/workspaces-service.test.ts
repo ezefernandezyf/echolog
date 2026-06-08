@@ -461,6 +461,30 @@ describe('WorkspacesService', () => {
         data: { name: 'Admin Update' },
       });
     });
+
+    it('blocks ADMIN from changing permission fields even when adminsCanEditSettings is true (403)', async () => {
+      vi.mocked(prisma.workspace.findUnique).mockResolvedValue({
+        ...mockWorkspace,
+        adminsCanEditSettings: true,
+      } as any);
+      vi.mocked(prisma.workspaceMember.findUnique).mockResolvedValue({
+        role: 'ADMIN',
+        userId: 'user-2',
+        workspaceId: 'ws-1',
+        createdAt: new Date(),
+      } as any);
+
+      await expect(
+        workspacesService.update(
+          'ws-1',
+          { boardCreation: 'ADMINS' },
+          'user-2',
+        ),
+      ).rejects.toMatchObject({
+        message: 'Only the workspace owner can change permissions',
+        statusCode: 403,
+      });
+    });
   });
 
   // ── delete ─────────────────────────────────────────────────────────────

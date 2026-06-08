@@ -188,6 +188,19 @@ export const UpdateBoardRequestDTOSchema = z.object({
 });
 export type UpdateBoardRequestDTO = z.infer<typeof UpdateBoardRequestDTOSchema>;
 
+// ── Board Request Validation Schemas ───────────────────────────────────────
+
+export const createBoardRequestSchema = z.object({
+  boardName: requiredText('Board name').max(120),
+  boardSlug: slugSchema,
+});
+
+export const updateBoardRequestSchema = z.object({
+  status: z.enum(['APPROVED', 'REJECTED'], {
+    message: 'Status must be APPROVED or REJECTED',
+  }),
+});
+
 // ── Post DTO Schemas ───────────────────────────────────────────────────────
 
 export const PostSchema = z.object({

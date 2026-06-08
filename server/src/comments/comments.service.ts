@@ -3,6 +3,7 @@ import { prisma } from '../infra/prisma.js';
 import { HttpError } from '../infra/http.js';
 import { sanitizeInput } from '../infra/sanitize.js';
 import { enforcePublicWriteAccess } from '../infra/public-access.js';
+import { checkPermission } from '../infra/permissions.js';
 import { notificationsService } from '../notifications/notifications.service.js';
 import type { CommentDTO, CreateCommentDTO } from '../../../shared/contracts/index.js';
 
@@ -42,6 +43,21 @@ export class CommentsService {
     });
     if (!membership) {
       await enforcePublicWriteAccess(post.workspaceId, 'CREATE_COMMENT');
+    }
+
+    // Gate commenting for workspace members — read workspace.commenting field
+    if (membership) {
+      const workspace = await prisma.workspace.findUnique({
+        where: { id: post.workspaceId },
+        select: { commenting: true },
+      });
+      if (!workspace) {
+        throw new HttpError('Workspace not found', 404);
+      }
+      const requiredLevel = workspace.commenting ?? 'MEMBERS';
+      if (!checkPermission(requiredLevel, membership.role)) {
+        throw new HttpError('Forbidden', 403);
+      }
     }
 
     const comment = await prisma.comment.create({

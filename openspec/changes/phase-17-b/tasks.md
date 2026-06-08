@@ -37,21 +37,21 @@ Chain strategy: pending
 
 ## Phase 2: Service-Layer Gating
 
-- [ ] 2.1 **RED** — Write tests: `boardsService.create()` gates per `boardCreationPolicy` (ADMINS_ONLY blocks MEMBER, APPROVAL_REQUIRED blocks MEMBER, FREE gates by boardCreation); each role × permission level combination
-- [ ] 2.2 **RED** — Write tests: `boardsService.delete()` gates on `boardDeletion` (OWNER blocks ADMIN); `commentsService.create()` gates on `commenting` (NOBODY blocks non-owner)
-- [ ] 2.3 **GREEN** — Modify `server/src/boards/boards.service.ts`: `create()` reads `boardCreation` + `boardCreationPolicy` fields; `delete()` reads `boardDeletion` field — throw 403 on deny
-- [ ] 2.4 **GREEN** — Modify `server/src/comments/comments.service.ts`: `create()` reads `commenting` field after membership/public-access check — throw 403 on deny
-- [ ] 2.5 **GREEN** — Modify `server/src/workspaces/workspaces.service.ts`: `update()` accepts boardCreation/boardDeletion/commenting/boardCreationPolicy (owner-only); `list()`/`getById()` includes new fields
-- [ ] 2.6 **REFACTOR** — Verify all existing role-check tests pass; remove hardcoded role arrays
+- [x] 2.1 **RED** — Write tests: `boardsService.create()` gates per `boardCreationPolicy` (ADMINS_ONLY blocks MEMBER, APPROVAL_REQUIRED blocks MEMBER, FREE gates by boardCreation); each role × permission level combination
+- [x] 2.2 **RED** — Write tests: `boardsService.delete()` gates on `boardDeletion` (OWNER blocks ADMIN); `commentsService.create()` gates on `commenting` (NOBODY blocks non-owner)
+- [x] 2.3 **GREEN** — Modify `server/src/boards/boards.service.ts`: `create()` reads `boardCreation` + `boardCreationPolicy` fields; `delete()` reads `boardDeletion` field — throw 403 on deny
+- [x] 2.4 **GREEN** — Modify `server/src/comments/comments.service.ts`: `create()` reads `commenting` field after membership/public-access check — throw 403 on deny
+- [x] 2.5 **GREEN** — Modify `server/src/workspaces/workspaces.service.ts`: `update()` accepts boardCreation/boardDeletion/commenting/boardCreationPolicy (owner-only); `list()`/`getById()` includes new fields
+- [x] 2.6 **REFACTOR** — Verify all existing role-check tests pass; remove hardcoded role arrays
 
 ## Phase 3: Board Requests Module
 
-- [ ] 3.1 **RED** — Write tests: `boardRequestsService.create()` — slug collision with Board + BoardRequest, duplicate PENDING from same user+slug → 409, BOARD_REQUEST notification fires to admins/owner
-- [ ] 3.2 **RED** — Write tests: `boardRequestsService.update()` — APPROVED creates board via `boards.service.create()` + status update + notify requester; REJECTED updates only + notify; immutable after resolution → 409
-- [ ] 3.3 **GREEN** — Create `server/src/boards/board-requests.service.ts`: `create()` validates slug uniqueness (Board + BoardRequest tables), creates PENDING request, fires notifications; `update()` handles APPROVED/REJECTED with board creation on approve
-- [ ] 3.4 **GREEN** — Create `server/src/boards/board-requests.controller.ts`: `createBoardRequest` (POST, 201), `updateBoardRequest` (PATCH, 200)
-- [ ] 3.5 **GREEN** — Create `server/src/boards/board-requests.router.ts`: `POST /` + `PATCH /:id` with `requireAdminOrOwner` on PATCH
-- [ ] 3.6 **GREEN** — Mount router in `server/src/infra/app.ts` at `/api/workspaces/:workspaceId/board-requests`
+- [x] 3.1 **RED** — Write tests: `boardRequestsService.create()` — slug collision with Board + BoardRequest, duplicate PENDING from same user+slug → 409, BOARD_REQUEST notification fires to admins/owner
+- [x] 3.2 **RED** — Write tests: `boardRequestsService.update()` — APPROVED creates board via `boards.service.create()` + status update + notify requester; REJECTED updates only + notify; immutable after resolution → 409
+- [x] 3.3 **GREEN** — Create `server/src/boards/board-requests.service.ts`: `create()` validates slug uniqueness (Board + BoardRequest tables), creates PENDING request, fires notifications; `update()` handles APPROVED/REJECTED with board creation on approve
+- [x] 3.4 **GREEN** — Create `server/src/boards/board-requests.controller.ts`: `createBoardRequest` (POST, 201), `updateBoardRequest` (PATCH, 200)
+- [x] 3.5 **GREEN** — Create `server/src/boards/board-requests.router.ts`: `POST /` + `PATCH /:id` with `requireAdminOrOwner` on PATCH
+- [x] 3.6 **GREEN** — Mount router in `server/src/infra/app.ts` at `/api/workspaces/:workspaceId/board-requests`
 
 ## Phase 4: Permissions UI + Visibility Modal Fix
 
