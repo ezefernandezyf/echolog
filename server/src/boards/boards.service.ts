@@ -3,6 +3,7 @@ import { prisma } from '../infra/prisma.js';
 import { sanitizeInput } from '../infra/sanitize.js';
 import { slugify } from '../../../shared/lib/slugify.js';
 import { enforcePublicWriteAccess } from '../infra/public-access.js';
+import { checkPermission } from '../infra/permissions.js';
 import type { BoardDTO, CreateBoardDTO, UpdateBoardDTO } from '../../../shared/contracts/index.js';
 
 export class BoardsService {
@@ -31,6 +32,39 @@ export class BoardsService {
       await enforcePublicWriteAccess(workspaceId, 'CREATE_BOARD');
     }
 
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: {
+        id: true,
+        name: true,
+        boardCreation: true,
+        boardCreationPolicy: true,
+        boardDeletion: true,
+      },
+    });
+    if (!workspace) {
+      throw new HttpError('Workspace not found', 404);
+    }
+
+    // Gate board creation for workspace members
+    if (membership) {
+      if (workspace.boardCreationPolicy === 'ADMINS_ONLY') {
+        if (!checkPermission('ADMINS', membership.role)) {
+          throw new HttpError('Forbidden', 403);
+        }
+      } else if (workspace.boardCreationPolicy === 'APPROVAL_REQUIRED') {
+        if (!checkPermission('ADMINS', membership.role)) {
+          throw new HttpError('Forbidden', 403);
+        }
+      } else {
+        // FREE policy — gate by boardCreation field
+        const requiredLevel = workspace.boardCreation ?? 'MEMBERS';
+        if (!checkPermission(requiredLevel, membership.role)) {
+          throw new HttpError('Forbidden', 403);
+        }
+      }
+    }
+
     const slug = slugify(input.name);
 
     const existing = await prisma.board.findUnique({
@@ -43,11 +77,6 @@ export class BoardsService {
     });
     if (existing) {
       throw new HttpError('Board slug already exists', 409);
-    }
-
-    const workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } });
-    if (!workspace) {
-      throw new HttpError('Workspace not found', 404);
     }
 
     return prisma.board.create({
@@ -121,11 +150,24 @@ export class BoardsService {
       throw new HttpError('Board not found', 404);
     }
 
-    // Only workspace admin/owner can delete boards
     const membership = await prisma.workspaceMember.findUnique({
       where: { userId_workspaceId: { userId, workspaceId: board.workspaceId } },
     });
-    if (!membership || !['OWNER', 'ADMIN'].includes(membership.role)) {
+    if (!membership) {
+      throw new HttpError('Forbidden', 403);
+    }
+
+    // Read workspace boardDeletion permission level
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: board.workspaceId },
+      select: { boardDeletion: true },
+    });
+    if (!workspace) {
+      throw new HttpError('Workspace not found', 404);
+    }
+
+    const requiredLevel = workspace.boardDeletion ?? 'ADMINS';
+    if (!checkPermission(requiredLevel, membership.role)) {
       throw new HttpError('Forbidden', 403);
     }
 
