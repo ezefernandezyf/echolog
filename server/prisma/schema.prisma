@@ -40,6 +40,25 @@ enum PublicAccessLevel {
   FULL
 }
 
+enum WorkspacePermissionLevel {
+  OWNER
+  ADMINS
+  MEMBERS
+  NOBODY
+}
+
+enum BoardCreationPolicy {
+  FREE
+  APPROVAL_REQUIRED
+  ADMINS_ONLY
+}
+
+enum BoardRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id            String            @id @default(cuid())
   email         String            @unique
@@ -56,6 +75,7 @@ model User {
   notifications      Notification[]
   actedNotifications Notification[]   @relation("actorNotifications")
   verificationTokens VerificationToken[]
+  boardRequests      BoardRequest[]
 }
 
 model VerificationToken {
@@ -76,14 +96,19 @@ model Workspace {
   slug                   String            @unique
   visibility             Visibility        @default(PRIVATE)
   publicAccessLevel      PublicAccessLevel @default(READ_ONLY)
-  adminsCanEditSettings  Boolean           @default(true)
-  createdAt              DateTime          @default(now())
+  adminsCanEditSettings  Boolean                 @default(true)
+  boardCreation          WorkspacePermissionLevel @default(MEMBERS)
+  boardDeletion          WorkspacePermissionLevel @default(ADMINS)
+  commenting             WorkspacePermissionLevel @default(MEMBERS)
+  boardCreationPolicy    BoardCreationPolicy      @default(FREE)
+  createdAt              DateTime                @default(now())
   updatedAt              DateTime          @updatedAt
   members                WorkspaceMember[]
   boards                 Board[]
   posts                  Post[]
   invitations            WorkspaceInvitation[]
   notifications          Notification[]    @relation("workspaceNotifications")
+  boardRequests          BoardRequest[]
 }
 
 model WorkspaceMember {
@@ -135,6 +160,22 @@ model Board {
   @@index([workspaceId])
 }
 
+model BoardRequest {
+  id          String             @id @default(cuid())
+  workspaceId String
+  userId      String
+  boardName   String
+  boardSlug   String
+  status      BoardRequestStatus @default(PENDING)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([userId])
+}
+
 model Post {
   id          String     @id @default(cuid())
   workspaceId String
@@ -173,6 +214,7 @@ enum NotificationType {
   INVITE_SENT
   ROLE_CHANGED
   NEW_COMMENT
+  BOARD_REQUEST
 }
 
 model Notification {
