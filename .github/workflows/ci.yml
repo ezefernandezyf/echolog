@@ -47,7 +47,7 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
       - name: Setup Database
-        run: npx prisma db push --skip-generate
+        run: npx prisma db push --force-reset --skip-generate
       - name: Type Check
         run: npx tsc --noEmit
       - name: Run Tests
