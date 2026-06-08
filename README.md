@@ -47,6 +47,21 @@ echolog/
 
 ---
 
+## Features (v1.1)
+
+- **Workspaces** — Multi-tenant isolation with roles (Owner, Admin, Member, Viewer)
+- **Boards & Posts** — Organize feedback into boards, with status tracking and voting
+- **Comments** — Threaded discussions on posts
+- **Public Workspaces** — Opt-in public visibility with tiered access (Read-only, Interact, Full)
+- **Email Verification** — Token-based verification via Resend, with workspace creation limits
+- **Granular Permissions** — Per-workspace control over who creates boards, deletes content, and comments
+- **Board Approval Flow** — Members request board creation, admins approve or reject
+- **In-App Notifications** — Bell icon with updates for invites, role changes, and approvals
+- **Dark Mode** — System-aware theme toggle
+- **Responsive Design** — Mobile-first with sidebar drawer and touch-friendly UI
+
+---
+
 ## Quick Start (local dev)
 
 ```bash
@@ -124,4 +139,10 @@ pnpm run dev:web      # terminal 2: frontend on :5173
 
 ## License
 
-MIT
+MIT © 2026 Ezequiel Fernández
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
