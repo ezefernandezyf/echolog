@@ -209,6 +209,39 @@ export class PostsService {
       commentCount: post._count.comments,
     };
   }
+
+  async delete(postId: string, userId: string): Promise<void> {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: { board: { select: { workspaceId: true } } },
+    });
+
+    if (!post) {
+      throw new HttpError('Post not found', 404);
+    }
+
+    // Author can always delete their own post
+    if (post.authorId === userId) {
+      await prisma.post.delete({ where: { id: postId } });
+      return;
+    }
+
+    // Otherwise, must be ADMIN or OWNER of the workspace
+    const membership = await prisma.workspaceMember.findUnique({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId: post.board.workspaceId,
+        },
+      },
+    });
+
+    if (!membership || !['ADMIN', 'OWNER'].includes(membership.role)) {
+      throw new HttpError('Forbidden', 403);
+    }
+
+    await prisma.post.delete({ where: { id: postId } });
+  }
 }
 
 export const postsService = new PostsService();

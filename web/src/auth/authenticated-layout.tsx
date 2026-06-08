@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { useUiStore } from '../core/store/ui-store';
 import { SidebarContainer } from './sidebar-container';
-import { MobileHeader } from './mobile-header';
+import { TopNavbar } from './top-navbar';
 import { CreateBoardModal } from '../boards/components/create-board-modal';
 import { CreatePostModal } from '../boards/components/create-post-modal';
 
@@ -28,7 +28,7 @@ export function useAuthenticatedShell() {
 export function AuthenticatedLayout() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const sidebarOpen = useUiStore((state) => state.sidebarOpen);
-  const openSidebar = useUiStore((state) => state.openSidebar);
+  const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
@@ -55,7 +55,7 @@ export function AuthenticatedLayout() {
         />
 
         <div className="flex min-h-screen flex-1 flex-col animate-fade-in overflow-x-hidden">
-          <MobileHeader onToggleSidebar={openSidebar} />
+          <TopNavbar onToggleSidebar={toggleSidebar} />
           <Outlet />
         </div>
 

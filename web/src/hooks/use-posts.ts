@@ -55,7 +55,7 @@ export function useCreatePost() {
       postApi.create(boardId, data),
     onSuccess: (_data, variables) => {
       toast.success('Post created');
-      queryClient.invalidateQueries({ queryKey: queryKeys.posts.list(variables.boardId) });
+      queryClient.invalidateQueries({ queryKey: ['posts', variables.boardId] });
     },
   });
 }
@@ -79,6 +79,35 @@ export function useUpdatePostStatus() {
     },
     onError: () => {
       toast.error('Failed to update status.');
+    },
+  });
+}
+
+export function useDeletePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ postId }: { boardId: string; postId: string }) =>
+      postApi.deletePost(postId),
+    onMutate: async ({ boardId, postId }) => {
+      await queryClient.cancelQueries({ queryKey: ['posts', boardId] });
+      const previous = queryClient.getQueryData(['posts', boardId]);
+      queryClient.setQueryData(['posts', boardId], (old: unknown) =>
+        Array.isArray(old) ? old.filter((p: { id: string }) => p.id !== postId) : [],
+      );
+      return { previous };
+    },
+    onSuccess: () => {
+      toast.success('Post deleted');
+    },
+    onError: (_err, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['posts', variables.boardId], context.previous);
+      }
+      toast.error('Failed to delete post');
+    },
+    onSettled: (_data, _err, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['posts', variables.boardId] });
     },
   });
 }

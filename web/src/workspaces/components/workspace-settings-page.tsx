@@ -16,7 +16,7 @@ import { useAuthStore } from '../../auth/auth-store';
 import { useWorkspaces } from '../../hooks/use-workspaces';
 import { useUpdateWorkspace, useDeleteWorkspace } from '../../hooks/use-workspaces';
 import { useUpdateVisibility } from '../../hooks/use-public-workspaces';
-import type { UpdateWorkspaceDTO, Visibility, PublicAccessLevel } from '../../../../shared/contracts/index.js';
+import type { UpdateWorkspaceDTO, Visibility, PublicAccessLevel, WorkspacePermissionLevel, BoardCreationPolicy } from '../../../../shared/contracts/index.js';
 import { updateWorkspaceSchema } from '../../../../shared/contracts/index.js';
 import { PageTitle } from '../../core/page-title';
 
@@ -24,6 +24,9 @@ export function WorkspaceSettingsPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showVisibilityDialog, setShowVisibilityDialog] = useState(false);
+  const [pendingVisibility, setPendingVisibility] = useState<Visibility | null>(null);
+  const [pendingAccessLevel, setPendingAccessLevel] = useState<PublicAccessLevel | null>(null);
 
   const userId = useAuthStore((state) => state.session?.user?.id);
 
@@ -207,6 +210,179 @@ export function WorkspaceSettingsPage() {
           </form>
         </section>
 
+        {/* Admin Settings */}
+        {isOwner ? (
+          <section className="space-y-6 rounded-2xl border border-border bg-card p-6">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold text-foreground">Admin Settings</h2>
+              <p className="text-sm text-muted-foreground">
+                Control what workspace admins are allowed to do.
+              </p>
+            </div>
+
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={workspace.adminsCanEditSettings ?? true}
+                onChange={(e) => {
+                  updateWorkspaceMutation.mutate(
+                    {
+                      workspaceId: workspaceId!,
+                      data: { adminsCanEditSettings: e.target.checked },
+                    },
+                    {
+                      onError: (error) => {
+                        toast.error(error instanceof Error ? error.message : 'Failed to update setting');
+                      },
+                    },
+                  );
+                }}
+                disabled={updateWorkspaceMutation.isPending}
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-foreground">Admins can edit settings</span>
+            </label>
+            <p className="text-xs text-muted-foreground">
+              When disabled, only the workspace owner can modify workspace settings.
+            </p>
+          </section>
+        ) : null}
+
+        {/* Permissions */}
+        {isOwner ? (
+          <section className="space-y-6 rounded-2xl border border-border bg-card p-6">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold text-foreground">Permissions</h2>
+              <p className="text-sm text-muted-foreground">
+                Control who can perform specific actions in this workspace.
+              </p>
+            </div>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-secondary-foreground" id="perm-board-creation-label">
+                Board Creation
+              </span>
+              <select
+                id="perm-board-creation"
+                aria-labelledby="perm-board-creation-label"
+                value={workspace.boardCreation ?? 'MEMBERS'}
+                onChange={(e) => {
+                  updateWorkspaceMutation.mutate(
+                    {
+                      workspaceId: workspaceId!,
+                      data: { boardCreation: e.target.value as WorkspacePermissionLevel },
+                    },
+                    {
+                      onError: (error) => {
+                        toast.error(error instanceof Error ? error.message : 'Failed to update permission');
+                      },
+                    },
+                  );
+                }}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                disabled={updateWorkspaceMutation.isPending}
+              >
+                <option value="OWNER">Owner only</option>
+                <option value="ADMINS">Owner & Admins</option>
+                <option value="MEMBERS">All members</option>
+                <option value="NOBODY">Nobody</option>
+              </select>
+            </label>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-secondary-foreground" id="perm-board-deletion-label">
+                Board Deletion
+              </span>
+              <select
+                id="perm-board-deletion"
+                aria-labelledby="perm-board-deletion-label"
+                value={workspace.boardDeletion ?? 'ADMINS'}
+                onChange={(e) => {
+                  updateWorkspaceMutation.mutate(
+                    {
+                      workspaceId: workspaceId!,
+                      data: { boardDeletion: e.target.value as WorkspacePermissionLevel },
+                    },
+                    {
+                      onError: (error) => {
+                        toast.error(error instanceof Error ? error.message : 'Failed to update permission');
+                      },
+                    },
+                  );
+                }}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                disabled={updateWorkspaceMutation.isPending}
+              >
+                <option value="OWNER">Owner only</option>
+                <option value="ADMINS">Owner & Admins</option>
+                <option value="MEMBERS">All members</option>
+                <option value="NOBODY">Nobody</option>
+              </select>
+            </label>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-secondary-foreground" id="perm-commenting-label">
+                Commenting
+              </span>
+              <select
+                id="perm-commenting"
+                aria-labelledby="perm-commenting-label"
+                value={workspace.commenting ?? 'MEMBERS'}
+                onChange={(e) => {
+                  updateWorkspaceMutation.mutate(
+                    {
+                      workspaceId: workspaceId!,
+                      data: { commenting: e.target.value as WorkspacePermissionLevel },
+                    },
+                    {
+                      onError: (error) => {
+                        toast.error(error instanceof Error ? error.message : 'Failed to update permission');
+                      },
+                    },
+                  );
+                }}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                disabled={updateWorkspaceMutation.isPending}
+              >
+                <option value="OWNER">Owner only</option>
+                <option value="ADMINS">Owner & Admins</option>
+                <option value="MEMBERS">All members</option>
+                <option value="NOBODY">Nobody</option>
+              </select>
+            </label>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-secondary-foreground" id="perm-board-creation-policy-label">
+                Board Creation Policy
+              </span>
+              <select
+                id="perm-board-creation-policy"
+                aria-labelledby="perm-board-creation-policy-label"
+                value={workspace.boardCreationPolicy ?? 'FREE'}
+                onChange={(e) => {
+                  updateWorkspaceMutation.mutate(
+                    {
+                      workspaceId: workspaceId!,
+                      data: { boardCreationPolicy: e.target.value as BoardCreationPolicy },
+                    },
+                    {
+                      onError: (error) => {
+                        toast.error(error instanceof Error ? error.message : 'Failed to update policy');
+                      },
+                    },
+                  );
+                }}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                disabled={updateWorkspaceMutation.isPending}
+              >
+                <option value="FREE">Free — anyone with board creation permission can create</option>
+                <option value="APPROVAL_REQUIRED">Approval Required — members request, admins approve</option>
+                <option value="ADMINS_ONLY">Admins Only — only admins/owner can create</option>
+              </select>
+            </label>
+          </section>
+        ) : null}
+
         {/* Visibility */}
         {isOwner ? (
           <section className="space-y-6 rounded-2xl border border-border bg-card p-6">
@@ -225,28 +401,15 @@ export function WorkspaceSettingsPage() {
                   value={visibility}
                   onChange={(e) => {
                     const newVisibility = e.target.value as Visibility;
-                    setVisibility(newVisibility);
-                    updateVisibilityMutation.mutate(
-                      {
-                        workspaceId: workspaceId!,
-                        data: {
-                          visibility: newVisibility,
-                          publicAccessLevel: newVisibility === 'PUBLIC' ? publicAccessLevel : undefined,
-                        },
-                      },
-                      {
-                        onError: (error) => {
-                          toast.error(error instanceof Error ? error.message : 'Failed to update visibility');
-                          setVisibility(workspace.visibility);
-                        },
-                      },
-                    );
+                    setPendingVisibility(newVisibility);
+                    setPendingAccessLevel(newVisibility === 'PUBLIC' ? publicAccessLevel : null);
+                    setShowVisibilityDialog(true);
                   }}
                   className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   disabled={updateVisibilityMutation.isPending}
                 >
-                  <option value="PRIVATE">Private — only members can access</option>
-                  <option value="PUBLIC">Public — discoverable by anyone</option>
+                  <option value="PRIVATE">Private - only members can access</option>
+                  <option value="PUBLIC">Public - discoverable by anyone</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
                   {visibility === 'PUBLIC'
@@ -263,26 +426,16 @@ export function WorkspaceSettingsPage() {
                     value={publicAccessLevel}
                     onChange={(e) => {
                       const newLevel = e.target.value as PublicAccessLevel;
-                      setPublicAccessLevel(newLevel);
-                      updateVisibilityMutation.mutate(
-                        {
-                          workspaceId: workspaceId!,
-                          data: { visibility: 'PUBLIC', publicAccessLevel: newLevel },
-                        },
-                        {
-                          onError: (error) => {
-                            toast.error(error instanceof Error ? error.message : 'Failed to update access level');
-                            setPublicAccessLevel(workspace.publicAccessLevel);
-                          },
-                        },
-                      );
+                      setPendingVisibility('PUBLIC');
+                      setPendingAccessLevel(newLevel);
+                      setShowVisibilityDialog(true);
                     }}
                     className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     disabled={updateVisibilityMutation.isPending}
                   >
-                    <option value="READ_ONLY">Read Only — visitors can only view</option>
-                    <option value="INTERACT">Interact — visitors can vote and comment</option>
-                    <option value="FULL">Full — visitors can create posts</option>
+                    <option value="READ_ONLY">Read Only - visitors can only view</option>
+                    <option value="INTERACT">Interact - visitors can vote and comment</option>
+                    <option value="FULL">Full - visitors can create posts</option>
                   </select>
                   <p className="text-xs text-muted-foreground">
                     {publicAccessLevel === 'READ_ONLY'
@@ -346,6 +499,49 @@ export function WorkspaceSettingsPage() {
         confirmLabel="Delete Workspace"
         confirmInput={workspace.name}
         isLoading={deleteWorkspaceMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={showVisibilityDialog}
+        onClose={() => {
+          setShowVisibilityDialog(false);
+          setPendingVisibility(null);
+          setPendingAccessLevel(null);
+        }}
+        onConfirm={() => {
+          if (!pendingVisibility) return;
+          setVisibility(pendingVisibility);
+          if (pendingAccessLevel) setPublicAccessLevel(pendingAccessLevel);
+          setShowVisibilityDialog(false);
+          updateVisibilityMutation.mutate(
+            {
+              workspaceId: workspaceId!,
+              data: {
+                visibility: pendingVisibility,
+                publicAccessLevel:
+                  pendingVisibility === 'PUBLIC' ? (pendingAccessLevel ?? publicAccessLevel) : undefined,
+              },
+            },
+            {
+              onError: (error) => {
+                toast.error(error instanceof Error ? error.message : 'Failed to update visibility');
+                setVisibility(workspace.visibility);
+                setPublicAccessLevel(workspace.publicAccessLevel);
+              },
+            },
+          );
+          setPendingVisibility(null);
+          setPendingAccessLevel(null);
+        }}
+        title="Change Visibility"
+        message={
+          visibility === 'PRIVATE' && pendingVisibility === 'PUBLIC'
+            ? 'Making this workspace PUBLIC will allow anyone to view its boards and posts. Are you sure?'
+            : 'Making this workspace PRIVATE will hide it from public view. Only members will be able to access it. Are you sure?'
+        }
+        confirmLabel="Make Public"
+        variant="danger"
+        isLoading={updateVisibilityMutation.isPending}
       />
     </main>
   );

@@ -31,6 +31,11 @@ export class WorkspacesService {
       role: m.role,
       visibility: m.workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: m.workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+      adminsCanEditSettings: m.workspace.adminsCanEditSettings,
+      boardCreation: m.workspace.boardCreation as WorkspaceDTO['boardCreation'],
+      boardDeletion: m.workspace.boardDeletion as WorkspaceDTO['boardDeletion'],
+      commenting: m.workspace.commenting as WorkspaceDTO['commenting'],
+      boardCreationPolicy: m.workspace.boardCreationPolicy as WorkspaceDTO['boardCreationPolicy'],
     }));
   }
 
@@ -75,6 +80,11 @@ export class WorkspacesService {
       role: 'OWNER',
       visibility: workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+      adminsCanEditSettings: workspace.adminsCanEditSettings,
+      boardCreation: workspace.boardCreation as WorkspaceDTO['boardCreation'],
+      boardDeletion: workspace.boardDeletion as WorkspaceDTO['boardDeletion'],
+      commenting: workspace.commenting as WorkspaceDTO['commenting'],
+      boardCreationPolicy: workspace.boardCreationPolicy as WorkspaceDTO['boardCreationPolicy'],
     };
   }
 
@@ -90,30 +100,80 @@ export class WorkspacesService {
       throw new HttpError('Forbidden', 403);
     }
 
+    // Fetch workspace to check adminsCanEditSettings gate
+    const workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } });
+    if (!workspace) {
+      throw new HttpError('Workspace not found', 404);
+    }
+
+    // Gate: ADMIN blocked when adminsCanEditSettings is false
+    if (membership.role === 'ADMIN' && !workspace.adminsCanEditSettings) {
+      throw new HttpError('Only the owner can edit workspace settings', 403);
+    }
+
+    // ADMIN cannot toggle adminsCanEditSettings — strip if present
+    const effectiveInput = { ...input };
+    if (membership.role === 'ADMIN' && 'adminsCanEditSettings' in effectiveInput) {
+      delete effectiveInput.adminsCanEditSettings;
+    }
+
+    // Only OWNER can change permission fields
+    const hasPermissionFields =
+      effectiveInput.boardCreation !== undefined ||
+      effectiveInput.boardDeletion !== undefined ||
+      effectiveInput.commenting !== undefined ||
+      effectiveInput.boardCreationPolicy !== undefined;
+    if (hasPermissionFields && membership.role !== 'OWNER') {
+      throw new HttpError('Only the workspace owner can change permissions', 403);
+    }
+
     // If slug is being changed, check uniqueness
-    if (input.slug) {
-      const existing = await prisma.workspace.findUnique({ where: { slug: input.slug } });
+    if (effectiveInput.slug) {
+      const existing = await prisma.workspace.findUnique({
+        where: { slug: effectiveInput.slug },
+      });
       if (existing && existing.id !== workspaceId) {
         throw new HttpError('Workspace slug already exists', 409);
       }
     }
 
-    const workspace = await prisma.workspace.update({
+    const updated = await prisma.workspace.update({
       where: { id: workspaceId },
       data: {
-        ...(input.name !== undefined && { name: sanitizeInput(input.name) }),
-        ...(input.slug !== undefined && { slug: input.slug }),
+        ...(effectiveInput.name !== undefined && { name: sanitizeInput(effectiveInput.name) }),
+        ...(effectiveInput.slug !== undefined && { slug: effectiveInput.slug }),
+        ...(effectiveInput.adminsCanEditSettings !== undefined && {
+          adminsCanEditSettings: effectiveInput.adminsCanEditSettings,
+        }),
+        ...(effectiveInput.boardCreation !== undefined && {
+          boardCreation: effectiveInput.boardCreation,
+        }),
+        ...(effectiveInput.boardDeletion !== undefined && {
+          boardDeletion: effectiveInput.boardDeletion,
+        }),
+        ...(effectiveInput.commenting !== undefined && {
+          commenting: effectiveInput.commenting,
+        }),
+        ...(effectiveInput.boardCreationPolicy !== undefined && {
+          boardCreationPolicy: effectiveInput.boardCreationPolicy,
+        }),
       },
     });
 
     return {
-      id: workspace.id,
-      name: workspace.name,
-      slug: workspace.slug,
+      id: updated.id,
+      name: updated.name,
+      slug: updated.slug,
       role: membership.role,
-      visibility: workspace.visibility as WorkspaceDTO['visibility'],
-      publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
-    };}
+      visibility: updated.visibility as WorkspaceDTO['visibility'],
+      publicAccessLevel: updated.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+      adminsCanEditSettings: updated.adminsCanEditSettings,
+      boardCreation: updated.boardCreation as WorkspaceDTO['boardCreation'],
+      boardDeletion: updated.boardDeletion as WorkspaceDTO['boardDeletion'],
+      commenting: updated.commenting as WorkspaceDTO['commenting'],
+      boardCreationPolicy: updated.boardCreationPolicy as WorkspaceDTO['boardCreationPolicy'],
+    };
+  }
 
   async delete(workspaceId: string, userId: string): Promise<void> {
     const membership = await prisma.workspaceMember.findUnique({
@@ -195,6 +255,11 @@ export class WorkspacesService {
       role: membership.role,
       visibility: workspace.visibility as WorkspaceDTO['visibility'],
       publicAccessLevel: workspace.publicAccessLevel as WorkspaceDTO['publicAccessLevel'],
+      adminsCanEditSettings: workspace.adminsCanEditSettings,
+      boardCreation: workspace.boardCreation as WorkspaceDTO['boardCreation'],
+      boardDeletion: workspace.boardDeletion as WorkspaceDTO['boardDeletion'],
+      commenting: workspace.commenting as WorkspaceDTO['commenting'],
+      boardCreationPolicy: workspace.boardCreationPolicy as WorkspaceDTO['boardCreationPolicy'],
     };
   }
 

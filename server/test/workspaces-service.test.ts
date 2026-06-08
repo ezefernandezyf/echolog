@@ -69,6 +69,7 @@ const mockWorkspace = {
   id: 'ws-1',
   name: 'Test Workspace',
   slug: 'test-workspace',
+  adminsCanEditSettings: true,
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
 };
@@ -139,6 +140,7 @@ describe('WorkspacesService', () => {
         name: mockWorkspace.name,
         slug: mockWorkspace.slug,
         role: 'OWNER',
+        adminsCanEditSettings: true,
       });
     });
   });
@@ -155,6 +157,7 @@ describe('WorkspacesService', () => {
 
       expect(result.workspace.id).toBe('ws-1');
       expect(result.role).toBe('MEMBER');
+      expect(result.workspace.adminsCanEditSettings).toBe(true);
     });
 
     it('throws 404 when user is not a member', async () => {
@@ -187,6 +190,7 @@ describe('WorkspacesService', () => {
         name: 'Test Workspace',
         slug: 'test-workspace',
         role: 'OWNER',
+        adminsCanEditSettings: true,
       });
     });
 
@@ -210,11 +214,21 @@ describe('WorkspacesService', () => {
         workspaceId: 'ws-1',
         role: 'OWNER',
       } as any);
-      vi.mocked(prisma.workspace.findUnique).mockResolvedValue(null); // slug check: no conflict
+      // First call: workspace by ID (for adminsCanEditSettings + existence check)
+      // Second call: slug uniqueness check
+      vi.mocked(prisma.workspace.findUnique)
+        .mockResolvedValueOnce({
+          id: 'ws-1',
+          name: 'Test Workspace',
+          slug: 'test-workspace',
+          adminsCanEditSettings: true,
+        } as any)
+        .mockResolvedValueOnce(null); // slug check: no conflict
       vi.mocked(prisma.workspace.update).mockResolvedValue({
         ...mockWorkspace,
         name: 'Updated Name',
         slug: 'updated-slug',
+        adminsCanEditSettings: true,
       } as any);
 
       const result = await workspacesService.update(
@@ -227,7 +241,7 @@ describe('WorkspacesService', () => {
         where: { id: 'ws-1' },
         data: { name: 'Updated Name', slug: 'updated-slug' },
       });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         id: 'ws-1',
         name: 'Updated Name',
         slug: 'updated-slug',
@@ -249,15 +263,162 @@ describe('WorkspacesService', () => {
         workspaceId: 'ws-1',
         role: 'OWNER',
       } as any);
-      vi.mocked(prisma.workspace.findUnique).mockResolvedValue({
-        id: 'ws-other',
-        name: 'Other',
-        slug: 'conflict-slug',
-      } as any);
+      vi.mocked(prisma.workspace.findUnique)
+        .mockResolvedValueOnce({
+          id: 'ws-1',
+          name: 'Test Workspace',
+          slug: 'test-workspace',
+          adminsCanEditSettings: true,
+        } as any)
+        .mockResolvedValueOnce({
+          id: 'ws-other',
+          name: 'Other',
+          slug: 'conflict-slug',
+        } as any);
 
       await expect(
         workspacesService.update('ws-1', { slug: 'conflict-slug' }, 'user-1'),
       ).rejects.toMatchObject({ message: 'Workspace slug already exists', statusCode: 409 });
+    });
+
+    // ── adminsCanEditSettings gate ────────────────────────────────────
+
+    it('blocks ADMIN when adminsCanEditSettings is false (403)', async () => {
+      vi.mocked(prisma.workspaceMember.findUnique).mockResolvedValue({
+        userId: 'user-2',
+        workspaceId: 'ws-1',
+        role: 'ADMIN',
+      } as any);
+      vi.mocked(prisma.workspace.findUnique).mockResolvedValue({
+        id: 'ws-1',
+        name: 'Test Workspace',
+        slug: 'test-workspace',
+        adminsCanEditSettings: false,
+      } as any);
+
+      await expect(
+        workspacesService.update('ws-1', { name: 'New Name' }, 'user-2'),
+      ).rejects.toMatchObject({
+        message: 'Only the owner can edit workspace settings',
+        statusCode: 403,
+      });
+    });
+
+    it('allows OWNER to update even when adminsCanEditSettings is false', async () => {
+      vi.mocked(prisma.workspaceMember.findUnique).mockResolvedValue({
+        userId: 'user-1',
+        workspaceId: 'ws-1',
+        role: 'OWNER',
+      } as any);
+      vi.mocked(prisma.workspace.findUnique).mockResolvedValue({
+        id: 'ws-1',
+        name: 'Test Workspace',
+        slug: 'test-workspace',
+        adminsCanEditSettings: false,
+      } as any);
+      vi.mocked(prisma.workspace.update).mockResolvedValue({
+        id: 'ws-1',
+        name: 'Updated',
+        slug: 'test-workspace',
+        adminsCanEditSettings: false,
+      } as any);
+
+      const result = await workspacesService.update(
+        'ws-1',
+        { name: 'Updated', adminsCanEditSettings: true },
+        'user-1',
+      );
+
+      expect(prisma.workspace.update).toHaveBeenCalledWith({
+        where: { id: 'ws-1' },
+        data: { name: 'Updated', adminsCanEditSettings: true },
+      });
+      expect(result.adminsCanEditSettings).toBe(false);
+    });
+
+    it('allows ADMIN to update when adminsCanEditSettings is true (default)', async () => {
+      vi.mocked(prisma.workspaceMember.findUnique).mockResolvedValue({
+        userId: 'user-2',
+        workspaceId: 'ws-1',
+        role: 'ADMIN',
+      } as any);
+      vi.mocked(prisma.workspace.findUnique).mockResolvedValue({
+        id: 'ws-1',
+        name: 'Test Workspace',
+        slug: 'test-workspace',
+        adminsCanEditSettings: true,
+      } as any);
+      vi.mocked(prisma.workspace.update).mockResolvedValue({
+        id: 'ws-1',
+        name: 'Admin Update',
+        slug: 'test-workspace',
+        adminsCanEditSettings: true,
+      } as any);
+
+      const result = await workspacesService.update(
+        'ws-1',
+        { name: 'Admin Update' },
+        'user-2',
+      );
+
+      expect(result.name).toBe('Admin Update');
+    });
+
+    it('strips adminsCanEditSettings from ADMIN input (admin cannot toggle it)', async () => {
+      vi.mocked(prisma.workspaceMember.findUnique).mockResolvedValue({
+        userId: 'user-2',
+        workspaceId: 'ws-1',
+        role: 'ADMIN',
+      } as any);
+      vi.mocked(prisma.workspace.findUnique).mockResolvedValue({
+        id: 'ws-1',
+        name: 'Test Workspace',
+        slug: 'test-workspace',
+        adminsCanEditSettings: true,
+      } as any);
+      vi.mocked(prisma.workspace.update).mockResolvedValue({
+        id: 'ws-1',
+        name: 'Admin Update',
+        slug: 'test-workspace',
+        adminsCanEditSettings: true,
+      } as any);
+
+      // Admin tries to toggle adminsCanEditSettings — should be stripped
+      await workspacesService.update(
+        'ws-1',
+        { name: 'Admin Update', adminsCanEditSettings: false },
+        'user-2',
+      );
+
+      // Verify that adminsCanEditSettings was NOT passed to prisma.update
+      expect(prisma.workspace.update).toHaveBeenCalledWith({
+        where: { id: 'ws-1' },
+        data: { name: 'Admin Update' },
+      });
+    });
+
+    it('blocks ADMIN from changing permission fields even when adminsCanEditSettings is true (403)', async () => {
+      vi.mocked(prisma.workspace.findUnique).mockResolvedValue({
+        ...mockWorkspace,
+        adminsCanEditSettings: true,
+      } as any);
+      vi.mocked(prisma.workspaceMember.findUnique).mockResolvedValue({
+        role: 'ADMIN',
+        userId: 'user-2',
+        workspaceId: 'ws-1',
+        createdAt: new Date(),
+      } as any);
+
+      await expect(
+        workspacesService.update(
+          'ws-1',
+          { boardCreation: 'ADMINS' },
+          'user-2',
+        ),
+      ).rejects.toMatchObject({
+        message: 'Only the workspace owner can change permissions',
+        statusCode: 403,
+      });
     });
   });
 

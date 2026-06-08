@@ -15,10 +15,10 @@ vi.mock('../../hooks/use-workspaces', () => ({
 }));
 
 vi.mock('../../hooks/use-public-workspaces', () => ({
-  useUpdateVisibility: () => ({
+  useUpdateVisibility: vi.fn(() => ({
     mutate: vi.fn(),
     isPending: false,
-  }),
+  })),
   usePublicWorkspaces: vi.fn(),
 }));
 
@@ -38,7 +38,9 @@ vi.mock('react-router-dom', async (importOriginal) => {
 // ---------------------------------------------------------------------------
 // Imports after mocks
 // ---------------------------------------------------------------------------
+import { useAuthStore } from '../../auth/auth-store';
 import { useWorkspaces, useUpdateWorkspace, useDeleteWorkspace } from '../../hooks/use-workspaces';
+import { useUpdateVisibility } from '../../hooks/use-public-workspaces';
 import { WorkspaceSettingsPage } from '../components/workspace-settings-page';
 
 // ---------------------------------------------------------------------------
@@ -255,5 +257,467 @@ describe('WorkspaceSettingsPage', () => {
     expect(screen.getByText('Members')).toBeInTheDocument();
     expect(screen.getByText('Manage Members')).toBeInTheDocument();
     expect(screen.getByText('Danger Zone')).toBeInTheDocument();
+  });
+
+  // ── 16-B.1: ConfirmDialog before visibility mutation ──────────────────
+  describe('Visibility change ConfirmDialog', () => {
+    const ownerWorkspace = {
+      id: 'ws-1', name: 'Test WS', slug: 'test-ws', role: 'OWNER' as const,
+      visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const,
+    };
+
+    beforeEach(() => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-1', email: 'test@test.dev', name: 'Test', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [ownerWorkspace],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+    });
+
+    it('shows ConfirmDialog when changing visibility from PRIVATE to PUBLIC, before any mutation', async () => {
+      const updateVisibilityMutate = vi.fn();
+      vi.mocked(useUpdateVisibility).mockReturnValue({
+        mutate: updateVisibilityMutate,
+        isPending: false,
+      } as any);
+
+      const user = userEvent.setup();
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      // Verify visibility section rendered and select starts at PRIVATE
+      const visibilitySelect = screen.getByRole('combobox', { name: /status/i }) as HTMLSelectElement;
+      expect(visibilitySelect.value).toBe('PRIVATE');
+
+      // Change visibility select from PRIVATE to PUBLIC
+      await user.selectOptions(visibilitySelect, 'PUBLIC');
+
+      // ConfirmDialog should appear BEFORE mutation is called
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      // Mutation should NOT have been called yet
+      expect(updateVisibilityMutate).not.toHaveBeenCalled();
+    });
+
+    it('calls mutation when user confirms in ConfirmDialog', async () => {
+      const updateVisibilityMutate = vi.fn();
+      vi.mocked(useUpdateVisibility).mockReturnValue({
+        mutate: updateVisibilityMutate,
+        isPending: false,
+      } as any);
+
+      const user = userEvent.setup();
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      const visibilitySelect = screen.getByRole('combobox', { name: /status/i }) as HTMLSelectElement;
+      await user.selectOptions(visibilitySelect, 'PUBLIC');
+
+      // Wait for dialog
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      // Confirm the dialog
+      const dialog = screen.getByRole('dialog');
+      const confirmBtn = within(dialog).getByRole('button', { name: /make public/i });
+      await user.click(confirmBtn);
+
+      await waitFor(() => {
+        expect(updateVisibilityMutate).toHaveBeenCalled();
+      });
+    });
+
+    it('reverts select when user cancels ConfirmDialog without calling mutation', async () => {
+      const updateVisibilityMutate = vi.fn();
+      vi.mocked(useUpdateVisibility).mockReturnValue({
+        mutate: updateVisibilityMutate,
+        isPending: false,
+      } as any);
+
+      const user = userEvent.setup();
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      const visibilitySelect = screen.getByRole('combobox', { name: /status/i }) as HTMLSelectElement;
+      await user.selectOptions(visibilitySelect, 'PUBLIC');
+
+      // Wait for dialog
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      // Cancel the dialog
+      const dialog = screen.getByRole('dialog');
+      const cancelBtn = within(dialog).getByRole('button', { name: /cancel/i });
+      await user.click(cancelBtn);
+
+      // Dialog should close and mutation NOT called
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+      expect(updateVisibilityMutate).not.toHaveBeenCalled();
+
+      // Select should be reverted to PRIVATE
+      expect(visibilitySelect.value).toBe('PRIVATE');
+    });
+
+    it('shows ConfirmDialog when changing access level, and confirms mutation', async () => {
+      const updateVisibilityMutate = vi.fn();
+      vi.mocked(useUpdateVisibility).mockReturnValue({
+        mutate: updateVisibilityMutate,
+        isPending: false,
+      } as any);
+
+      // Start with PUBLIC visibility to render access level select
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{ ...ownerWorkspace, visibility: 'PUBLIC' as const }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      const user = userEvent.setup();
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      // Access level select should be visible (workspace is PUBLIC)
+      const accessLevelSelect = screen.getByRole('combobox', { name: /access level/i }) as HTMLSelectElement;
+      expect(accessLevelSelect.value).toBe('READ_ONLY');
+
+      // Change to FULL
+      await user.selectOptions(accessLevelSelect, 'FULL');
+
+      // Dialog should appear
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+      expect(updateVisibilityMutate).not.toHaveBeenCalled();
+
+      // Confirm
+      const dialog = screen.getByRole('dialog');
+      const confirmBtn = within(dialog).getByRole('button', { name: /make public/i });
+      await user.click(confirmBtn);
+
+      await waitFor(() => {
+        expect(updateVisibilityMutate).toHaveBeenCalled();
+      });
+    });
+  });
+
+  // ── 17-B: Permissions section (only visible to OWNER) ───────────────
+  describe('Permissions section', () => {
+    const ownerWorkspaceWithPermissions = {
+      id: 'ws-1',
+      name: 'Test WS',
+      slug: 'test-ws',
+      role: 'OWNER' as const,
+      visibility: 'PRIVATE' as const,
+      publicAccessLevel: 'READ_ONLY' as const,
+      adminsCanEditSettings: true,
+      boardCreation: 'MEMBERS' as const,
+      boardDeletion: 'ADMINS' as const,
+      commenting: 'MEMBERS' as const,
+      boardCreationPolicy: 'FREE' as const,
+    };
+
+    it('renders Permissions section for workspace OWNER with 4 selects', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-1', email: 'owner@test.dev', name: 'Owner', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [ownerWorkspaceWithPermissions],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      // Section heading
+      expect(screen.getByText('Permissions')).toBeInTheDocument();
+
+      // All 4 selects should be rendered
+      expect(screen.getByLabelText('Board Creation')).toBeInTheDocument();
+      expect(screen.getByLabelText('Board Deletion')).toBeInTheDocument();
+      expect(screen.getByLabelText('Commenting')).toBeInTheDocument();
+      expect(screen.getByLabelText('Board Creation Policy')).toBeInTheDocument();
+    });
+
+    it('hides Permissions section for workspace ADMIN', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-2', email: 'admin@test.dev', name: 'Admin', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{ ...ownerWorkspaceWithPermissions, role: 'ADMIN' as const }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Permissions')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Board Creation')).not.toBeInTheDocument();
+    });
+
+    it('hides Permissions section for workspace MEMBER', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-3', email: 'member@test.dev', name: 'Member', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{ ...ownerWorkspaceWithPermissions, role: 'MEMBER' as const }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Permissions')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Board Creation')).not.toBeInTheDocument();
+    });
+
+    it('fires PATCH mutation when permission select changes', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-1', email: 'owner@test.dev', name: 'Owner', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      const updateMutation = mockMutation();
+      vi.mocked(useUpdateWorkspace).mockReturnValue(updateMutation);
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [ownerWorkspaceWithPermissions],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      const user = userEvent.setup();
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      const boardCreationSelect = screen.getByLabelText('Board Creation') as HTMLSelectElement;
+      expect(boardCreationSelect.value).toBe('MEMBERS');
+
+      await user.selectOptions(boardCreationSelect, 'ADMINS');
+
+      await waitFor(() => {
+        expect(updateMutation.mutate).toHaveBeenCalledWith(
+          {
+            workspaceId: 'ws-1',
+            data: { boardCreation: 'ADMINS' },
+          },
+          expect.any(Object),
+        );
+      });
+    });
+  });
+
+  // ── 17-B: Visibility confirm directional messages ────────────────────
+  describe('Visibility confirm directional message', () => {
+    it('shows PUBLIC directional message when switching from PRIVATE to PUBLIC', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-1', email: 'owner@test.dev', name: 'Owner', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{
+          id: 'ws-1', name: 'Test WS', slug: 'test-ws', role: 'OWNER' as const,
+          visibility: 'PRIVATE' as const, publicAccessLevel: 'READ_ONLY' as const,
+          adminsCanEditSettings: true,
+          boardCreation: 'MEMBERS' as const,
+          boardDeletion: 'ADMINS' as const,
+          commenting: 'MEMBERS' as const,
+          boardCreationPolicy: 'FREE' as const,
+        }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useUpdateVisibility).mockReturnValue({
+        mutate: vi.fn(),
+        isPending: false,
+      } as any);
+
+      const user = userEvent.setup();
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      const visibilitySelect = screen.getByRole('combobox', { name: /status/i }) as HTMLSelectElement;
+      await user.selectOptions(visibilitySelect, 'PUBLIC');
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      expect(
+        screen.getByText(
+          'Making this workspace PUBLIC will allow anyone to view its boards and posts. Are you sure?',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('shows PRIVATE directional message when switching from PUBLIC to PRIVATE', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-1', email: 'owner@test.dev', name: 'Owner', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{
+          id: 'ws-1', name: 'Test WS', slug: 'test-ws', role: 'OWNER' as const,
+          visibility: 'PUBLIC' as const, publicAccessLevel: 'READ_ONLY' as const,
+          adminsCanEditSettings: true,
+          boardCreation: 'MEMBERS' as const,
+          boardDeletion: 'ADMINS' as const,
+          commenting: 'MEMBERS' as const,
+          boardCreationPolicy: 'FREE' as const,
+        }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useUpdateVisibility).mockReturnValue({
+        mutate: vi.fn(),
+        isPending: false,
+      } as any);
+
+      const user = userEvent.setup();
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      const visibilitySelect = screen.getByRole('combobox', { name: /status/i }) as HTMLSelectElement;
+      await user.selectOptions(visibilitySelect, 'PRIVATE');
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      expect(
+        screen.getByText(
+          'Making this workspace PRIVATE will hide it from public view. Only members will be able to access it. Are you sure?',
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  // ── 17-A: Admins can edit settings toggle ────────────────────────────
+  describe('adminsCanEditSettings toggle', () => {
+    it('shows toggle only for workspace OWNER', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-1', email: 'test@test.dev', name: 'Owner', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{ id: 'ws-1', name: 'Test WS', slug: 'test-ws', role: 'OWNER', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY', adminsCanEditSettings: true }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Admins can edit settings')).toBeInTheDocument();
+    });
+
+    it('hides toggle for workspace ADMIN', async () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-2', email: 'admin@test.dev', name: 'Admin', emailVerified: false } },
+        status: 'authenticated',
+      } as never);
+
+      vi.mocked(useWorkspaces).mockReturnValue({
+        data: [{ id: 'ws-1', name: 'Test WS', slug: 'test-ws', role: 'ADMIN', visibility: 'PRIVATE', publicAccessLevel: 'READ_ONLY', adminsCanEditSettings: true }],
+        isPending: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      vi.mocked(useUpdateWorkspace).mockReturnValue(mockMutation());
+      vi.mocked(useDeleteWorkspace).mockReturnValue(mockMutation());
+
+      render(<WorkspaceSettingsPage />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('Test WS')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Admins can edit settings')).not.toBeInTheDocument();
+    });
   });
 });

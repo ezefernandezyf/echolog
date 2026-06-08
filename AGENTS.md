@@ -169,19 +169,40 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 13.5.3 **Output encoding audit** — JSDoc en DTOs de `shared/contracts` marcando campos user-generated como plain text. React escapa JSX por defecto.
 - [x] 13.5.4 **SQL injection hardening** — ESLint `no-restricted-syntax` para `$queryRawUnsafe`. Cero raw SQL en codebase.
 
-### Phase 14: Email Service (v1.1) 🔲
-- [ ] 14.1 **Email provider integration** (Resend) — transactional email client with templating, delivery status tracking, graceful failure fallback
-- [ ] 14.2 **Email templates** — invitation email with token link + workspace name, welcome email on registration or first workspace creation
-- [ ] 14.3 **Wire email into invitation flow** — send invitation email when invite is created, notify on role changes, handle delivery failures with user-visible errors
+### Phase 14: Email Service (v1.1) ✅
+- [x] 14.1 **Email provider integration** (Resend) — transactional email client with templating, delivery status tracking, graceful failure fallback
+- [x] 14.2 **Email templates** — invitation email with token link + workspace name, welcome email on registration or first workspace creation
+- [x] 14.3 **Wire email into invitation flow** — send invitation email when invite is created, notify on role changes, handle delivery failures with user-visible errors
 
-### Phase 15: Public Workspaces & Discovery (v1.1) 🔲
-- [ ] 15.1 **Workspace visibility enum** — `PUBLIC | PRIVATE` field on Workspace model, only owner can change
-- [ ] 15.2 **Public access levels** — owner-configurable: `FULL` (view + vote + comment + create boards), `INTERACT` (view + vote + comment), `READ_ONLY` (view only)
-- [ ] 15.3 **Public workspace lobby** — discoverable public workspace feed (popular/recent), accessible without login
-- [ ] 15.4 **"Continue without account"** — option on landing page that shows public workspace lobby with limited interactions based on access level
-- [ ] 15.5 **Public workspace API** — public endpoints for listing and viewing workspace content without auth, with membership middleware bypass for public workspaces
+### Phase 15: Public Workspaces & Discovery (v1.1) ✅
+- [x] 15.1 **Workspace visibility enum** — `PUBLIC | PRIVATE` field on Workspace model, only owner can change
+- [x] 15.2 **Public access levels** — owner-configurable: `FULL` (view + vote + comment + create boards), `INTERACT` (view + vote + comment), `READ_ONLY` (view only)
+- [x] 15.3 **Public workspace lobby** — discoverable public workspace feed (popular/recent), accessible without login
+- [x] 15.4 **"Continue without account"** — option on landing page that shows public workspace lobby with limited interactions based on access level
+- [x] 15.5 **Public workspace API** — public endpoints for listing and viewing workspace content without auth, with membership middleware bypass for public workspaces
 
-### Phase 16: Growth Features (post-v1.1) 🔲
-- [ ] 16.1 Email verification — emailVerification model field + email service + verify flow + optional middleware
-- [ ] 16.2 Public workspace popularity ranking — trending/sort by votes, comments, activity
-- [ ] 16.3 Invite/approval system for private workspaces
+### Phase 16: Polish & Growth (v1.2) ✅ — en `develop`
+> SDD completo. 31 tareas, 376 tests. Revertido de main a pedido del usuario; iterando en develop.
+- [x] **16-A Quick Wins** — F5 blank page, CTA → /explore, PublicRoute whitelist, em dashes
+- [x] **16-B UX Upgrades** — ConfirmDialog visibilidad, public board detail, Explore en sidebar, TopNavbar
+- [x] **16-C Growth Features** — email verification, workspace limits, seed "Bienvenido", verification badge
+
+### Phase 16-D: Polish Iteration ✅
+> Correcciones y mejoras sobre lo mergeado en develop. Bugs + UX pendientes de Phase 16.
+- [x] 16-D.1 **Fix navegación a boards públicos** — BoardCard ahora linkea a `/explore/:slug/:boardSlug`.
+- [x] 16-D.2 **Votar, postear y comentar en boards públicos** — PublicPostRow con controles gateados por accessLevel (READ_ONLY/INTERACT/FULL).
+- [x] 16-D.3 **Posts nuevos no se refrescan automáticamente** — query invalidation fixeada con prefijo `['posts', boardId]`.
+- [x] 16-D.4 **Botón hamburguesa** — agregado `lg:hidden`: visible solo en mobile, sidebar siempre visible en desktop.
+- [x] 16-D.5 **Eliminar "Continue without account" del homepage** — solo queda "See how it works" → /explore como Link.
+- [x] 16-D.6 **Mover notificaciones, theme toggle y perfil a la TopNavbar** — avatar dropdown (Settings/Sign out) + PendingInvitationsBell + ThemeToggle. Sidebar sin sección inferior.
+- [x] 16-D.7 **Link Explore solo en dashboard** — condicional: solo visible en `/w`, oculto dentro de un workspace.
+
+### Phase 17-A: Post Delete & Admin Settings 🔲
+> Endpoint de borrado de posts + toggle para que el owner decida si admins editan settings.
+- [ ] 17-A.1 **Delete posts** — endpoint DELETE /api/posts/:id, autorización: dueño del post O admin/owner del workspace.
+- [ ] 17-A.2 **Admins can edit settings toggle** — campo `adminsCanEditSettings` en Workspace, owner decide si admins pueden modificar config.
+
+### Phase 17-B: Permissions & Board Approval 🔲
+> Permisos granulares por workspace + flujo de aprobación de boards.
+- [ ] 17-B.1 **Permisos granulares por workspace** — owner configura quién crea boards, quién borra, quién comenta (owner, admins, members, nobody).
+- [ ] 17-B.2 **Aprobación de creación de boards** — miembros solicitan crear board; admin/owner aprueba o rechaza. Configurable: libre, con aprobación, o solo admins/owner.

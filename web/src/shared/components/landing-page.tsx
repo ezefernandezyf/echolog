@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { PageTitle } from '../../core/page-title';
 
@@ -48,7 +48,7 @@ export function LandingPage() {
             </span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Give every team their own space. Collect feedback, vote on ideas, ship what matters —
+            Give every team their own space. Collect feedback, vote on ideas, ship what matters -
             without the noise.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -60,22 +60,12 @@ export function LandingPage() {
               Get Started Free
               <span aria-hidden="true">&nbsp;→</span>
             </Button>
-            <Button
-              variant="outline"
-              className="h-12 px-8 text-base"
-              onClick={() => navigate('/login')}
+            <Link
+              to="/explore"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-card px-8 text-base font-medium tracking-[-0.01em] text-foreground transition-all duration-150 hover:bg-secondary active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               See how it works
-            </Button>
-          </div>
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={() => navigate('/explore')}
-              className="text-sm text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
-            >
-              Continue without account
-            </button>
+            </Link>
           </div>
           <p className="mt-5 text-sm text-muted-foreground">
             No credit card required · Free forever plan
@@ -111,7 +101,7 @@ export function LandingPage() {
 
       {/* Footer */}
       <footer className="mt-auto border-t border-border px-4 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] text-center text-sm text-muted-foreground">
-        Built with ♥ — EchoLog
+        Built with ♥ - EchoLog
       </footer>
     </main>
   );

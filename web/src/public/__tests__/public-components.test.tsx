@@ -27,7 +27,10 @@ import { PublicLayout } from '../public-layout';
 import { PublicLobby } from '../public-lobby';
 import { PublicWorkspaceView } from '../public-workspace-view';
 import { useAuthStore } from '../../auth/auth-store';
-import type { PublicWorkspaceDetailDTO, PublicWorkspaceListDTO } from '../../../../shared/contracts/index.js';
+import type {
+  PublicWorkspaceDetailDTO,
+  PublicWorkspaceListDTO,
+} from '../../../../shared/contracts/index.js';
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -363,5 +366,76 @@ describe('PublicWorkspaceView', () => {
     await waitFor(() => {
       expect(screen.getByText('Workspace not found.')).toBeInTheDocument();
     });
+  });
+
+  it('renders BoardCard links that include board slug', async () => {
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue(mockPublicWorkspaceDetail);
+    const queryClient = createQueryClient();
+
+    const { container } = render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/explore/public-alpha']}>
+          <Routes>
+            <Route path="/explore/:slug" element={<PublicWorkspaceView />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // Wait for board data to render
+    await waitFor(() => {
+      const headings = container.querySelectorAll('h3');
+      const boardNames = Array.from(headings).map((h) => h.textContent);
+      expect(boardNames).toContain('Feature Requests');
+      expect(boardNames).toContain('Bug Reports');
+    });
+
+    // BoardCard links should have href that includes board slug
+    const boardLinks = container.querySelectorAll('a[href*="/explore/public-alpha/"]');
+    expect(boardLinks.length).toBeGreaterThanOrEqual(2);
+
+    const hrefs = Array.from(boardLinks).map((el) => el.getAttribute('href'));
+    expect(hrefs).toContain('/explore/public-alpha/feature-requests');
+    expect(hrefs).toContain('/explore/public-alpha/bug-reports');
+  });
+
+  it('BoardCard link does not contain undefined when slug is missing', async () => {
+    vi.mocked(publicApi.getWorkspaceBySlug).mockResolvedValue({
+      ...mockPublicWorkspaceDetail,
+      boards: [
+        {
+          id: 'bd-no-slug',
+          name: 'No Slug Board',
+          slug: '',
+          postCount: 0,
+        },
+      ],
+    });
+    const queryClient = createQueryClient();
+
+    const { container } = render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/explore/public-alpha']}>
+          <Routes>
+            <Route path="/explore/:slug" element={<PublicWorkspaceView />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      const headings = container.querySelectorAll('h3');
+      const boardNames = Array.from(headings).map((h) => h.textContent);
+      expect(boardNames).toContain('No Slug Board');
+    });
+
+    const boardLinks = container.querySelectorAll('a[href*="/explore/public-alpha/"]');
+    expect(boardLinks.length).toBeGreaterThan(0);
+
+    const hrefs = Array.from(boardLinks).map((el) => el.getAttribute('href') ?? '');
+    for (const href of hrefs) {
+      expect(href).not.toContain('undefined');
+      expect(href).toContain('/explore/public-alpha');
+    }
   });
 });
