@@ -39,6 +39,7 @@ const sampleSession: AuthSessionDTO = {
     id: 'user-1',
     email: 'alice@echolog.dev',
     name: 'Alice',
+    emailVerified: false,
   },
 };
 
@@ -113,6 +114,32 @@ describe('Session bootstrap via useSession', () => {
     expect(useAuthStore.getState().session).toBeNull();
     expect(useAuthStore.getState().status).toBe('unauthenticated');
   });
+
+  it('preserves React Query cache when /api/auth/me returns 401', async () => {
+    vi.mocked(authApi.me).mockRejectedValue({ response: { status: 401 } });
+
+    const queryClient = createTestQueryClient();
+    // Pre-populate cache with data that should survive the 401 error
+    queryClient.setQueryData(['cached-key'], { value: 'should-survive' });
+
+    const { result } = renderHook(() => useSession(), {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    // Auth store should be cleared (clearSession was called)
+    expect(useAuthStore.getState().session).toBeNull();
+    expect(useAuthStore.getState().status).toBe('unauthenticated');
+
+    // React Query cache MUST be preserved — queryClient.clear() must NOT be called
+    const cachedData = queryClient.getQueryData(['cached-key']);
+    expect(cachedData).toEqual({ value: 'should-survive' });
+  });
 });
 
 // ===========================================================================
@@ -174,7 +201,7 @@ describe('ProtectedRoute', () => {
 });
 
 describe('PublicRoute', () => {
-  it('redirects to /w when authenticated', () => {
+  it('redirects to /w when authenticated on /login', () => {
     useAuthStore.setState({ session: sampleSession, status: 'authenticated' });
 
     render(
@@ -190,6 +217,79 @@ describe('PublicRoute', () => {
 
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.queryByText('Login Page')).not.toBeInTheDocument();
+  });
+
+  it('redirects to /w when authenticated on /register', () => {
+    useAuthStore.setState({ session: sampleSession, status: 'authenticated' });
+
+    render(
+      <MemoryRouter initialEntries={['/register']}>
+        <Routes>
+          <Route path="/w" element={<p>Home</p>} />
+          <Route element={<PublicRoute />}>
+            <Route path="/register" element={<p>Register Page</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.queryByText('Register Page')).not.toBeInTheDocument();
+  });
+
+  it('allows authenticated users to see the landing page at /', () => {
+    useAuthStore.setState({ session: sampleSession, status: 'authenticated' });
+
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/w" element={<p>Home</p>} />
+          <Route element={<PublicRoute />}>
+            <Route path="/" element={<p>Landing Page</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    // Should NOT redirect to /w — should render the landing page
+    expect(screen.getByText('Landing Page')).toBeInTheDocument();
+    expect(screen.queryByText('Home')).not.toBeInTheDocument();
+  });
+
+  it('allows authenticated users to browse /explore', () => {
+    useAuthStore.setState({ session: sampleSession, status: 'authenticated' });
+
+    render(
+      <MemoryRouter initialEntries={['/explore']}>
+        <Routes>
+          <Route path="/w" element={<p>Home</p>} />
+          <Route element={<PublicRoute />}>
+            <Route path="/explore" element={<p>Explore Feed</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Explore Feed')).toBeInTheDocument();
+    expect(screen.queryByText('Home')).not.toBeInTheDocument();
+  });
+
+  it('allows authenticated users to browse /explore/:slug', () => {
+    useAuthStore.setState({ session: sampleSession, status: 'authenticated' });
+
+    render(
+      <MemoryRouter initialEntries={['/explore/some-workspace']}>
+        <Routes>
+          <Route path="/w" element={<p>Home</p>} />
+          <Route element={<PublicRoute />}>
+            <Route path="/explore/:slug" element={<p>Workspace View</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Workspace View')).toBeInTheDocument();
+    expect(screen.queryByText('Home')).not.toBeInTheDocument();
   });
 
   it('renders login form when unauthenticated', () => {

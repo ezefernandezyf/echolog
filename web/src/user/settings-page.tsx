@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useState } from 'react';
 import type { z } from 'zod';
 import { Button } from '../shared/components/ui/button';
 import { Input } from '../shared/components/ui/input';
@@ -11,6 +12,7 @@ import { CharCounter } from '../shared/components/ui/char-counter';
 import { mapServerErrors } from '../shared/lib/map-server-errors';
 import { useUpdateProfile, useUpdateEmail, useUpdatePassword } from '../hooks/use-auth';
 import { useAuthStore } from '../auth/auth-store';
+import { authApi } from '../api/auth';
 import { PageTitle } from '../core/page-title';
 import {
   updateProfileSchema,
@@ -21,6 +23,19 @@ import {
 export function UserSettingsPage() {
   const user = useAuthStore((state) => state.session?.user);
   const patchUser = useAuthStore((state) => state.patchUser);
+  const [resending, setResending] = useState(false);
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    try {
+      await authApi.resendVerification();
+      toast.success('Verification email sent');
+    } catch {
+      toast.error('Failed to send verification email');
+    } finally {
+      setResending(false);
+    }
+  };
 
   // --- Profile form ---
   const {
@@ -88,6 +103,39 @@ export function UserSettingsPage() {
             Settings
           </span>
         </nav>
+
+        {/* Section 0: Verification Status */}
+        <section className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold text-foreground">Email Verification</h2>
+              <p className="text-sm text-muted-foreground">
+                Verified accounts can create up to 20 workspaces.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {user?.emailVerified ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                  <span aria-hidden="true">✓</span> Verified
+                </span>
+              ) : (
+                <>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                    <span aria-hidden="true">⚠</span> Unverified
+                  </span>
+                  <Button
+                    variant="outline"
+                    className="min-h-9 px-3 text-xs"
+                    disabled={resending}
+                    onClick={handleResendVerification}
+                  >
+                    {resending ? 'Sending...' : 'Resend verification email'}
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
 
         {/* Section 1: Profile */}
         <section className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">

@@ -17,7 +17,6 @@ import type {
 export const AUTH_QUERY_KEYS = queryKeys.auth;
 
 export function useSession() {
-  const queryClient = useQueryClient();
   const setSession = useAuthStore((state) => state.setSession);
   const clearSession = useAuthStore((state) => state.clearSession);
 
@@ -36,9 +35,8 @@ export function useSession() {
   useEffect(() => {
     if (sessionQuery.isError) {
       clearSession();
-      queryClient.clear();
     }
-  }, [clearSession, queryClient, sessionQuery.isError]);
+  }, [clearSession, sessionQuery.isError]);
 
   return sessionQuery;
 }

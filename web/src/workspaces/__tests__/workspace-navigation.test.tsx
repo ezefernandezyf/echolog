@@ -110,7 +110,7 @@ beforeEach(() => {
   mockNavigate.mockClear();
   useUiStore.setState({ sidebarOpen: true, activeModal: null, notification: null });
   useAuthStore.setState({
-    session: { user: { id: 'test-user-id', email: 'test@test.com', name: 'Test User' } },
+    session: { user: { id: 'test-user-id', email: 'test@test.com', name: 'Test User', emailVerified: false } },
     status: 'authenticated' as const,
   });
 });

@@ -16,6 +16,7 @@ vi.mock('../../api/auth', () => ({
     updateProfile: vi.fn(),
     updateEmail: vi.fn(),
     updatePassword: vi.fn(),
+    resendVerification: vi.fn(),
   },
 }));
 
@@ -54,7 +55,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({
     session: {
-      user: { id: 'user-1', email: 'alice@test.com', name: 'Alice' },
+      user: { id: 'user-1', email: 'alice@test.com', name: 'Alice', emailVerified: false },
     },
     status: 'authenticated' as const,
   });
@@ -90,7 +91,7 @@ describe('UserSettingsPage', () => {
   it('updates profile name on form submission', async () => {
     const user = userEvent.setup();
     vi.mocked(authApi.updateProfile).mockResolvedValue({
-      user: { id: 'user-1', email: 'alice@test.com', name: 'Alice Updated' },
+      user: { id: 'user-1', email: 'alice@test.com', name: 'Alice Updated', emailVerified: false },
     } as any);
 
     render(<UserSettingsPage />, { wrapper: TestWrapper });
@@ -111,7 +112,7 @@ describe('UserSettingsPage', () => {
   it('updates email on form submission', async () => {
     const user = userEvent.setup();
     vi.mocked(authApi.updateEmail).mockResolvedValue({
-      user: { id: 'user-1', email: 'newemail@test.com', name: 'Alice' },
+      user: { id: 'user-1', email: 'newemail@test.com', name: 'Alice', emailVerified: false },
     } as any);
 
     render(<UserSettingsPage />, { wrapper: TestWrapper });
@@ -194,5 +195,56 @@ describe('UserSettingsPage', () => {
     render(<UserSettingsPage />, { wrapper: TestWrapper });
 
     expect(screen.getByPlaceholderText('At least 8 characters')).toBeInTheDocument();
+  });
+
+  // ── Verification badge ───────────────────────────────────────────────
+
+  it('shows unverified badge when emailVerified is false', () => {
+    useAuthStore.setState({
+      session: {
+        user: { id: 'user-1', email: 'alice@test.com', name: 'Alice', emailVerified: false },
+      },
+      status: 'authenticated' as const,
+    });
+
+    render(<UserSettingsPage />, { wrapper: TestWrapper });
+
+    expect(screen.getByText('Unverified')).toBeInTheDocument();
+    expect(screen.getByText('Resend verification email')).toBeInTheDocument();
+  });
+
+  it('shows verified badge when emailVerified is true', () => {
+    useAuthStore.setState({
+      session: {
+        user: { id: 'user-1', email: 'alice@test.com', name: 'Alice', emailVerified: true },
+      },
+      status: 'authenticated' as const,
+    });
+
+    render(<UserSettingsPage />, { wrapper: TestWrapper });
+
+    expect(screen.getByText('Verified')).toBeInTheDocument();
+    // Resend button should NOT be present when verified
+    expect(screen.queryByText('Resend verification email')).not.toBeInTheDocument();
+  });
+
+  it('sends resend verification request on button click', async () => {
+    const user = userEvent.setup();
+    useAuthStore.setState({
+      session: {
+        user: { id: 'user-1', email: 'alice@test.com', name: 'Alice', emailVerified: false },
+      },
+      status: 'authenticated' as const,
+    });
+    vi.mocked(authApi.resendVerification).mockResolvedValue({ message: 'sent' } as any);
+
+    render(<UserSettingsPage />, { wrapper: TestWrapper });
+
+    const resendButton = screen.getByText('Resend verification email');
+    await user.click(resendButton);
+
+    await waitFor(() => {
+      expect(authApi.resendVerification).toHaveBeenCalled();
+    });
   });
 });

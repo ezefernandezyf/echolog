@@ -1,5 +1,6 @@
 import { fetchJson } from './client';
 import type {
+  PublicBoardDetailDTO,
   PublicWorkspaceDetailDTO,
   PublicWorkspaceListDTO,
   UpdateVisibilityDTO,
@@ -14,6 +15,10 @@ export const publicApi = {
   getWorkspaceBySlug: (slug: string) =>
     fetchJson<PublicWorkspaceDetailDTO>({
       url: `/workspaces/public/${slug}`,
+    }),
+  getBoardBySlug: (slug: string, boardSlug: string) =>
+    fetchJson<PublicBoardDetailDTO>({
+      url: `/workspaces/public/${slug}/boards/${boardSlug}`,
     }),
   updateVisibility: (workspaceId: string, data: UpdateVisibilityDTO) =>
     fetchJson<WorkspaceDTO, UpdateVisibilityDTO>({

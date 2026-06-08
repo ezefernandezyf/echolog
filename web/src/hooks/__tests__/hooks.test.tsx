@@ -111,7 +111,7 @@ const sampleBoards = [
 ];
 
 const sampleSession = {
-  user: { id: 'user-1', email: 'alice@echolog.dev', name: 'Alice' },
+  user: { id: 'user-1', email: 'alice@echolog.dev', name: 'Alice', emailVerified: false },
 };
 
 // ---------------------------------------------------------------------------

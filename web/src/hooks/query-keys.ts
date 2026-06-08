@@ -46,5 +46,6 @@ export const queryKeys = {
   public: {
     workspaces: (sort?: 'recent' | 'popular') => ['public-workspaces', sort ?? 'recent'] as const,
     workspaceDetail: (slug: string) => ['public-workspace', slug] as const,
+    boardDetail: (slug: string, boardSlug: string) => ['public-board', slug, boardSlug] as const,
   },
 };
