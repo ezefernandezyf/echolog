@@ -83,7 +83,7 @@ export const resendVerification = async (req: Request, res: Response) => {
 };
 
 export const verifyEmail = async (req: Request, res: Response) => {
-  const { token } = req.params;
+  const token = req.params.token as string;
   const result = await authService.verifyEmail(token);
   res.status(200).json(result);
 };
