@@ -81,3 +81,9 @@ export const resendVerification = async (req: Request, res: Response) => {
   const result = await authService.resendVerification(req.userId!);
   res.status(200).json(result);
 };
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  const { token } = req.params;
+  const result = await authService.verifyEmail(token);
+  res.status(200).json(result);
+};
