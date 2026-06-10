@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginForm } from '../auth/components/login-form';
 import { RegisterForm } from '../auth/components/register-form';
+import { VerifyEmailPage } from '../auth/components/verify-email-page';
 import { ProtectedRoute, PublicRoute } from '../auth/auth-guard';
 import { AuthenticatedLayout } from '../auth/authenticated-layout';
 import { BoardLayout } from '../boards/components/board-layout';
@@ -27,8 +28,9 @@ export function AppRouter() {
         <Route path="/register" element={<RegisterForm />} />
       </Route>
 
-      {/* Public invitation route — no auth required, but checks inside */}
+      {/* Public routes — no auth required */}
       <Route path="/invite/:token" element={<AcceptInvitationPage />} />
+      <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
       {/* Public discovery — accessible to everyone */}
       <Route element={<PublicLayout />}>
