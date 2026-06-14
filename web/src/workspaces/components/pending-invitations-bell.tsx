@@ -55,7 +55,7 @@ export function PendingInvitationsBell() {
       {open ? (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
-          <div className="absolute bottom-full left-0 z-50 mb-2 w-80 animate-fade-in rounded-2xl border border-border bg-card shadow-lg">
+          <div className="absolute top-full right-0 z-50 mt-2 w-80 animate-fade-in rounded-2xl border border-border bg-card shadow-lg">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <p className="text-sm font-semibold text-foreground">Notifications</p>
               {notifications.length > 0 ? (
