@@ -197,12 +197,19 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 16-D.6 **Mover notificaciones, theme toggle y perfil a la TopNavbar** — avatar dropdown (Settings/Sign out) + PendingInvitationsBell + ThemeToggle. Sidebar sin sección inferior.
 - [x] 16-D.7 **Link Explore solo en dashboard** — condicional: solo visible en `/w`, oculto dentro de un workspace.
 
-### Phase 17-A: Post Delete & Admin Settings 🔲
-> Endpoint de borrado de posts + toggle para que el owner decida si admins editan settings.
-- [ ] 17-A.1 **Delete posts** — endpoint DELETE /api/posts/:id, autorización: dueño del post O admin/owner del workspace.
-- [ ] 17-A.2 **Admins can edit settings toggle** — campo `adminsCanEditSettings` en Workspace, owner decide si admins pueden modificar config.
+### Phase 17-A: Post Delete & Admin Settings ✅
+> Endpoint de borrado de posts + toggle para que el owner decida si admins editan settings. SDD completo, 17 tareas.
+- [x] 17-A.1 **Delete posts** ✅ — endpoint DELETE /api/posts/:id, autorización: dueño del post O admin/owner del workspace.
+- [x] 17-A.2 **Admins can edit settings toggle** ✅ — campo `adminsCanEditSettings` en Workspace, owner decide si admins pueden modificar config.
 
-### Phase 17-B: Permissions & Board Approval 🔲
-> Permisos granulares por workspace + flujo de aprobación de boards.
-- [ ] 17-B.1 **Permisos granulares por workspace** — owner configura quién crea boards, quién borra, quién comenta (owner, admins, members, nobody).
-- [ ] 17-B.2 **Aprobación de creación de boards** — miembros solicitan crear board; admin/owner aprueba o rechaza. Configurable: libre, con aprobación, o solo admins/owner.
+### Phase 17-B: Permissions & Board Approval ✅
+> Permisos granulares por workspace + flujo de aprobación de boards. SDD completo, 12 tareas, 5 PRs en feature-branch-chain.
+- [x] 17-B.1 **Permisos granulares por workspace** ✅ — owner configura quién crea boards, quién borra, quién comenta (owner, admins, members, nobody).
+- [x] 17-B.2 **Aprobación de creación de boards** ✅ — miembros solicitan crear board; admin/owner aprueba o rechaza. Configurable: libre, con aprobación, o solo admins/owner.
+
+### Phase 18: Design System Polish (v1.2) ✅
+> Correcciones de diseño post-auditoría: eliminar AI tells, hardcoded colors, y polish de landing page. Basado en auditoría con skills impeccable + design-taste-frontend. 3 subfases SDD completadas.
+
+- [x] **18.1 Icon library & reemplazo de emojis** ✅ — instalado `@phosphor-icons/react`, reemplazados 21 emojis decorativos en 9 archivos. Tree-shakeable, ~16KB total.
+- [x] **18.2 Landing page cleanup** ✅ — gradient text → solid `text-accent`, CTA con `<Button variant="accent">` (nueva variant en Button), `PageTitle` con título real, footer profesional, `group` huérfano removido.
+- [x] **18.3 Hardcoded colors & accessibility polish** ✅ — `bg-emerald-100` → `bg-success/15`, `bg-red-100` → `bg-destructive/15`, `bg-amber-100` → `bg-warning/15`. ARIA: `aria-live="polite"` + `role="status"` en CharCounter, `role="status"` en Badge, `aria-expanded` en avatar dropdown.

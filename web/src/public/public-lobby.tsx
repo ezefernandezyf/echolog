@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { GlobeHemisphereWest } from '@phosphor-icons/react';
 import { usePublicWorkspaces } from '../hooks/use-public-workspaces';
 import { publicApi } from '../api/public';
 import { Button } from '../shared/components/ui/button';
@@ -56,7 +57,10 @@ export function PublicLobby() {
   };
 
   return (
-    <main id="main-content" className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14 animate-fade-in">
+    <main
+      id="main-content"
+      className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14 animate-fade-in"
+    >
       <PageTitle title="Discover Workspaces" />
 
       {/* Header */}
@@ -100,10 +104,7 @@ export function PublicLobby() {
       {isPending && allWorkspaces.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-40 animate-pulse rounded-2xl border border-border bg-card"
-            />
+            <div key={i} className="h-40 animate-pulse rounded-2xl border border-border bg-card" />
           ))}
         </div>
       ) : null}
@@ -120,7 +121,11 @@ export function PublicLobby() {
       {/* Empty */}
       {!isPending && !isError && allWorkspaces.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="text-2xl">🌍</p>
+          <GlobeHemisphereWest
+            size={48}
+            className="mx-auto text-muted-foreground/50"
+            aria-hidden="true"
+          />
           <p className="mt-3 text-sm text-muted-foreground">
             No public workspaces yet. Be the first to share!
           </p>

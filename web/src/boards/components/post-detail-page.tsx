@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { CaretUp } from '@phosphor-icons/react';
 import { Badge } from '../../shared/components/ui/badge';
 import { Button } from '../../shared/components/ui/button';
 import { cn } from '../../shared/lib/cn';
@@ -250,7 +251,7 @@ export function PostDetailPage() {
                   : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground',
               )}
             >
-              <span className="text-sm leading-none">▲</span>
+              <CaretUp size={16} weight={post.isUpvoted ? 'fill' : 'regular'} />
               <span>{post.voteCount}</span>
             </button>
 
