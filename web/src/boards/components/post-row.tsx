@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { CaretUp, ChatCircle } from '@phosphor-icons/react';
 import { Badge } from '../../shared/components/ui/badge';
 import { cn } from '../../shared/lib/cn';
 import { postApi } from '../../api/posts';
@@ -221,7 +222,7 @@ export function PostRow({ post, boardId }: PostRowProps) {
               : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground',
           )}
         >
-          <span className="text-sm leading-none">▲</span>
+          <CaretUp size={16} weight={post.isUpvoted ? 'fill' : 'regular'} />
           <span>{post.upvotes}</span>
         </button>
 
@@ -256,9 +257,10 @@ export function PostRow({ post, boardId }: PostRowProps) {
           <button
             type="button"
             onClick={() => setShowComments(!showComments)}
+            aria-label={`Toggle comments for ${post.title}`}
             className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-secondary-foreground shadow-sm shadow-black/[0.02] hover:bg-secondary max-sm:min-h-[44px]"
           >
-            <span className="text-muted-foreground">◎</span>
+            <ChatCircle size={16} />
             {post.comments} comment{post.comments !== 1 ? 's' : ''}
           </button>
 

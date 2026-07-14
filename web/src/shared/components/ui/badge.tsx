@@ -18,6 +18,7 @@ export function Badge({ ref, className, variant = 'secondary', ...props }: Badge
   return (
     <span
       ref={ref}
+      role="status"
       className={cn(
         'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium leading-none tracking-[0.08em] font-mono',
         variantClasses[variant],

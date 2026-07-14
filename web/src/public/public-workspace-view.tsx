@@ -2,6 +2,7 @@
 
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { MagnifyingGlass, ChatCircleText, Rocket } from '@phosphor-icons/react';
 import { publicApi } from '../api/public';
 import { useAuthStore } from '../auth/auth-store';
 import { Button } from '../shared/components/ui/button';
@@ -61,7 +62,11 @@ export function PublicWorkspaceView() {
     return (
       <main className="mx-auto w-full max-w-4xl px-4 py-10 animate-fade-in">
         <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="text-2xl">🔍</p>
+          <MagnifyingGlass
+            size={48}
+            className="mx-auto text-muted-foreground/50"
+            aria-hidden="true"
+          />
           <p className="mt-3 text-sm text-muted-foreground">Workspace not found.</p>
           <Link
             to="/explore"
@@ -145,8 +150,11 @@ export function PublicWorkspaceView() {
       {isLoggedIn && workspace.publicAccessLevel === 'INTERACT' ? (
         <div className="mb-6 rounded-xl border border-accent/20 bg-accent/5 p-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-sm">
-              💬
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-sm"
+              aria-hidden="true"
+            >
+              <ChatCircleText size={16} className="inline-block align-middle" />
             </span>
             <p className="text-sm text-muted-foreground">
               <strong className="text-foreground">Interact mode:</strong> You can vote and comment
@@ -166,8 +174,11 @@ export function PublicWorkspaceView() {
       {isLoggedIn && workspace.publicAccessLevel === 'FULL' ? (
         <div className="mb-6 rounded-xl border border-accent/20 bg-accent/5 p-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-sm">
-              🚀
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-sm"
+              aria-hidden="true"
+            >
+              <Rocket size={16} className="inline-block align-middle" />
             </span>
             <p className="text-sm text-muted-foreground">
               <strong className="text-foreground">Full access mode:</strong> You can create boards

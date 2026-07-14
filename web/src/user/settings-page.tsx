@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import type { z } from 'zod';
+import { Check, Warning } from '@phosphor-icons/react';
 import { Button } from '../shared/components/ui/button';
 import { Input } from '../shared/components/ui/input';
 import { CharCounter } from '../shared/components/ui/char-counter';
@@ -115,13 +116,25 @@ export function UserSettingsPage() {
             </div>
             <div className="flex items-center gap-3">
               {user?.emailVerified ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                  <span aria-hidden="true">✓</span> Verified
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-3 py-1 text-sm font-medium text-success dark:bg-success/10 dark:text-success-foreground">
+                  <Check
+                    size={12}
+                    className="inline-block align-middle"
+                    weight="bold"
+                    aria-hidden="true"
+                  />{' '}
+                  Verified
                 </span>
               ) : (
                 <>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                    <span aria-hidden="true">⚠</span> Unverified
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/15 px-3 py-1 text-sm font-medium text-warning dark:bg-warning/10 dark:text-warning-foreground">
+                    <Warning
+                      size={12}
+                      className="inline-block align-middle"
+                      weight="bold"
+                      aria-hidden="true"
+                    />{' '}
+                    Unverified
                   </span>
                   <Button
                     variant="outline"

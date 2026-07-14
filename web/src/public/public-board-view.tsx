@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { CaretUp, CaretDown, ChatCircle, MagnifyingGlass } from '@phosphor-icons/react';
 import { publicApi } from '../api/public';
 import { voteApi } from '../api/votes';
 import { commentApi } from '../api/comments';
@@ -90,7 +91,11 @@ function PublicPostRow({ post, workspaceSlug, accessLevel, isAuthenticated }: Pu
             aria-label={`Upvote ${post.title}`}
             className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 transition-colors hover:border-primary/30 hover:text-foreground disabled:opacity-50 min-w-[44px] min-h-[44px]"
           >
-            <span className="text-sm leading-none">{post.isUpvoted ? '▼' : '▲'}</span>
+            {post.isUpvoted ? (
+              <CaretDown size={16} weight="fill" />
+            ) : (
+              <CaretUp size={16} weight="regular" />
+            )}
             <strong className="text-foreground">{post.voteCount}</strong>
           </button>
         ) : (
@@ -107,7 +112,7 @@ function PublicPostRow({ post, workspaceSlug, accessLevel, isAuthenticated }: Pu
             aria-label={`Toggle comments for ${post.title}`}
             className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 transition-colors hover:border-primary/30 hover:text-foreground min-w-[44px] min-h-[44px]"
           >
-            <span className="text-muted-foreground">◎</span>
+            <ChatCircle size={16} />
             <strong className="text-foreground">{post.commentCount}</strong> comment
             {post.commentCount !== 1 ? 's' : ''}
           </button>
@@ -184,7 +189,11 @@ export function PublicBoardView() {
     return (
       <main className="mx-auto w-full max-w-4xl px-4 py-10 animate-fade-in">
         <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="text-2xl">🔍</p>
+          <MagnifyingGlass
+            size={48}
+            className="mx-auto text-muted-foreground/50"
+            aria-hidden="true"
+          />
           <p className="mt-3 text-sm text-muted-foreground">Board not found.</p>
           <Link
             to="/explore"

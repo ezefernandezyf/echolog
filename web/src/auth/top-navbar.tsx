@@ -72,6 +72,7 @@ export function TopNavbar({ onToggleSidebar }: TopNavbarProps) {
               type="button"
               onClick={() => setShowAvatarDropdown(!showAvatarDropdown)}
               aria-label="User menu"
+              aria-expanded={showAvatarDropdown}
               className="flex size-10 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white transition-opacity hover:opacity-90"
             >
               {initials}

@@ -14,7 +14,7 @@ export function CharCounter({ current, max, showAt = 0.75, className }: CharCoun
     ratio >= 1 ? 'text-destructive' : ratio >= 0.9 ? 'text-warning' : 'text-muted-foreground';
 
   return (
-    <p className={`text-xs ${colorClass} ${className ?? ''}`}>
+    <p aria-live="polite" role="status" className={`text-xs ${colorClass} ${className ?? ''}`}>
       {current}/{max}
     </p>
   );
