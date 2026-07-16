@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -25,7 +26,11 @@ export function BoardRequestForm({ workspaceId, open, onClose }: BoardRequestFor
     setValue,
     reset,
     formState: { errors, isDirty },
-  } = useForm<z.input<typeof createBoardRequestSchema>, undefined, z.output<typeof createBoardRequestSchema>>({
+  } = useForm<
+    z.input<typeof createBoardRequestSchema>,
+    undefined,
+    z.output<typeof createBoardRequestSchema>
+  >({
     resolver: zodResolver(createBoardRequestSchema),
     defaultValues: { boardName: '', boardSlug: '' },
   });
@@ -34,10 +39,13 @@ export function BoardRequestForm({ workspaceId, open, onClose }: BoardRequestFor
   const createRequestMutation = useCreateBoardRequest(workspaceId);
 
   // Auto-generate slug from board name
-  if (boardName.trim()) {
-    const autoSlug = slugify(boardName);
-    setValue('boardSlug', autoSlug, { shouldValidate: true });
-  }
+  useEffect(() => {
+    if (boardName.trim()) {
+      setValue('boardSlug', slugify(boardName), { shouldValidate: true });
+    } else {
+      setValue('boardSlug', '', { shouldValidate: false });
+    }
+  }, [boardName, setValue]);
 
   return (
     <Modal open={open} onClose={onClose} aria-label="Request Board">
