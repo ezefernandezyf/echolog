@@ -16,7 +16,13 @@ import { useAuthStore } from '../../auth/auth-store';
 import { useWorkspaces } from '../../hooks/use-workspaces';
 import { useUpdateWorkspace, useDeleteWorkspace } from '../../hooks/use-workspaces';
 import { useUpdateVisibility } from '../../hooks/use-public-workspaces';
-import type { UpdateWorkspaceDTO, Visibility, PublicAccessLevel, WorkspacePermissionLevel, BoardCreationPolicy } from '../../../../shared/contracts/index.js';
+import type {
+  UpdateWorkspaceDTO,
+  Visibility,
+  PublicAccessLevel,
+  WorkspacePermissionLevel,
+  BoardCreationPolicy,
+} from '../../../../shared/contracts/index.js';
 import { updateWorkspaceSchema } from '../../../../shared/contracts/index.js';
 import { PageTitle } from '../../core/page-title';
 
@@ -63,7 +69,9 @@ export function WorkspaceSettingsPage() {
 
   const isOwner = workspace?.role === 'OWNER';
   const [visibility, setVisibility] = useState<Visibility>(workspace?.visibility ?? 'PRIVATE');
-  const [publicAccessLevel, setPublicAccessLevel] = useState<PublicAccessLevel>(workspace?.publicAccessLevel ?? 'READ_ONLY');
+  const [publicAccessLevel, setPublicAccessLevel] = useState<PublicAccessLevel>(
+    workspace?.publicAccessLevel ?? 'READ_ONLY',
+  );
 
   if (workspaceQuery.isPending) {
     return (
@@ -232,7 +240,9 @@ export function WorkspaceSettingsPage() {
                     },
                     {
                       onError: (error) => {
-                        toast.error(error instanceof Error ? error.message : 'Failed to update setting');
+                        toast.error(
+                          error instanceof Error ? error.message : 'Failed to update setting',
+                        );
                       },
                     },
                   );
@@ -259,7 +269,10 @@ export function WorkspaceSettingsPage() {
             </div>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground" id="perm-board-creation-label">
+              <span
+                className="text-sm font-medium text-secondary-foreground"
+                id="perm-board-creation-label"
+              >
                 Board Creation
               </span>
               <select
@@ -274,7 +287,9 @@ export function WorkspaceSettingsPage() {
                     },
                     {
                       onError: (error) => {
-                        toast.error(error instanceof Error ? error.message : 'Failed to update permission');
+                        toast.error(
+                          error instanceof Error ? error.message : 'Failed to update permission',
+                        );
                       },
                     },
                   );
@@ -290,7 +305,10 @@ export function WorkspaceSettingsPage() {
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground" id="perm-board-deletion-label">
+              <span
+                className="text-sm font-medium text-secondary-foreground"
+                id="perm-board-deletion-label"
+              >
                 Board Deletion
               </span>
               <select
@@ -305,7 +323,9 @@ export function WorkspaceSettingsPage() {
                     },
                     {
                       onError: (error) => {
-                        toast.error(error instanceof Error ? error.message : 'Failed to update permission');
+                        toast.error(
+                          error instanceof Error ? error.message : 'Failed to update permission',
+                        );
                       },
                     },
                   );
@@ -321,7 +341,10 @@ export function WorkspaceSettingsPage() {
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground" id="perm-commenting-label">
+              <span
+                className="text-sm font-medium text-secondary-foreground"
+                id="perm-commenting-label"
+              >
                 Commenting
               </span>
               <select
@@ -336,7 +359,9 @@ export function WorkspaceSettingsPage() {
                     },
                     {
                       onError: (error) => {
-                        toast.error(error instanceof Error ? error.message : 'Failed to update permission');
+                        toast.error(
+                          error instanceof Error ? error.message : 'Failed to update permission',
+                        );
                       },
                     },
                   );
@@ -352,7 +377,10 @@ export function WorkspaceSettingsPage() {
             </label>
 
             <label className="block space-y-2">
-              <span className="text-sm font-medium text-secondary-foreground" id="perm-board-creation-policy-label">
+              <span
+                className="text-sm font-medium text-secondary-foreground"
+                id="perm-board-creation-policy-label"
+              >
                 Board Creation Policy
               </span>
               <select
@@ -367,7 +395,9 @@ export function WorkspaceSettingsPage() {
                     },
                     {
                       onError: (error) => {
-                        toast.error(error instanceof Error ? error.message : 'Failed to update policy');
+                        toast.error(
+                          error instanceof Error ? error.message : 'Failed to update policy',
+                        );
                       },
                     },
                   );
@@ -375,9 +405,13 @@ export function WorkspaceSettingsPage() {
                 className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 disabled={updateWorkspaceMutation.isPending}
               >
-                <option value="FREE">Free — anyone with board creation permission can create</option>
-                <option value="APPROVAL_REQUIRED">Approval Required — members request, admins approve</option>
-                <option value="ADMINS_ONLY">Admins Only — only admins/owner can create</option>
+                <option value="FREE">
+                  Free - anyone with board creation permission can create
+                </option>
+                <option value="APPROVAL_REQUIRED">
+                  Approval Required - members request, admins approve
+                </option>
+                <option value="ADMINS_ONLY">Admins Only - only admins/owner can create</option>
               </select>
             </label>
           </section>
@@ -420,7 +454,9 @@ export function WorkspaceSettingsPage() {
 
               {visibility === 'PUBLIC' ? (
                 <label className="block space-y-2">
-                  <span className="text-sm font-medium text-secondary-foreground">Access Level</span>
+                  <span className="text-sm font-medium text-secondary-foreground">
+                    Access Level
+                  </span>
                   <select
                     id="workspace-access-level"
                     value={publicAccessLevel}
@@ -519,7 +555,9 @@ export function WorkspaceSettingsPage() {
               data: {
                 visibility: pendingVisibility,
                 publicAccessLevel:
-                  pendingVisibility === 'PUBLIC' ? (pendingAccessLevel ?? publicAccessLevel) : undefined,
+                  pendingVisibility === 'PUBLIC'
+                    ? (pendingAccessLevel ?? publicAccessLevel)
+                    : undefined,
               },
             },
             {

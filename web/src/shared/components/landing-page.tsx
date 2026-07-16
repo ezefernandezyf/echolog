@@ -35,7 +35,7 @@ export function LandingPage() {
 
   return (
     <main id="main-content" className="flex min-h-screen flex-col bg-background text-foreground">
-      <PageTitle title="EchoLog — Feedback Platform" />
+      <PageTitle title="Feedback Platform" />
       {/* Hero */}
       <header className="relative flex flex-col items-center px-4 py-24 sm:py-32 lg:py-40">
         <div
