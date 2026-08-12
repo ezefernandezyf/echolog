@@ -13,6 +13,8 @@ import { CharCounter } from '../../shared/components/ui/char-counter';
 import { mapServerErrors } from '../../shared/lib/map-server-errors';
 import { slugify } from '../../../../shared/lib/slugify';
 import { useBoards, useUpdateBoard, useDeleteBoard } from '../../hooks/use-boards';
+import { useWorkspaces } from '../../hooks/use-workspaces';
+import { useAuthStore } from '../../auth/auth-store';
 import type { UpdateBoardDTO } from '../../../../shared/contracts/index.js';
 import { updateBoardSchema } from '../../../../shared/contracts/index.js';
 import { PageTitle } from '../../core/page-title';
@@ -22,10 +24,21 @@ export function BoardSettingsPage() {
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  const userId = useAuthStore((state) => state.session?.user?.id);
+
+  // Real origin (dev or deployed) — never hardcode a domain here
+  const origin = window.location.origin;
+
   const boardsQuery = useBoards(workspaceId);
 
   const board = Array.isArray(boardsQuery.data)
     ? boardsQuery.data.find((b) => b.id === boardId)
+    : null;
+
+  // Workspace lookup (from cache) to show the real public URL of this board
+  const workspacesQuery = useWorkspaces(userId);
+  const workspace = Array.isArray(workspacesQuery.data)
+    ? workspacesQuery.data.find((w) => w.id === workspaceId)
     : null;
 
   const {
@@ -173,7 +186,22 @@ export function BoardSettingsPage() {
                 {...register('slug')}
               />
               <p className="text-xs text-muted-foreground">
-                Used in URLs: /w/acme/feature-requests
+                Member URL:{' '}
+                <span className="font-medium text-foreground">
+                  {origin}/w/{board.workspaceId}/b/{boardId}
+                </span>
+              </p>
+              {workspace ? (
+                <p className="text-xs text-muted-foreground">
+                  Public URL:{' '}
+                  <span className="font-medium text-foreground">
+                    {origin}/explore/{workspace.slug}/{board.slug}
+                  </span>
+                </p>
+              ) : null}
+              <p className="text-xs text-muted-foreground">
+                The slug only affects the public page URL. Changing it will break previously shared
+                public links.
               </p>
               {errors.slug ? (
                 <p id="board-settings-slug-error" role="alert" className="text-sm text-destructive">

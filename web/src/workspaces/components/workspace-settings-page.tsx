@@ -36,6 +36,9 @@ export function WorkspaceSettingsPage() {
 
   const userId = useAuthStore((state) => state.session?.user?.id);
 
+  // Real origin (dev or deployed) — never hardcode a domain here
+  const origin = window.location.origin;
+
   // Get workspace from the query cache
   const workspaceQuery = useWorkspaces(userId);
 
@@ -193,7 +196,20 @@ export function WorkspaceSettingsPage() {
                 {...register('slug')}
               />
               <p className="text-xs text-muted-foreground">
-                Used in URLs: echolog.app/w/{workspace.slug}
+                Member URL:{' '}
+                <span className="font-medium text-foreground">
+                  {origin}/w/{workspace.id}
+                </span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Public URL:{' '}
+                <span className="font-medium text-foreground">
+                  {origin}/explore/{workspace.slug}
+                </span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                The slug only affects the public page URL. Changing it will break previously shared
+                public links.
               </p>
               {errors.slug ? (
                 <p
