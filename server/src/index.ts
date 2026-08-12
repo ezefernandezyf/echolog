@@ -11,7 +11,7 @@ if (process.env.NODE_ENV !== 'test') {
     ? process.env.DATABASE_URL.split('@')[1]?.split('/')[0] ?? 'unknown'
     : 'not set';
 
-  // Retry DB connection on startup — Neon may be waking from auto-suspend
+  // Retry DB connection on startup — managed Postgres may be waking from auto-suspend
   const MAX_RETRIES = 10;
   const RETRY_DELAY_MS = 3000;
 

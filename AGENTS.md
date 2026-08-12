@@ -4,7 +4,7 @@
 
 ## Stack
 - **Frontend**: React 19 + TypeScript + Vite + Tailwind 4 + React Router 7
-- **Backend**: Node.js + Express + TypeScript + Prisma (SQLite dev, Postgres prod)
+- **Backend**: Node.js + Express + TypeScript + Prisma (PostgreSQL en todos los ambientes — no se usa SQLite)
 - **State**: React Query (server) + Zustand (UI)
 - **Auth**: JWT in httpOnly cookies (no localStorage)
 - **Validation**: Zod (shared contracts in `shared/contracts/`)
@@ -130,7 +130,7 @@ pnpm run dev:web          # terminal 2: frontend on :5173
 - [x] 9.4 Mark as read + notification history page ✅ — `/notifications` page with full history, mark-read button, unread count endpoint
 
 ### Phase 10: Deploy ✅
-- [x] 10.1 Neon.tech PostgreSQL database ✅ — production database with connection pooling
+- [x] 10.1 Supabase PostgreSQL database ✅ — production database with connection pooling
 - [x] 10.2 Backend deploy ✅ — Fly.io with Dockerfile, health check, auto-deploy on push to main
 - [x] 10.3 Frontend deploy ✅ — Vercel with API proxy rewrites, custom build command
 - [x] 10.4 CI/CD pipeline ✅ — GitHub Actions: lint, type-check, test on PR + push to main

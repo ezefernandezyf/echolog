@@ -18,7 +18,7 @@ Collect, organize, and act on user feedback. Boards, upvoting, comments, and wor
 | Validation | Zod |
 | Testing | Vitest + React Testing Library |
 | E2E | Playwright |
-| Deploy | Vercel (frontend), Render (backend), Neon (DB) |
+| Deploy | Vercel (frontend), Render (backend), Supabase (DB) |
 
 ---
 
@@ -111,9 +111,9 @@ pnpm run dev:web      # terminal 2: frontend on :5173
 
 ## Deploy
 
-### Database - Neon
+### Database - Supabase
 
-1. Create a PostgreSQL database on [Neon](https://neon.tech)
+1. Create a PostgreSQL database on [Supabase](https://supabase.com)
 2. Copy the connection string (with `?sslmode=require`)
 3. Set as `DATABASE_URL` on Render
 
